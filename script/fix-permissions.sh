@@ -1,6 +1,6 @@
 #!/bin/bash
 # Re-grant Accessibility / Screen Recording after installing an update.
-# Usage: ./script/fix-permissions.sh [/path/to/Ice.app]
+# Usage: ./script/fix-permissions.sh [/path/to/Floe.app]
 #
 # Release builds are ad-hoc signed, so the app's designated requirement is a
 # pinned cdhash rather than a stable Developer ID. Every build has a different
@@ -9,28 +9,28 @@
 # Dropping the stale rows lets the next grant bind to the new signature.
 set -e
 
-APP="${1:-/Applications/Ice.app}"
-BUNDLE_ID="com.jordanbaird.Ice"
+APP="${1:-/Applications/Floe.app}"
+BUNDLE_ID="com.wudb.Floe"
 
 if [[ ! -d "$APP" ]]; then
   echo "not found: $APP"
-  echo "usage: $0 [/path/to/Ice.app]"
+  echo "usage: $0 [/path/to/Floe.app]"
   exit 1
 fi
 
-echo "Ice: $APP"
+echo "Floe: $APP"
 codesign -dvvv "$APP" 2>&1 | grep -E 'CDHash=|flags=' | sed 's/^/  /' || true
 echo
 
 # tccd caches authorization for a running process, so quit before resetting —
-# otherwise Ice stays half-denied until the next launch anyway. Match the
+# otherwise Floe stays half-denied until the next launch anyway. Match the
 # executable name rather than the bundle path: it is path-independent and never
 # treats the path as a regex (same form as script/run.sh).
-if pgrep -x Ice >/dev/null 2>&1; then
-  echo "quitting Ice"
-  osascript -e 'quit app "Ice"' 2>/dev/null || true
+if pgrep -x Floe >/dev/null 2>&1; then
+  echo "quitting Floe"
+  osascript -e 'quit app "Floe"' 2>/dev/null || true
   sleep 2
-  pkill -x Ice 2>/dev/null || true
+  pkill -x Floe 2>/dev/null || true
   sleep 1
 fi
 
@@ -53,18 +53,18 @@ for SERVICE in Accessibility ScreenCapture ListenEvent PostEvent; do
 done
 
 echo
-echo "relaunching Ice"
+echo "relaunching Floe"
 open "$APP"
 sleep 3
-pgrep -x Ice >/dev/null 2>&1 || echo "warning: Ice did not start"
+pgrep -x Floe >/dev/null 2>&1 || echo "warning: Floe did not start"
 
 cat <<'EOF'
 
 Now re-grant in System Settings > Privacy & Security:
   Accessibility      hiding and moving menu bar items
-  Screen Recording   menu bar item images, Ice Bar
+  Screen Recording   menu bar item images, Floe Bar
 
-If a greyed-out Ice entry is still listed, select it, press "-", then let Ice
+If a greyed-out Floe entry is still listed, select it, press "-", then let Floe
 prompt again.
 EOF
 

@@ -1,1 +1,4 @@
 *.rtf linguist-vendored
+
+# 保留 issue 原文中的换行，避免 Git 自动转换后与采集数据不一致。
+docs/upstream-open-issues.md -text

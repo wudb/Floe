@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Ice Build Script
+# Floe Build Script
 # This script builds the app and creates a DMG file in the release folder
 
 set -e
@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 RELEASE_DIR="$PROJECT_DIR/release"
-APP_NAME="Ice"
+APP_NAME="Floe"
 DMG_NAME="$APP_NAME.dmg"
 DESTINATION="platform=macOS,arch=arm64"
 # Ad-hoc sign: repo pins team K2ATHQPJDP which you don't have cert for
@@ -47,7 +47,7 @@ if [ $# -ge 1 ]; then
 fi
 
 echo -e "${YELLOW}========================================${NC}"
-echo -e "${YELLOW}   Ice Build Script${NC}"
+echo -e "${YELLOW}   Floe Build Script${NC}"
 echo -e "${YELLOW}========================================${NC}"
 echo ""
 

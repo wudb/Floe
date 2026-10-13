@@ -23,7 +23,7 @@ if [ "${XCODE_MAJOR:-0}" -lt 26 ]; then
 fi
 
 echo "==> xcodebuild Release (same flags as release.yml)"
-xcodebuild -project Ice.xcodeproj -scheme Ice -configuration Release \
+xcodebuild -project Floe.xcodeproj -scheme Floe -configuration Release \
   -destination 'platform=macOS,arch=arm64' \
   CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
   clean build >/dev/null

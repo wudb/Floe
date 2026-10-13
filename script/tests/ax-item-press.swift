@@ -1,15 +1,15 @@
 //
 //  ax-item-press.swift
-//  Ice
+//  Floe
 //
 
 // Executes production AX discovery/press logic against an in-memory Accessibility tree.
-// No UI actions, privacy grants, or running Ice app are needed.
+// No UI actions, privacy grants, or running Floe app are needed.
 import Foundation
 
 let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     .deletingLastPathComponent().deletingLastPathComponent().path
-var source = try String(contentsOfFile: repo + "/Ice/MenuBar/MenuBarItems/MenuBarItemAXDiscovery.swift", encoding: .utf8)
+var source = try String(contentsOfFile: repo + "/Floe/MenuBar/MenuBarItems/MenuBarItemAXDiscovery.swift", encoding: .utf8)
 // Replace only the OS boundary; discovery, item identity, and press selection remain production code.
 for name in ["AXUIElement", "NSRunningApplication", "AXIsProcessTrusted", "AXUIElementGetTypeID",
              "AXUIElementCreateApplication", "AXUIElementSetMessagingTimeout",
@@ -85,7 +85,7 @@ check("stale selection never falls back to battery", stale: true)
 check("denied Accessibility permission performs no action", permission: false)
 exit(failures == 0 ? 0 : 1)
 """#
-let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ice-ax-regression-\(UUID().uuidString)")
+let directory = FileManager.default.temporaryDirectory.appendingPathComponent("floe-ax-regression-\(UUID().uuidString)")
 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 let generated = directory.appendingPathComponent("ax-test-generated.swift")
 try (fixtures + "\n" + source + "\n" + tests).write(to: generated, atomically: true, encoding: .utf8)

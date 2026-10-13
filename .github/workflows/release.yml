@@ -46,30 +46,31 @@ jobs:
           echo "Building version $VERSION ($BUILD_NUMBER)"
       - name: Build app
         run: |
-          xcodebuild -project Ice.xcodeproj -scheme Ice -configuration Release \
+          xcodebuild -project Floe.xcodeproj -scheme Floe -configuration Release \
             -destination 'platform=macOS,arch=arm64' \
             CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
             MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             clean build
-          BUILD_DIR=$(xcodebuild -project Ice.xcodeproj -scheme Ice -configuration Release \
+          BUILD_DIR=$(xcodebuild -project Floe.xcodeproj -scheme Floe -configuration Release \
             -destination 'platform=macOS,arch=arm64' \
             MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             -showBuildSettings 2>/dev/null \
             | sed -n 's/^ *BUILT_PRODUCTS_DIR *= *//p' | head -1)
-          echo "APP_PATH=$BUILD_DIR/Ice.app" >> $GITHUB_ENV
+          echo "APP_PATH=$BUILD_DIR/Floe.app" >> $GITHUB_ENV
           echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
       - name: Zip and publish to GitHub Release
         run: |
           codesign --force --deep --sign - "$APP_PATH"
-          ditto -c -k --keepParent "$APP_PATH" Ice.zip
+          ditto -c -k --keepParent "$APP_PATH" Floe.zip
       - uses: softprops/action-gh-release@v2
         with:
-          files: Ice.zip
+          files: Floe.zip
           generate_release_notes: true
   update-homebrew:
     needs: release
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.ref, '-') }} # Skip for pre-releases
+    # 只有配置 Floe 自己的 tap 后才发布 Homebrew 元数据。
+    if: ${{ vars.FLOE_HOMEBREW_TAP != '' && !contains(github.ref, '-') }}
     steps:
       - name: Derive version from tag
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
@@ -77,40 +78,38 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "SHA256=$(gh api repos/cavaldos/Ice/releases/tags/$GITHUB_REF_NAME \
-            --jq '.assets[] | select(.name == "Ice.zip") | .digest' \
+          echo "SHA256=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$GITHUB_REF_NAME" \
+            --jq '.assets[] | select(.name == "Floe.zip") | .digest' \
             | sed 's/sha256://')" >> $GITHUB_ENV
       - name: Checkout homebrew-tap
         uses: actions/checkout@v4
         with:
-          repository: cavaldos/homebrew-tap
+          repository: ${{ vars.FLOE_HOMEBREW_TAP }}
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           path: homebrew-tap
       - name: Update cask
         run: |
-          cat > homebrew-tap/Casks/ice.rb << 'EOF'
-          cask "ice" do
+          cat > homebrew-tap/Casks/floe.rb << 'EOF'
+          cask "floe" do
             version "${{ env.VERSION }}"
             sha256 "${{ env.SHA256 }}"
 
-            url "https://github.com/cavaldos/Ice/releases/download/v#{version}/Ice.zip"
-            name "Ice"
+            url "${{ github.server_url }}/${{ github.repository }}/releases/download/v#{version}/Floe.zip"
+            name "Floe"
             desc "Free and open-source menu bar manager for macOS"
-            homepage "https://icemenubar.app"
+            homepage "${{ github.server_url }}/${{ github.repository }}"
 
             depends_on macos: :sonoma
-            conflicts_with cask: "jordanbaird-ice"
-
-            app "Ice.app"
+            app "Floe.app"
 
             zap trash: [
-              "~/Library/Preferences/com.jordanbaird.Ice.plist",
+              "~/Library/Preferences/com.wudb.Floe.plist",
             ]
 
             caveats <<~EOS
-              Ice is ad-hoc signed. On first launch, right-click the app and choose Open.
+              Floe is ad-hoc signed. On first launch, right-click the app and choose Open.
               After every update, re-grant Accessibility and Screen Recording in
-              System Settings > Privacy & Security (see https://github.com/cavaldos/Ice#permissions).
+              System Settings > Privacy & Security (see ${{ github.server_url }}/${{ github.repository }}).
             EOS
           end
           EOF
@@ -119,10 +118,10 @@ jobs:
           cd homebrew-tap
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Casks/ice.rb
-          git diff --cached --quiet || git commit -m "ice ${{ env.VERSION }}"
+          git add Casks/floe.rb
+          git diff --cached --quiet || git commit -m "floe ${{ env.VERSION }}"
           git push
 # After the Release finishes, publish the appcast so installed apps see it:
 #   ./script/update-appcast.sh <tag> --key <private-key.pem>
-# (pushes appcast.xml to the ice-releases repo; SUFeedURL https://cavaldos.github.io/ice-releases/appcast.xml)
+# Configure FLOE_RELEASES_REPO, SUFeedURL and SUPublicEDKey for Floe first.
 # ponytail: ad-hoc signing is for internal testing only, public releases need Developer ID + notarization

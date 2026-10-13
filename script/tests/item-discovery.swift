@@ -1,6 +1,6 @@
 //
 //  item-discovery.swift
-//  Ice
+//  Floe
 //
 
 // Runs the actual cacheItemsIfNeeded method with controlled WindowServer inputs.
@@ -9,7 +9,7 @@ import Foundation
 
 let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     .deletingLastPathComponent().deletingLastPathComponent().path
-let source = try String(contentsOfFile: repo + "/Ice/MenuBar/MenuBarItems/MenuBarItemManager.swift", encoding: .utf8)
+let source = try String(contentsOfFile: repo + "/Floe/MenuBar/MenuBarItems/MenuBarItemManager.swift", encoding: .utf8)
 let start = source.range(of: "    func cacheItemsIfNeeded(force:")!.lowerBound
 let end = source.range(of: "\n}\n\n// MARK: - Menu Bar Item Events", range: start..<source.endIndex)!.lowerBound
 let method = String(source[start..<end])
@@ -88,7 +88,7 @@ let tests = #"""
         let multipleWindows = Manager()
         input([11, 22], all: [11, 22, 33])
         await multipleWindows.cacheItemsIfNeeded()
-        expect(multipleWindows.isItemDiscoveryUnavailable, "multiple windows without Ice's divider select Accessibility fallback")
+        expect(multipleWindows.isItemDiscoveryUnavailable, "multiple windows without Floe's divider select Accessibility fallback")
 
         let recovery = Manager()
         input([11])
@@ -117,7 +117,7 @@ let tests = #"""
     }
 }
 """#
-let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ice-regression-\(UUID().uuidString)")
+let directory = FileManager.default.temporaryDirectory.appendingPathComponent("floe-regression-\(UUID().uuidString)")
 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 let generated = directory.appendingPathComponent("discovery-test-generated.swift")
 try (prelude + "\n" + idsDeclaration + "\n" + method + "\n" + tests).write(to: generated, atomically: true, encoding: .utf8)

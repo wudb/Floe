@@ -1,6 +1,6 @@
 //
 //  ax-row-filter.swift
-//  Ice
+//  Floe
 //
 
 // Exercises the actual AX row scan and shared classifier with controlled discovery geometry.
@@ -8,8 +8,8 @@ import Foundation
 
 let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     .deletingLastPathComponent().deletingLastPathComponent().path
-let source = try String(contentsOfFile: repo + "/Ice/UI/IceBar/IceBar.swift", encoding: .utf8)
-let discovery = try String(contentsOfFile: repo + "/Ice/MenuBar/MenuBarItems/MenuBarItemAXDiscovery.swift", encoding: .utf8)
+let source = try String(contentsOfFile: repo + "/Floe/UI/FloeBar/FloeBar.swift", encoding: .utf8)
+let discovery = try String(contentsOfFile: repo + "/Floe/MenuBar/MenuBarItems/MenuBarItemAXDiscovery.swift", encoding: .utf8)
 func method(_ signature: String, in source: String) -> String {
     let start = source.range(of: signature)!.lowerBound
     let end = source.range(of: "\n    }\n", range: start..<source.endIndex)!.upperBound
@@ -78,7 +78,7 @@ enum MenuBarOverlayPanelContentView {
     static func currentTrailingVisibleWidth(for displayID: Int) -> CGFloat? { width }
 }
 struct Logger {
-    static let iceBar = Logger()
+    static let floeBar = Logger()
     func info(_ message: String) {}
 }
 @MainActor final class Content {
@@ -125,7 +125,7 @@ struct Logger {
 }
 await runTests()
 """#
-let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ice-row-filter-test-\(UUID().uuidString)")
+let directory = FileManager.default.temporaryDirectory.appendingPathComponent("floe-row-filter-test-\(UUID().uuidString)")
 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 let generated = directory.appendingPathComponent("row-filter.swift")
 try fixtures.replacingOccurrences(of: "    // PRODUCTION_CLASSIFICATION", with: classification)

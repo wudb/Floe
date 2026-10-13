@@ -1,5 +1,5 @@
 #!/bin/bash
-# Step 1: tag + push to trigger CI (CI builds Ice.zip on the GitHub Release).
+# Step 1: tag + push to trigger CI (CI builds Floe.zip on the GitHub Release).
 # Usage: ./script/release.sh vX.Y.Z   (e.g. ./script/release.sh v0.11.13)
 # Next:  wait for CI green, then ./script/update-appcast.sh vX.Y.Z
 set -e
