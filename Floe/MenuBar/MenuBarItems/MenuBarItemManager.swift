@@ -464,25 +464,25 @@ extension MenuBarItemManager {
         var message: String {
             switch code {
             case .couldNotComplete:
-                "Could not complete event operation for \"\(item.displayName)\""
+                L10n.string("Could not complete event operation for \"%@\"", item.displayName)
             case .eventCreationFailure:
-                "Failed to create event for \"\(item.displayName)\""
+                L10n.string("Failed to create event for \"%@\"", item.displayName)
             case .invalidAppState:
-                "Invalid app state for \"\(item.displayName)\""
+                L10n.string("Invalid app state for \"%@\"", item.displayName)
             case .invalidEventSource:
-                "Invalid event source for \"\(item.displayName)\""
+                L10n.string("Invalid event source for \"%@\"", item.displayName)
             case .invalidCursorLocation:
-                "Invalid cursor location for \"\(item.displayName)\""
+                L10n.string("Invalid cursor location for \"%@\"", item.displayName)
             case .invalidItem:
-                "\"\(item.displayName)\" is invalid"
+                L10n.string("\"%@\" is invalid", item.displayName)
             case .notMovable:
-                "\"\(item.displayName)\" is not movable"
+                L10n.string("\"%@\" is not movable", item.displayName)
             case .eventOperationTimeout:
-                "Event operation timed out for \"\(item.displayName)\""
+                L10n.string("Event operation timed out for \"%@\"", item.displayName)
             case .frameCheckTimeout:
-                "Frame check timed out for \"\(item.displayName)\""
+                L10n.string("Frame check timed out for \"%@\"", item.displayName)
             case .otherTimeout:
-                "Operation timed out for \"\(item.displayName)\""
+                L10n.string("Operation timed out for \"%@\"", item.displayName)
             }
         }
 
@@ -501,7 +501,7 @@ extension MenuBarItemManager {
 
         /// Suggestion for recovery from the error.
         var recoverySuggestion: String? {
-            "Please try again. If the error persists, please file a bug report."
+            L10n.string("Please try again. If the error persists, please file a bug report.")
         }
     }
 }
@@ -1382,7 +1382,7 @@ extension MenuBarItemManager {
 
         guard let targetItem = items.first else {
             let alert = NSAlert()
-            alert.messageText = "Not enough room to show \"\(item.displayName)\""
+            alert.messageText = L10n.string("Not enough room to show \"%@\"", item.displayName)
             alert.runModal()
             return
         }

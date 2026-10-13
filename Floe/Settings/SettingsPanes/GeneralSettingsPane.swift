@@ -7,6 +7,7 @@ import LaunchAtLogin
 import SwiftUI
 
 struct GeneralSettingsPane: View {
+    @ObservedObject private var languageManager = LanguageManager.shared
     @EnvironmentObject var appState: AppState
     @State private var isImportingCustomFloeIcon = false
     @State private var isPresentingError = false
@@ -39,9 +40,9 @@ struct GeneralSettingsPane: View {
     private var rehideIntervalKey: LocalizedStringKey {
         let formatted = manager.rehideInterval.formatted()
         if manager.rehideInterval == 1 {
-            return LocalizedStringKey(formatted + " second")
+            return LocalizedStringKey("\(formatted) second")
         } else {
-            return LocalizedStringKey(formatted + " seconds")
+            return LocalizedStringKey("\(formatted) seconds")
         }
     }
 
@@ -89,6 +90,12 @@ struct GeneralSettingsPane: View {
     var body: some View {
         FloeForm {
             FloeSection {
+                FloeLabeledContent("Language") {
+                    AppLanguagePicker(selection: $languageManager.selection)
+                }
+                .annotation("Follow your system language, or choose a language for Floe")
+            }
+            FloeSection {
                 launchAtLogin
             }
             FloeSection {
@@ -127,13 +134,13 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var launchAtLogin: some View {
-        LaunchAtLogin.Toggle()
+        LaunchAtLogin.Toggle("Launch at login")
     }
 
     @ViewBuilder
     private func menuItem(for imageSet: ControlItemImageSet) -> some View {
         Label {
-            Text(imageSet.name.rawValue)
+            Text(LocalizedStringKey(imageSet.name.rawValue))
         } icon: {
             let image = manager.reverseFloeIcon ? imageSet.hidden : imageSet.visible
             if let nsImage = image.nsImage(for: appState) {

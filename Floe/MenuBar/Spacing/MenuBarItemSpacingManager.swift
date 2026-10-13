@@ -32,7 +32,7 @@ final class MenuBarItemSpacingManager {
         }
 
         var recoverySuggestion: String? {
-            "You may need to log out for the changes to take effect."
+            L10n.string("You may need to log out for the changes to take effect.")
         }
     }
 

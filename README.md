@@ -1,7 +1,9 @@
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 <div align="center">
     <img src="Floe/Assets.xcassets/AppIcon.appiconset/icon_256x256.png" width=200 height=200>
     <h1>Floe — Free & Open-Source Menu Bar Manager for macOS</h1>
-    <p>Hide and organize menu bar icons on your Mac. The best <strong>free Bartender alternative</strong> — also a great <strong>Hidden Bar</strong> and <strong>Vanilla alternative</strong> — focused on stability and a smooth, distraction-free experience.<br>✅ <strong>Fully supports macOS 27</strong></p>
+    <p>Hide and organize menu bar icons on your Mac to keep your menu bar tidy.</p>
 </div>
 
 ![Floe menu bar manager for macOS — hide and organize menu bar icons](./Resources/Image/banner.png)
@@ -12,7 +14,6 @@
 [![Downloads](https://img.shields.io/github/downloads/wudb/Floe/total?style=flat-square)](https://github.com/wudb/Floe/releases)
 ![Platform](https://img.shields.io/badge/platform-macOS-blue?style=flat-square)
 ![Requirements](https://img.shields.io/badge/requirements-macOS%2014%2B-fa4e49?style=flat-square)
-![macOS 27](https://img.shields.io/badge/macOS_27-fully_supported-brightgreen?style=flat-square)
 [![GitHub stars](https://img.shields.io/github/stars/wudb/Floe?style=flat-square)](https://github.com/wudb/Floe/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/wudb/Floe?style=flat-square)](https://github.com/wudb/Floe/network/members)
 [![Repository](https://img.shields.io/badge/Repository-GitHub-015FBA?style=flat-square)](https://github.com/wudb/Floe)
@@ -30,8 +31,7 @@
 > [!NOTE]
 > Floe is in active development. Grab the latest build from the [releases page](https://github.com/wudb/Floe/releases/latest).
 
-> [!TIP]
-> ✅ **Fully supports macOS 27** — tested and ready for the latest macOS, all the way back to macOS 14 Sonoma.
+Floe requires macOS 14 Sonoma or later. See the [issues milestones](docs/issues_milestone.md) for macOS 26/27 compatibility work and validation scope.
 
 ## Install
 
@@ -51,6 +51,14 @@ For local development, open `Floe.xcodeproj` and select the `Floe` scheme, or se
 
 Floe uses the bundle identifier `com.wudb.Floe`, with separate preferences and privacy permissions from Ice. Grant Accessibility and Screen Recording to Floe on first launch. Automatic updates are disabled until Floe has its own update feed and signing key.
 
+## Language
+
+Open **Settings → General → Language** and choose **Follow System**, **English**,
+or **简体中文**. The default follows the system's primary preferred language.
+Simplified Chinese is supported; unsupported languages (including Traditional
+Chinese) fall back to English. Your selection is saved and applies immediately
+without restarting Floe.
+
 ## Permissions
 
 In System Settings → Privacy & Security, grant Accessibility and Screen Recording
@@ -64,6 +72,8 @@ previous grants no longer match the new signature.
 
 
 ## Gallery
+
+These demonstrations come from the upstream project. Some images still show the upstream name or an older interface.
 
 **Always-Hidden section demo — hide menu bar icons and reveal on hover**
 
@@ -87,12 +97,14 @@ previous grants no longer match the new signature.
 | ![Menu bar appearance theme settings](./Resources/Image/MenuBarAppearance.png) | ![Menu bar icon spacing settings](https://github.com/user-attachments/assets/b196aa7e-184a-4d4c-b040-502f4aae40a6) |
 
 
-> ✅ **macOS 27 fully supported** — works on macOS 14 Sonoma and later, including Sequoia, Tahoe, and macOS 27. If you need a similar tool for macOS 13 Ventura or earlier, check out [Ice 0.11.x](https://github.com/jordanbaird/Ice/releases).
+If you need a similar tool for macOS 13 Ventura or earlier, check out [Ice 0.11.x](https://github.com/jordanbaird/Ice/releases).
 
 
 ## Contributing
 
 Contributions are welcome! Please read the [contribution guidelines](./Resources/document/CONTRIBUTING.md) before submitting a pull request.
+
+Maintain new visible strings in both `Floe/Resources/en.lproj/Localizable.strings` and `Floe/Resources/zh-Hans.lproj/Localizable.strings`. Use localization keys in SwiftUI and `L10n.string` for native menus and alerts; keep persisted identifiers, application names, and upstream links unchanged.
 
 ## Support Upstream
 

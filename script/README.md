@@ -17,6 +17,25 @@ Local dev and release helpers. Run from the repository root.
 
 Install SwiftLint first if needed: `brew install swiftlint`.
 
+## Language regression checks
+
+```bash
+swift script/tests/app-language.swift
+```
+
+Covers system-language matching, fallback to English, saved selections, native
+menu localization and formatted messages without changing system preferences.
+
+## Menu bar AX thread regression checks
+
+```bash
+swift script/tests/menu-bar-ax-probe.swift
+```
+
+Compiles the production probe with a controlled AX service. Checks that both
+main-thread and background callers perform hit testing and attribute reads on
+the main thread, return value snapshots, and finish without deadlocking.
+
 ## Floe Bar regression checks
 
 ```bash

@@ -10,7 +10,7 @@ import AppKit
 /// The prompt is shown exactly once per app version, and only when that
 /// version was installed as an update on top of a previously launched version.
 /// It never appears on a fresh first install, and it can be permanently
-/// dismissed with the "Never" button.
+/// dismissed with the "Don’t Ask Again" button.
 enum StarRequestPrompt {
     /// The repository URL for the project.
     static let repositoryURL = URL(string: "https://github.com/wudb/Floe") ?? URL(fileURLWithPath: "/")
@@ -55,15 +55,15 @@ enum StarRequestPrompt {
     @MainActor
     private static func present(appState: AppState) {
         let alert = NSAlert()
-        alert.messageText = "Enjoying Floe?"
-        alert.informativeText = """
-            You just updated to Floe \(Constants.versionString). \
-            If Floe has been useful to you, a GitHub star helps other people find it.
-            """
+        alert.messageText = L10n.string("Enjoying Floe?")
+        alert.informativeText = L10n.string(
+            "You just updated to Floe %@. If Floe has been useful to you, a GitHub star helps other people find it.",
+            Constants.versionString
+        )
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "Star on GitHub")
-        alert.addButton(withTitle: "Maybe Later")
-        alert.addButton(withTitle: "Never")
+        alert.addButton(withTitle: L10n.string("Star on GitHub"))
+        alert.addButton(withTitle: L10n.string("Maybe Later"))
+        alert.addButton(withTitle: L10n.string("Don’t Ask Again"))
 
         // Floe runs as a hidden background app (LSUIElement), so it must be
         // activated before the alert can receive input — otherwise the alert

@@ -6,11 +6,13 @@
 import SwiftUI
 
 struct PermissionsWindow: Scene {
+    @ObservedObject private var languageManager = LanguageManager.shared
     @ObservedObject var appState: AppState
 
     var body: some Scene {
-        Window(Constants.permissionsWindowTitle, id: Constants.permissionsWindowID) {
+        Window(L10n.string("Permissions"), id: Constants.permissionsWindowID) {
             PermissionsView()
+                .appLanguage()
                 .readWindow { window in
                     guard let window else {
                         return

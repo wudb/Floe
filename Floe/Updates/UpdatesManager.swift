@@ -96,7 +96,7 @@ final class UpdatesManager: NSObject, ObservableObject {
         #if DEBUG
         // Checking for updates hangs in debug mode.
         let alert = NSAlert()
-        alert.messageText = "Checking for updates is not supported in debug mode."
+        alert.messageText = L10n.string("Checking for updates is not supported in debug mode.")
         alert.runModal()
         #else
         guard let appState else {
@@ -168,8 +168,8 @@ extension UpdatesManager: @preconcurrency SPUStandardUserDriverDelegate {
         } else if !state.userInitiated {
             appState.userNotificationManager.addRequest(
                 with: .updateCheck,
-                title: "A new update is available",
-                body: "Version \(update.displayVersionString) is now available"
+                title: L10n.string("A new update is available"),
+                body: L10n.string("Version %@ is now available", update.displayVersionString)
             )
         }
     }

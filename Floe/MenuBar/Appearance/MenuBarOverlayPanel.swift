@@ -1345,24 +1345,21 @@ final class MenuBarOverlayPanelContentView: NSView {
         displayBounds: CGRect,
         appMenuPid: pid_t?
     ) -> CGRect? {
-        guard let element = try? systemWideElement.elementAtPosition(Float(x), y) else {
+        guard let snapshot = MenuBarAXProbe.snapshot(atX: Float(x), y: y) else {
             return nil
         }
-        let role: String? = try? element.attribute("AXRole")
-        if role == "AXMenuBar" {
+        if snapshot.role == "AXMenuBar" {
             return nil
         }
-        let frame: CGRect? = try? element.attribute("AXFrame")
-        let pid: pid_t? = try? element.pid()
         guard
-            isTrailingStatusElement(role: role, pid: pid, appMenuPid: appMenuPid),
-            let frame,
+            isTrailingStatusElement(role: snapshot.role, pid: snapshot.pid, appMenuPid: appMenuPid),
+            let frame = snapshot.frame,
             frame.width > 0, frame.height > 0, frame.height <= 50,
             frame.minY <= displayBounds.origin.y + 10
         else {
             return nil
         }
-        if let pid, pid == ProcessInfo.processInfo.processIdentifier, frame.width > 200 {
+        if snapshot.pid == ProcessInfo.processInfo.processIdentifier, frame.width > 200 {
             // Floe's own control item: the expanded spacer that pushes a hidden
             // section offscreen is a 300–700pt placeholder, not a status icon.
             // Measuring it inflated the pill by ~110pt and kept it from ever
@@ -1526,26 +1523,24 @@ final class MenuBarOverlayPanelContentView: NSView {
                     insideHit = true
                     break outer
                 }
-                guard let element = try? systemWideElement.elementAtPosition(
-                    Float(px),
-                    y
+                guard let snapshot = MenuBarAXProbe.snapshot(
+                    atX: Float(px),
+                    y: y
                 ) else {
                     continue
                 }
-                let role: String? = try? element.attribute("AXRole")
+                let role = snapshot.role
                 if role == "AXMenu" || role == "AXMenuItem" {
                     return .valid
                 }
                 if role == "AXMenuBar" {
                     continue
                 }
-                let pid: pid_t? = try? element.pid()
-                guard isTrailingStatusElement(role: role, pid: pid, appMenuPid: appMenuPid) else {
+                guard isTrailingStatusElement(role: role, pid: snapshot.pid, appMenuPid: appMenuPid) else {
                     continue
                 }
-                let frame: CGRect? = try? element.attribute("AXFrame")
                 if
-                    let frame,
+                    let frame = snapshot.frame,
                     frame.width > 0, frame.height > 0, frame.height <= 50,
                     frame.minY <= displayBounds.origin.y + 10
                 {
@@ -1611,10 +1606,10 @@ final class MenuBarOverlayPanelContentView: NSView {
             return
         }
         let y = Float(displayBounds.origin.y + 16)
-        let appMenuPid: pid_t? = try? systemWideElement.elementAtPosition(
-            Float(displayBounds.origin.x + 2),
-            y
-        )?.pid()
+        let appMenuPid = MenuBarAXProbe.snapshot(
+            atX: Float(displayBounds.origin.x + 2),
+            y: y
+        )?.pid
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let indicators = Self.captureIndicatorFrames(for: display)
             let verdict = Self.validateTrailingEdge(
@@ -1713,10 +1708,10 @@ final class MenuBarOverlayPanelContentView: NSView {
             return nil
         }
         let y = Float(displayBounds.origin.y + 16)
-        let appMenuPid: pid_t? = try? systemWideElement.elementAtPosition(
-            Float(displayBounds.origin.x + 2),
-            y
-        )?.pid()
+        let appMenuPid = MenuBarAXProbe.snapshot(
+            atX: Float(displayBounds.origin.x + 2),
+            y: y
+        )?.pid
         let rows: [Float] = [
             Float(displayBounds.origin.y + 16),
             Float(displayBounds.origin.y + 10),
@@ -1817,10 +1812,10 @@ final class MenuBarOverlayPanelContentView: NSView {
         let y = Float(displayBounds.origin.y + 16)
         // Middle of the (now 33pt on macOS 27) bar hits items reliably;
         // the top edge can return the WindowManager glass container instead.
-        let appMenuPid: pid_t? = (try? systemWideElement.elementAtPosition(
-            Float(displayBounds.origin.x + 2),
-            y
-        )?.pid())
+        let appMenuPid = MenuBarAXProbe.snapshot(
+            atX: Float(displayBounds.origin.x + 2),
+            y: y
+        )?.pid
 
         var leftmostX: CGFloat?
         var maxHeight: CGFloat = 0

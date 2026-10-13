@@ -304,6 +304,7 @@ private final class FloeBarHostingView: NSHostingView<AnyView> {
     ) {
         super.init(
             rootView: FloeBarContentView(screen: screen, section: section, closePanel: closePanel)
+                .appLanguage()
                 .environmentObject(appState)
                 .environmentObject(appState.imageCache)
                 .environmentObject(appState.itemManager)

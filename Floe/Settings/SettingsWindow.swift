@@ -11,6 +11,7 @@ struct SettingsWindow: Scene {
     var body: some Scene {
         Window("", id: Constants.settingsWindowID) {
             SettingsView()
+                .appLanguage()
                 .tint(.blue)
                 .readWindow { window in
                     guard let window else {

@@ -144,9 +144,9 @@ struct MenuBarLayoutSettingsPane: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 Image(systemName: meta.icon)
-                Text(meta.title)
+                Text(LocalizedStringKey(meta.title))
                     .font(.headline)
-                Text(meta.subtitle)
+                Text(LocalizedStringKey(meta.subtitle))
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
@@ -157,7 +157,7 @@ struct MenuBarLayoutSettingsPane: View {
                     newItemPlaceholder
                 }
                 if items.isEmpty {
-                    Text(meta.emptyHint)
+                    Text(LocalizedStringKey(meta.emptyHint))
                         .font(.callout)
                         .foregroundStyle(.tertiary)
                         .padding(.vertical, 8)
@@ -227,7 +227,7 @@ struct MenuBarLayoutSettingsPane: View {
                 .frame(maxWidth: 68)
         }
         .frame(width: 68)
-        .help(pending ? "\(item.subtitle ?? item.title) — đang di chuyển…" : (item.subtitle ?? item.title))
+        .help(pending ? L10n.string("%@ — moving…", item.subtitle ?? item.title) : (item.subtitle ?? item.title))
         .opacity(pending ? 0.7 : 1)
         .overlay {
             // Blue outline on drag hover: releasing inserts before this icon.

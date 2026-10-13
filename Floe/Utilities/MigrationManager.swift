@@ -244,8 +244,8 @@ extension MigrationManager {
             }
 
             let alert = NSAlert()
-            alert.messageText = "Due to a bug in the 0.10.0 release, the data for Floe's menu bar items was corrupted and their positions had to be reset."
-            alert.informativeText = "Our sincerest apologies for the inconvenience."
+            alert.messageText = L10n.string("Due to a bug in the 0.10.0 release, the data for Floe's menu bar items was corrupted and their positions had to be reset.")
+            alert.informativeText = L10n.string("Our sincerest apologies for the inconvenience.")
 
             return .successButShowAlert(alert)
         }

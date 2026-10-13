@@ -514,7 +514,7 @@ final class ControlItem {
         let menu = NSMenu(title: "Floe")
 
         let settingsItem = NSMenuItem(
-            title: "Floe Settings…",
+            title: L10n.string("Floe Settings…"),
             action: #selector(AppDelegate.openSettingsWindow),
             keyEquivalent: ","
         )
@@ -534,7 +534,7 @@ final class ControlItem {
                 continue
             }
             let item = NSMenuItem(
-                title: "\(section.isHidden ? "Show" : "Hide") the \(name.displayString) Section",
+                title: L10n.string(section.isHidden ? "Show the %@ Section" : "Hide the %@ Section", L10n.string(name.displayString)),
                 action: #selector(toggleMenuBarSection),
                 keyEquivalent: ""
             )
@@ -566,7 +566,7 @@ final class ControlItem {
         menu.addItem(.separator())
 
         let checkForUpdatesItem = NSMenuItem(
-            title: "Check for Updates…",
+            title: L10n.string("Check for Updates…"),
             action: #selector(checkForUpdates),
             keyEquivalent: ""
         )
@@ -576,7 +576,7 @@ final class ControlItem {
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: "Quit Floe",
+            title: L10n.string("Quit Floe"),
             action: #selector(NSApp.terminate),
             keyEquivalent: "q"
         )
