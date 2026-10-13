@@ -26,8 +26,9 @@ DEV_APP="${FLOE_DEV_APP:-/Applications/Floe-Dev.app}"
 DEST="platform=macOS,arch=arm64"
 
 SIGN_ARGS=()
+# ad-hoc 无 Team ID，关闭库验证所属的 hardened runtime，避免 Sparkle 启动失败。
 if [ "$IDENTITY" = "-" ]; then
-    SIGN_ARGS=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=)
+    SIGN_ARGS=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= ENABLE_HARDENED_RUNTIME=NO)
 elif security find-certificate -c "$IDENTITY" >/dev/null 2>&1; then
     SIGN_ARGS=(CODE_SIGN_STYLE=Manual "CODE_SIGN_IDENTITY=$IDENTITY" "DEVELOPMENT_TEAM=${FLOE_DEVELOPMENT_TEAM:-}")
 else
@@ -35,7 +36,9 @@ else
     echo "   One-time setup: Keychain Access > Certificate Assistant > Create a Certificate…"
     echo "   Name: $IDENTITY | Identity Type: Self Signed Root | Certificate Type: Code Signing"
     echo "   Then re-run this script, or force ad-hoc: FLOE_CODE_SIGN_IDENTITY=- ./script/dev.sh"
-    SIGN_ARGS=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=)
+    # 后续重新签名也必须采用实际的回退身份，不能继续使用缺失的证书。
+    IDENTITY="-"
+    SIGN_ARGS=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= ENABLE_HARDENED_RUNTIME=NO)
 fi
 
 echo "→ Building Debug (sign: ${IDENTITY})…"

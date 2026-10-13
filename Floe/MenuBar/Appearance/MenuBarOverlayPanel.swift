@@ -67,6 +67,9 @@ final class MenuBarOverlayPanel: NSPanel {
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
+    /// 每个面板在菜单栏持续不可用时只记录一次，恢复后允许记录下一次异常。
+    private var hasLoggedMissingMenuBar = false
+
     /// The context that manages panel update tasks.
     private let updateTaskContext = UpdateTaskContext()
 
@@ -265,9 +268,13 @@ final class MenuBarOverlayPanel: NSPanel {
         }
         let owningDisplay = owningScreen.displayID
         guard appState.menuBarManager.hasValidMenuBar(in: windows, for: owningDisplay) else {
-            Logger.overlayPanel.debug("No valid menu bar found. \(actionMessage)")
+            if !hasLoggedMissingMenuBar {
+                hasLoggedMissingMenuBar = true
+                Logger.overlayPanel.debug("No valid menu bar found. \(actionMessage)")
+            }
             return nil
         }
+        hasLoggedMissingMenuBar = false
         return owningDisplay
     }
 
@@ -1883,7 +1890,6 @@ final class MenuBarOverlayPanelContentView: NSView {
         guard width < scanWindow - 10 else {
             return nil
         }
-        Logger.overlayPanel.debug("Trailing scan: coarse=\(coarseX) refined=\(refined.x) axLeft=\(axLeft) width=\(width) fullBleed=\(fullBleed) capture=\(captureActive) indicators=\(indicators)")
         return (width, fullBleed, captureActive)
     }
 

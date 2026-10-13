@@ -23,9 +23,10 @@ if [ "${XCODE_MAJOR:-0}" -lt 26 ]; then
 fi
 
 echo "==> xcodebuild Release (same flags as release.yml)"
+# ad-hoc 构建需要关闭 hardened runtime；构建成功不代表 dyld 可加载 Sparkle。
 xcodebuild -project Floe.xcodeproj -scheme Floe -configuration Release \
   -destination 'platform=macOS,arch=arm64' \
-  CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+  CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= ENABLE_HARDENED_RUNTIME=NO \
   clean build >/dev/null
 echo "build OK"
 

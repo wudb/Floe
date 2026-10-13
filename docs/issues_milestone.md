@@ -39,7 +39,7 @@
 
 | 里程碑 | 目标 | 条目数 | 阶段状态 | 前置依赖 |
 | --- | --- | ---: | --- | --- |
-| M0 | 工程与证据基线 | 9 | 基础工程已完成；补齐复现基线 | 无；P0 调查立即开始 |
+| M0 | 工程与证据基线 | 9 | 工程/适配继承已核对；报告级验收未完成 | 无；P0 调查立即开始 |
 | M1 | 稳定性与基础图标发现 | 83 | 当前第一批缺陷工作 | M0 可复现基线 |
 | M2 | 分区管理与完整交互 | 63 | 核心链路第二批 | M1 的发现与稳定性 |
 | M3 | 多屏、系统模式与应用兼容 | 94 | 核心链路第三批 | M1 + M2；可独立复现的缺陷可提前处理 |
@@ -81,6 +81,8 @@
 ## 各阶段工作包与验收
 
 ### M0：工程与证据基线
+
+2026-10-13 处理记录：[M0 核对与验证](m0-issue-audit.md)。9 条已逐条初审，完整修复 **0** 条，部分修复 **1** 条（#1006 本地启动），待处理仍为 **9** 条；状态已在索引标记。Debug/Release、严格 lint 与 7 个受控回归通过；直接上游 26/27 适配已确认继承，但未确认每条旧报告已消失。无需以具备对应系统环境作为继续开发的前置条件。
 
 范围：明确支持矩阵、签名与权限、复现数据格式；判断 PR #995 报告的实现适用性。
 
@@ -202,10 +204,10 @@
 
 | 里程碑 | 工作包 | Issue | 标题原文 | 安排理由 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| M0 | B1 | [jordanbaird/Ice #633](https://github.com/jordanbaird/Ice/issues/633) | [Bug]:macOS Tahoe 26中ice无法正常使用 | 报告系统升级后基本不可用，但缺少具体链路；优先补证据，随后转入对应缺陷里程碑。 | 适用性/材料待确认 |
-| M0 | B1 | [jordanbaird/Ice #954](https://github.com/jordanbaird/Ice/issues/954) | [Bug]: Ice in menu bar not working anymore (MacOS Golden Gate 27) | 报告基本功能异常但根因/场景不清晰，优先补最小复现后转入对应工作包。 | 适用性/材料待确认 |
-| M0 | B1 | [jordanbaird/Ice #957](https://github.com/jordanbaird/Ice/issues/957) | [Bug]: Starts but nothing much more | 报告基本功能异常但根因/场景不清晰，优先补最小复现后转入对应工作包。 | 适用性/材料待确认 |
-| M0 | B1 | [jordanbaird/Ice #991](https://github.com/jordanbaird/Ice/issues/991) | [Bug]: MacOS 27 Update | 报告系统升级后基本不可用，但缺少具体链路；优先补证据，随后转入对应缺陷里程碑。 | 适用性/材料待确认 |
+| M0 | B1 | [jordanbaird/Ice #633](https://github.com/jordanbaird/Ice/issues/633) | [Bug]:macOS Tahoe 26中ice无法正常使用 | 正文已明确展开后退出；评论有上游 beta 修复线索，需保留崩溃栈并在对应系统复测。 | 适配已继承 · 报告级修复未确认 |
+| M0 | B1 | [jordanbaird/Ice #954](https://github.com/jordanbaird/Ice/issues/954) | [Bug]: Ice in menu bar not working anymore (MacOS Golden Gate 27) | 报告基本功能异常但根因/场景不清晰，优先补最小复现后转入对应工作包。 | 适配已继承 · 报告级修复未确认 |
+| M0 | B1 | [jordanbaird/Ice #957](https://github.com/jordanbaird/Ice/issues/957) | [Bug]: Starts but nothing much more | 报告基本功能异常但根因/场景不清晰，优先补最小复现后转入对应工作包。 | 材料不足 · 安装来源不明 |
+| M0 | B1 | [jordanbaird/Ice #991](https://github.com/jordanbaird/Ice/issues/991) | [Bug]: MacOS 27 Update | 报告系统升级后基本不可用，但缺少具体链路；优先补证据，随后转入对应缺陷里程碑。 | 适配已继承 · 报告级修复未确认 |
 | M1 | C1 | [jordanbaird/Ice #563](https://github.com/jordanbaird/Ice/issues/563) | [Bug]: Ice occasionally crashes. | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #590](https://github.com/jordanbaird/Ice/issues/590) | App duplicates itself in dock on Tahoe | 重复 Dock 实例且无法强制退出，先查生命周期和无响应。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #603](https://github.com/jordanbaird/Ice/issues/603) | [Bug]: App launches, then immediately crashes, on macOS Tahoe Beta 3 | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
@@ -406,10 +408,10 @@
 
 | 里程碑 | 工作包 | Issue | 标题原文 | 安排理由 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| M0 | B1 | [jordanbaird/Ice #833](https://github.com/jordanbaird/Ice/issues/833) | [Bug]: Cant see anything on | 只有图片且标题称看不到内容；先补可判读现象，确认核心阻塞后升到 P1。 | 适用性/材料待确认 |
-| M0 | B1 | [jordanbaird/Ice #1006](https://github.com/jordanbaird/Ice/issues/1006) | [macOS 27.0.1] What got Ice working with PR #995, plus two things to look into | 报告绑定 PR #995 的另一套实现，先判断适用性；不能直接移植其根因或补丁。 | 适用性/材料待确认 |
-| M0 | B1 | [jordanbaird/Ice #1007](https://github.com/jordanbaird/Ice/issues/1007) | [macOS 27 / PR #995] An app launched while concealed gets a squashed (3 pt) menu bar item that never recovers | 报告绑定 PR #995 的另一套实现，先判断适用性；不能直接移植其根因或补丁。 | 适用性/材料待确认 |
-| M0 | B1 | [jordanbaird/Ice #1014](https://github.com/jordanbaird/Ice/issues/1014) | [macOS 27 / PR #995] With an app item among the system items, clicking the battery opens that app and Wi-Fi does not open | 报告绑定 PR #995 的另一套实现，先判断适用性；不能直接移植其根因或补丁。 | 适用性/材料待确认 |
+| M0 | B1 | [jordanbaird/Ice #833](https://github.com/jordanbaird/Ice/issues/833) | [Bug]: Cant see anything on | 只有图片且标题称看不到内容；先补可判读现象，确认核心阻塞后升到 P1。 | 适配已继承 · 报告级修复未确认 |
+| M0 | B1 | [jordanbaird/Ice #1006](https://github.com/jordanbaird/Ice/issues/1006) | [macOS 27.0.1] What got Ice working with PR #995, plus two things to look into | 报告绑定 PR #995 的另一套实现，先判断适用性；不能直接移植其根因或补丁。 | 部分修复 · ad-hoc 启动；布局实现不采用 |
+| M0 | B1 | [jordanbaird/Ice #1007](https://github.com/jordanbaird/Ice/issues/1007) | [macOS 27 / PR #995] An app launched while concealed gets a squashed (3 pt) menu bar item that never recovers | 报告绑定 PR #995 的另一套实现，先判断适用性；不能直接移植其根因或补丁。 | 报告特定根因不适用 · 非已修复 |
+| M0 | B1 | [jordanbaird/Ice #1014](https://github.com/jordanbaird/Ice/issues/1014) | [macOS 27 / PR #995] With an app item among the system items, clicking the battery opens that app and Wi-Fi does not open | 报告绑定 PR #995 的另一套实现，先判断适用性；不能直接移植其根因或补丁。 | 报告特定根因不适用 · 非已修复 |
 | M2 | I1 | [jordanbaird/Ice #808](https://github.com/jordanbaird/Ice/issues/808) | [Bug]: macOS "Tahoe" - after system restart icon remains in dock | 主要为登录后的 Dock 图标，正文还提到图标重排；先拆分两个现象。 | 待复现/验证 |
 | M2 | I2 | [jordanbaird/Ice #144](https://github.com/jordanbaird/Ice/issues/144) | [Bug]: Doing opt click after click does not hide app menus | 特定 Option-click 或设置组合失效；普通点击可另行验证，作为组合行为回归。 | 待复现/验证 |
 | M2 | I2 | [jordanbaird/Ice #246](https://github.com/jordanbaird/Ice/issues/246) | [Bug]: Ice doesn't open its settings when double clicking its app icon on macOS 15 | 再次打开应用未进入设置；已有右键入口，优先级低于核心隐藏访问阻塞。 | 待复现/验证 |
@@ -525,7 +527,7 @@
 
 | 里程碑 | 工作包 | Issue | 标题原文 | 安排理由 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| M0 | B1 | [jordanbaird/Ice #920](https://github.com/jordanbaird/Ice/issues/920) | I have searched existing issues for similar reports | 缺少可判读的故障描述或只有图片；先补全现象与复现材料再定级。 | 适用性/材料待确认 |
+| M0 | B1 | [jordanbaird/Ice #920](https://github.com/jordanbaird/Ice/issues/920) | I have searched existing issues for similar reports | 缺少可判读的故障描述或只有图片；先补全现象与复现材料再定级。 | 材料不足 · 无正文或步骤 |
 | M4 | V1 | [jordanbaird/Ice #186](https://github.com/jordanbaird/Ice/issues/186) | [Feature Request]: Support GIFs as Ice icon | 可选外观扩展，排在阻塞性缺陷和主要可访问性问题之后。 | 候选需求待评估 |
 | M4 | V1 | [jordanbaird/Ice #245](https://github.com/jordanbaird/Ice/issues/245) | [Feature Request]: Allow setting SF Symbols for when the icon is toggled | 可选外观扩展，排在阻塞性缺陷和主要可访问性问题之后。 | 候选需求待评估 |
 | M4 | V1 | [jordanbaird/Ice #273](https://github.com/jordanbaird/Ice/issues/273) | [Feature Request]: Custom refresh rate for menu bar item images | 可选外观扩展，排在阻塞性缺陷和主要可访问性问题之后。 | 候选需求待评估 |

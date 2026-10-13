@@ -48,7 +48,7 @@ jobs:
         run: |
           xcodebuild -project Floe.xcodeproj -scheme Floe -configuration Release \
             -destination 'platform=macOS,arch=arm64' \
-            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= ENABLE_HARDENED_RUNTIME=NO \
             MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             clean build
           BUILD_DIR=$(xcodebuild -project Floe.xcodeproj -scheme Floe -configuration Release \

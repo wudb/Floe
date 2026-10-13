@@ -18,8 +18,8 @@ RELEASE_DIR="$PROJECT_DIR/release"
 APP_NAME="Floe"
 DMG_NAME="$APP_NAME.dmg"
 DESTINATION="platform=macOS,arch=arm64"
-# Ad-hoc sign: repo pins team K2ATHQPJDP which you don't have cert for
-SIGN_ARGS='CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM='
+# 本地 ad-hoc 没有 Team ID；关闭 hardened runtime，避免 Sparkle 库验证失败。
+SIGN_ARGS='CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= ENABLE_HARDENED_RUNTIME=NO'
 # Parity with CI (release.yml injects these from the tag): honor exported
 # MARKETING_VERSION / CURRENT_PROJECT_VERSION so About shows the same numbers,
 # otherwise fall back to the values baked into the Xcode project.

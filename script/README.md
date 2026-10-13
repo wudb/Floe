@@ -17,6 +17,25 @@ Local dev and release helpers. Run from the repository root.
 
 Install SwiftLint first if needed: `brew install swiftlint`.
 
+## Issue evidence baseline
+
+```bash
+bash script/collect-issue-evidence.sh [/absolute/path/Floe.app]
+```
+
+Creates a unique temporary evidence directory with environment, revision,
+locked dependencies, Floe preferences and optional app signature checks.
+Each collector records its exit code, including unavailable tools. It does not
+launch Floe or change permissions/settings. Fill in `reproduction.md` with the
+actual steps, display setup, permission behavior and observed CGS/AX path.
+Review preferences before sharing. See [M0 audit](../docs/m0-issue-audit.md).
+
+Local ad-hoc builds explicitly disable hardened runtime to allow the embedded
+Sparkle framework to load without a matching Team ID. `dev.sh` retains its
+certificate signing path; when the requested certificate is missing, both the
+build and final signing use the ad-hoc identity. A direct local Release build
+with `CODE_SIGN_IDENTITY=-` also needs `ENABLE_HARDENED_RUNTIME=NO`.
+
 ## Language regression checks
 
 ```bash
