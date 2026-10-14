@@ -45,6 +45,25 @@ swift script/tests/app-language.swift
 Covers system-language matching, fallback to English, saved selections, native
 menu localization and formatted messages without changing system preferences.
 
+## M1 stability regression checks
+
+```bash
+swift script/tests/screen-capture-executor.swift
+swift script/tests/image-cache-retention.swift
+swift script/tests/window-id.swift
+swift script/tests/menu-interaction-safety.swift
+```
+
+Runs the production capture executor and extracted production cache/window ID
+methods with controlled inputs. Covers blocked captures, deadlines, late
+completion, concurrent-trigger rejection, stale-image release and integer
+overflow. Does not capture the screen, request privacy permissions or replace
+long-duration WindowServer measurements. See [M1 audit](../docs/m1-issue-audit.md).
+
+The C0 menu safety check compiles the production menu guard and activation/length
+methods against controlled services. Discovery and AX activation checks also
+cover reentrant scans and foreign-popup rehide protection. See [C0 audit](../docs/c0-issue-audit.md).
+
 ## Menu bar AX thread regression checks
 
 ```bash

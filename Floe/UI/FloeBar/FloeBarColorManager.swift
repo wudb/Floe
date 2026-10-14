@@ -6,12 +6,16 @@
 import Cocoa
 import Combine
 
+@MainActor
 final class FloeBarColorManager: ObservableObject {
     @Published private(set) var colorInfo: MenuBarAverageColorInfo?
 
     private weak var floeBarPanel: FloeBarPanel?
 
     private var windowImage: CGImage?
+
+    /// 截图完成前合并重复刷新，避免主线程等待 WindowServer。
+    private var captureTask: Task<Void, Never>?
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -80,10 +84,9 @@ final class FloeBarColorManager: ObservableObject {
                 else {
                     return
                 }
+                guard floeBarPanel.isVisible else { return }
                 updateWindowImage(for: screen)
-                if floeBarPanel.isVisible {
-                    updateColorInfo(with: floeBarPanel.frame, screen: screen)
-                }
+                updateColorInfo(with: floeBarPanel.frame, screen: screen)
             }
             .store(in: &c)
         }
@@ -92,14 +95,18 @@ final class FloeBarColorManager: ObservableObject {
     }
 
     private func updateWindowImage(for screen: NSScreen) {
-        let displayID = screen.displayID
-        if
-            let window = WindowInfo.getMenuBarWindow(for: displayID),
-            let image = ScreenCapture.captureWindow(window.windowID, option: .nominalResolution)
-        {
+        guard captureTask == nil else { return }
+        captureTask = Task { [weak self] in
+            guard let self else { return }
+            defer { captureTask = nil }
+            guard let window = WindowInfo.getMenuBarWindow(for: screen.displayID) else {
+                windowImage = nil
+                return
+            }
+            let image = await ScreenCapture.captureWindow(window.windowID, option: .nominalResolution)
+            guard let panel = floeBarPanel, panel.screen == screen, panel.isVisible else { return }
             windowImage = image
-        } else {
-            windowImage = nil
+            updateColorInfo(with: panel.frame, screen: screen)
         }
     }
 

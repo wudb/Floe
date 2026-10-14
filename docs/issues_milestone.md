@@ -2,7 +2,7 @@
 
 编制时间：2026-10-13T15:45:45+08:00（Asia/Shanghai）。代码参考：`e247351`。
 
-范围：当前本地待处理清单 **380 条**，其中 `cavaldos/Ice` 4 条、`jordanbaird/Ice` 376 条。原始 402 条中已经清理的 22 条不重新纳入。本次只规划本地优先级与里程碑，不修改上游 GitHub 标签、状态或 Milestones。
+范围：当前本地待处理清单 **379 条**，其中 `cavaldos/Ice` 4 条、`jordanbaird/Ice` 375 条。原始 402 条中已经清理的 23 条不重新纳入。本次只规划本地优先级与里程碑，不修改上游 GitHub 标签、状态或 Milestones。
 
 依据：[原文清单](upstream-open-issues.md)、[分类总结](upstream-open-issues-summary.md)、[JSON 数据](upstream-open-issues.snapshot.json)、[修复核对记录](upstream-issue-fix-audit.md)。优先级是基于已有报告与当前实现的建议，不等于已在 Floe 实机复现；上游状态以原始采集时点为准，本次未重新抓取全部上游 issues。
 
@@ -28,10 +28,10 @@
 | 优先级 | 当前数量 | 含义 | 判断口径 |
 | --- | ---: | --- | --- |
 | P0 | 3 | 立即调查/阻断风险确认 | 报告涉及系统卡死、内核 panic 或无法恢复的 UI 状态；潜在影响最大，但当前因果未确认。 |
-| P1 | 199 | 核心可用性 | 启动、崩溃、长期资源增长、发现/隐藏/拖拽/点击，以及干扰其他应用操作。 |
+| P1 | 198 | 核心可用性 | 启动、崩溃、长期资源增长、发现/隐藏/拖拽/点击，以及干扰其他应用操作。 |
 | P2 | 114 | 重要兼容与体验 | 特定组合行为、外观/常态性能、语言/无障碍及高价值功能需求；安排在适用的核心阻塞问题之后。 |
 | P3 | 64 | 后续增强或待澄清事项 | 装饰、较大的新能力、上游沟通与缺乏描述的报告；有新证据可调整。 |
-| 合计 | 380 | | |
+| 合计 | 379 | | |
 
 **P0 仅有 3 条：** [jordanbaird/Ice #908](https://github.com/jordanbaird/Ice/issues/908)、[jordanbaird/Ice #968](https://github.com/jordanbaird/Ice/issues/968)、[jordanbaird/Ice #974](https://github.com/jordanbaird/Ice/issues/974)。它们是需要立即查证的高影响报告，不能写成“已确认 Floe 导致系统崩溃”。若在当前实现复现，先提供可回退的隔离/恢复方案，再修复根因；若证据证明不适用，再调整级别并记录依据。
 
@@ -40,7 +40,7 @@
 | 里程碑 | 目标 | 条目数 | 阶段状态 | 前置依赖 |
 | --- | --- | ---: | --- | --- |
 | M0 | 工程与证据基线 | 9 | 工程/适配继承已核对；报告级验收未完成 | 无；P0 调查立即开始 |
-| M1 | 稳定性与基础图标发现 | 83 | 当前第一批缺陷工作 | M0 可复现基线 |
+| M1 | 稳定性与基础图标发现 | 82 | 首批截图/缓存修复完成；其余继续调查 | M0 可复现基线 |
 | M2 | 分区管理与完整交互 | 63 | 核心链路第二批 | M1 的发现与稳定性 |
 | M3 | 多屏、系统模式与应用兼容 | 94 | 核心链路第三批 | M1 + M2；可独立复现的缺陷可提前处理 |
 | M4 | 外观与常态性能 | 40 | 可用性稳定后 | M1；外观依赖 M3 的坐标/屏幕行为 |
@@ -54,7 +54,7 @@
 | 里程碑 | P0 | P1 | P2 | P3 | 合计 |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | M0 | 0 | 4 | 4 | 1 | 9 |
-| M1 | 3 | 80 | 0 | 0 | 83 |
+| M1 | 3 | 79 | 0 | 0 | 82 |
 | M2 | 0 | 51 | 12 | 0 | 63 |
 | M3 | 0 | 64 | 30 | 0 | 94 |
 | M4 | 0 | 0 | 29 | 11 | 40 |
@@ -68,7 +68,7 @@
 | 顺序 | 优先级 | 工作包 | 首批关联报告 | 先做什么 |
 | --- | --- | --- | --- | --- |
 | 1 | P0 | C0 | [jordanbaird/Ice #908](https://github.com/jordanbaird/Ice/issues/908)、[jordanbaird/Ice #968](https://github.com/jordanbaird/Ice/issues/968)、[jordanbaird/Ice #974](https://github.com/jordanbaird/Ice/issues/974) | 立即保留日志、时间线与设置，在隔离环境做开启/关闭 Floe 及关键设置的对照；分别验证系统冻结、表单下拉框、应用菜单残留三个表面。 |
-| 2 | P1 | C1 | [jordanbaird/Ice #777](https://github.com/jordanbaird/Ice/issues/777)、[jordanbaird/Ice #840](https://github.com/jordanbaird/Ice/issues/840)、[jordanbaird/Ice #905](https://github.com/jordanbaird/Ice/issues/905)、[jordanbaird/Ice #925](https://github.com/jordanbaird/Ice/issues/925) | 定位捕获阻塞与启用 Floe Bar 时的崩溃；保留符号化栈、线程与窗口生命周期，不能只检查 windowNumber 的整数转换。 |
+| 2 | P1 | C1 | [jordanbaird/Ice #777](https://github.com/jordanbaird/Ice/issues/777)、[jordanbaird/Ice #840](https://github.com/jordanbaird/Ice/issues/840)、[jordanbaird/Ice #905](https://github.com/jordanbaird/Ice/issues/905) | 定位捕获阻塞与启用 Floe Bar 时的崩溃；保留符号化栈、线程与窗口生命周期，不能只检查 windowNumber 的整数转换。 |
 | 3 | P1 | C2 | [cavaldos/Ice #9](https://github.com/cavaldos/Ice/issues/9) | 复现布局空白和无法整理图标；对照原始上游 #716/#1003/#1009，检查权限、CGS/AX 项目列表、分隔符及缓存恢复。 |
 | 4 | P1 | I2 | [cavaldos/Ice #12](https://github.com/cavaldos/Ice/issues/12) | 复现展开/收起入口，逐项覆盖显示分隔符、always-hidden、鼠标事件与快捷键，核对单次操作的真实状态。 |
 | 5 | P1 | I1 | [cavaldos/Ice #24](https://github.com/cavaldos/Ice/issues/24) | 核对拖拽的实际目标、Quartz/屏幕坐标、分隔符、落点和重扫；不能只以 SwiftUI 乐观列表位置作为成功。 |
@@ -96,12 +96,16 @@
 
 ### M1：稳定性与基础图标发现
 
+2026-10-14 C0 实施见 [C0 防护与验证记录](c0-issue-audit.md)：菜单交互保护、自动焦点切换防重入、原宿主恢复、计时器恢复与重复状态项长度更新去重均已实现；3 条报告仍保留 P0 和待调查范围，不将受控回归视为系统卡死/残留根因已消除。
+
+2026-10-14 首批实施见 [M1 核对与修复记录](m1-issue-audit.md)：截图主线程隔离、有界等待、指针释放与旧图片淘汰已实现。`jordanbaird/Ice#925` 的已定位溢出根因通过生产 getter 与浮栏定位回归，移入已修复审计；M1 待处理 83 → 82，总清单 380 → 379。其余部分修复/调查条目继续保留，不将首批交付视为整个 M1 已完成。
+
 范围：系统级异常调查、崩溃/冻结、权限阻塞、布局空白/持续加载及长时内存增长。
 
 | 工作包 | 内容 | 条目数 | 排期考虑 |
 | --- | --- | ---: | --- |
 | C0 | 系统级异常与不可恢复状态 | 3 | 影响范围超出 Floe；优先隔离、查证因果并建立恢复办法。 |
-| C1 | 崩溃、无响应与启动失败 | 30 | 基本可用性阻塞；先定位堆栈、卡住的线程及生命周期。 |
+| C1 | 崩溃、无响应与启动失败 | 29 | 基本可用性阻塞；先定位堆栈、卡住的线程及生命周期。 |
 | C2 | 布局发现、空白与持续加载 | 45 | 基础图标管理不可用，后续分区和交互工作依赖发现链路。 |
 | C3 | 权限检测与启动授权 | 3 | 权限状态冲突或启动无法完成，需要核实真实 TCC 状态。 |
 | C4 | 长期运行与内存增长 | 2 | 资源持续增长影响长期稳定性，需长时对照测量。 |
@@ -196,11 +200,11 @@
 
 | 里程碑 | 工作包 | Issue | 标题原文 | 安排理由 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| M1 | C0 | [jordanbaird/Ice #908](https://github.com/jordanbaird/Ice/issues/908) | [Bug]: Ice appears to have caused system-wide freeze & kernel panic after ~33 hours of uptime | 报告涉及系统卡死、Dock/前台应用异常或无法关闭的窗口；先调查因果，不预设 Floe 是原因。 | 待复现/验证 |
-| M1 | C0 | [jordanbaird/Ice #968](https://github.com/jordanbaird/Ice/issues/968) | macOS 26.5.2: Ice stuck / menu bar stays hidden after form dropdown hang (Dock auto-hide also stuck) | 报告涉及系统卡死、Dock/前台应用异常或无法关闭的窗口；先调查因果，不预设 Floe 是原因。 | 待复现/验证 |
-| M1 | C0 | [jordanbaird/Ice #974](https://github.com/jordanbaird/Ice/issues/974) | [Bug]: Orphaned application menu-bar windows stuck at CGWindow layer 101, invisible to accessibility (macOS 26.6.1, 0.11.13-dev.2) | 报告涉及系统卡死、Dock/前台应用异常或无法关闭的窗口；先调查因果，不预设 Floe 是原因。 | 待复现/验证 |
+| M1 | C0 | [jordanbaird/Ice #908](https://github.com/jordanbaird/Ice/issues/908) | [Bug]: Ice appears to have caused system-wide freeze & kernel panic after ~33 hours of uptime | 报告涉及系统卡死、Dock/前台应用异常或无法关闭的窗口；先调查因果，不预设 Floe 是原因。 | 防护已实现 · 扫描合并/状态项去重；系统因果未确认 |
+| M1 | C0 | [jordanbaird/Ice #968](https://github.com/jordanbaird/Ice/issues/968) | macOS 26.5.2: Ice stuck / menu bar stays hidden after form dropdown hang (Dock auto-hide also stuck) | 报告涉及系统卡死、Dock/前台应用异常或无法关闭的窗口；先调查因果，不预设 Floe 是原因。 | 防护已实现 · popup/焦点保护；系统复测待补 |
+| M1 | C0 | [jordanbaird/Ice #974](https://github.com/jordanbaird/Ice/issues/974) | [Bug]: Orphaned application menu-bar windows stuck at CGWindow layer 101, invisible to accessibility (macOS 26.6.1, 0.11.13-dev.2) | 报告涉及系统卡死、Dock/前台应用异常或无法关闭的窗口；先调查因果，不预设 Floe 是原因。 | 防护已实现 · 跟踪期间避免干预；残留因果未确认 |
 
-### P1（199 条）
+### P1（198 条）
 
 | 里程碑 | 工作包 | Issue | 标题原文 | 安排理由 | 状态 |
 | --- | --- | --- | --- | --- | --- |
@@ -220,7 +224,7 @@
 | M1 | C1 | [jordanbaird/Ice #740](https://github.com/jordanbaird/Ice/issues/740) | [Bug]: Crashes every time I use it | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #742](https://github.com/jordanbaird/Ice/issues/742) | [Bug]: I just installed Tahoe in my Mac and ICE is not working as it used to.  I am attaching the log report sent back form IOS.  Since the principal functionality that stopped work is to have the menu in a separate bar below the menu bar. | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #746](https://github.com/jordanbaird/Ice/issues/746) | [Bug]: Event operation timed out | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
-| M1 | C1 | [jordanbaird/Ice #777](https://github.com/jordanbaird/Ice/issues/777) | [Bug]:  Ice App Freezes During Screen Capture Operations | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
+| M1 | C1 | [jordanbaird/Ice #777](https://github.com/jordanbaird/Ice/issues/777) | [Bug]:  Ice App Freezes During Screen Capture Operations | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 部分修复 · 后台截图/超时隔离；系统复测待补 |
 | M1 | C1 | [jordanbaird/Ice #779](https://github.com/jordanbaird/Ice/issues/779) | [Bug]: 点击图标自动就退出了.系统崩溃 | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #786](https://github.com/jordanbaird/Ice/issues/786) | [Bug]:Selecting 'Ice Bar' in settings and then tapping on the Ice icon causes Ice to crash | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #790](https://github.com/jordanbaird/Ice/issues/790) | [Bug]: Multiple monitors freeze | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
@@ -229,16 +233,15 @@
 | M1 | C1 | [jordanbaird/Ice #810](https://github.com/jordanbaird/Ice/issues/810) | [Bug]: Crash on M1 Pro | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #821](https://github.com/jordanbaird/Ice/issues/821) | [Bug]: ICE crashes every time on clicking the ICE icon in menubar. iMac, macOS 26.2 (issue identical on 26.1). | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #838](https://github.com/jordanbaird/Ice/issues/838) | [Bug]: it seems to be frozen. I have to quit it and re-launch it to get it to function properly. | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
-| M1 | C1 | [jordanbaird/Ice #840](https://github.com/jordanbaird/Ice/issues/840) | Crash when enabling Ice Bar: EXC_BREAKPOINT in window handling | 报告 Floe Bar 启用路径崩溃；安全整数转换只排除一个候选根因，仍需定位。 | 待复现/验证 |
+| M1 | C1 | [jordanbaird/Ice #840](https://github.com/jordanbaird/Ice/issues/840) | Crash when enabling Ice Bar: EXC_BREAKPOINT in window handling | 报告 Floe Bar 启用路径崩溃；安全整数转换只排除一个候选根因，仍需定位。 | 相关防护已继承 · 保留原报告验收 |
 | M1 | C1 | [jordanbaird/Ice #855](https://github.com/jordanbaird/Ice/issues/855) | [Bug]: Ice keeps crashing after updating to OS26.2 | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #867](https://github.com/jordanbaird/Ice/issues/867) | [Bug]: Ice crash on macOS 26.2 (25C56) | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #877](https://github.com/jordanbaird/Ice/issues/877) | [Bug]: PROJECT DEAD, no updates in 1.5 years, crashes all the time. | 正文含更新阻塞、Floe Bar 崩溃和图标缺失，不能只当作维护状态询问；拆分验证各子问题。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #880](https://github.com/jordanbaird/Ice/issues/880) | [Bug]: not be able to use it on imac today | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
-| M1 | C1 | [jordanbaird/Ice #905](https://github.com/jordanbaird/Ice/issues/905) | [Bug]: | 报告 Floe Bar 启用路径崩溃；安全整数转换只排除一个候选根因，仍需定位。 | 待复现/验证 |
-| M1 | C1 | [jordanbaird/Ice #925](https://github.com/jordanbaird/Ice/issues/925) | [Bug]: Crash when enabling "Use Ice Bar" with Dynamic location | 报告 Floe Bar 启用路径崩溃；安全整数转换只排除一个候选根因，仍需定位。 | 待复现/验证 |
+| M1 | C1 | [jordanbaird/Ice #905](https://github.com/jordanbaird/Ice/issues/905) | [Bug]: | 报告 Floe Bar 启用路径崩溃；安全整数转换只排除一个候选根因，仍需定位。 | 相关防护已继承 · 保留原报告验收 |
 | M1 | C1 | [jordanbaird/Ice #947](https://github.com/jordanbaird/Ice/issues/947) | [Bug]: app crash after click in menubar | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #977](https://github.com/jordanbaird/Ice/issues/977) | [Bug]: crashes whenever I use the trigger button in the menu bar | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
-| M1 | C2 | [cavaldos/Ice #9](https://github.com/cavaldos/Ice/issues/9) | [Bug]: Nothing is being shown on "Menu Bar Layout" in settings | 当前直接上游：布局空白同时阻塞查看与分区拖拽。 | 待复现/验证 |
+| M1 | C2 | [cavaldos/Ice #9](https://github.com/cavaldos/Ice/issues/9) | [Bug]: Nothing is being shown on "Menu Bar Layout" in settings | 当前直接上游：布局空白同时阻塞查看与分区拖拽。 | 已核对 · CGS/AX fallback 已继承；报告级验证待补 |
 | M1 | C2 | [jordanbaird/Ice #283](https://github.com/jordanbaird/Ice/issues/283) | [Bug]: Ice's view of the menu bar is missing the icon for AltTab | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
 | M1 | C2 | [jordanbaird/Ice #312](https://github.com/jordanbaird/Ice/issues/312) | [Bug]: No items in Menu Bar | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
 | M1 | C2 | [jordanbaird/Ice #623](https://github.com/jordanbaird/Ice/issues/623) | [Bug]:Icons in MenuBar Layout page Disappear After Using ICE Bar in Full-Screen Mode | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
@@ -286,8 +289,8 @@
 | M1 | C3 | [jordanbaird/Ice #770](https://github.com/jordanbaird/Ice/issues/770) | [Bug]: App gets stuck when installed | 权限、启动或安装路径可能阻塞应用使用；先核实实际权限及签名状态。 | 待复现/验证 |
 | M1 | C3 | [jordanbaird/Ice #834](https://github.com/jordanbaird/Ice/issues/834) | [Bug]: | 已授权但仍出现权限/对话框异常，存在启动与使用阻塞。 | 待复现/验证 |
 | M1 | C3 | [jordanbaird/Ice #934](https://github.com/jordanbaird/Ice/issues/934) | [Bug]: Nothing happens when I try to run Ice | 权限、启动或安装路径可能阻塞应用使用；先核实实际权限及签名状态。 | 待复现/验证 |
-| M1 | C4 | [jordanbaird/Ice #530](https://github.com/jordanbaird/Ice/issues/530) | [Bug]: high memory usage | 报告持续内存增长或 WindowServer 泄漏，需要长时对照定位，不能仅凭短时回归排除。 | 待复现/验证 |
-| M1 | C4 | [jordanbaird/Ice #819](https://github.com/jordanbaird/Ice/issues/819) | [Bug]: memory leak in WindowServer caused by Ice? | 报告持续内存增长或 WindowServer 泄漏，需要长时对照定位，不能仅凭短时回归排除。 | 待复现/验证 |
+| M1 | C4 | [jordanbaird/Ice #530](https://github.com/jordanbaird/Ice/issues/530) | [Bug]: high memory usage | 报告持续内存增长或 WindowServer 泄漏，需要长时对照定位，不能仅凭短时回归排除。 | 部分修复 · 指针释放/缓存淘汰；长时结果待补 |
+| M1 | C4 | [jordanbaird/Ice #819](https://github.com/jordanbaird/Ice/issues/819) | [Bug]: memory leak in WindowServer caused by Ice? | 报告持续内存增长或 WindowServer 泄漏，需要长时对照定位，不能仅凭短时回归排除。 | 调查中 · 减少隐藏浮栏采样；WindowServer 因果未确认 |
 | M2 | I1 | [cavaldos/Ice #24](https://github.com/cavaldos/Ice/issues/24) | [Bug]: Dropping icons to hide has no effect | 当前直接上游：拖拽后回弹，UI 与实际隐藏状态不一致。 | 待复现/验证 |
 | M2 | I1 | [jordanbaird/Ice #233](https://github.com/jordanbaird/Ice/issues/233) | [Bug]:  Re-arranging/dragging  items  in the "Hidden" settings pane makes them disappear  | 实际分区或顺序与用户选择不一致，需验证拖拽结果和重启后的状态。 | 待复现/验证 |
 | M2 | I1 | [jordanbaird/Ice #344](https://github.com/jordanbaird/Ice/issues/344) | [Bug]: Menu bar items move to hidden or always hidden section | 实际分区或顺序与用户选择不一致，需验证拖拽结果和重启后的状态。 | 待复现/验证 |

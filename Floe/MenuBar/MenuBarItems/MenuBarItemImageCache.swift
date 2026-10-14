@@ -7,6 +7,7 @@ import Cocoa
 import Combine
 
 /// Cache for menu bar item images.
+@MainActor
 final class MenuBarItemImageCache: ObservableObject {
     /// The cached item images.
     @Published private(set) var images = [MenuBarItemInfo: CGImage]()
@@ -22,6 +23,9 @@ final class MenuBarItemImageCache: ObservableObject {
 
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
+
+    /// 多个 UI/定时器触发共用一次更新，避免重复截图及较旧结果覆盖新缓存。
+    private var isUpdating = false
 
     /// Creates a cache with the given app state.
     init(appState: AppState) {
@@ -63,6 +67,7 @@ final class MenuBarItemImageCache: ObservableObject {
                 guard let self else {
                     return
                 }
+                discardRemovedImages()
                 // ponytail: updateCache() gates on Floe Bar/settings visibility
                 // first; only then does it pay for the ScreenCapture permission scan.
                 Task.detached {
@@ -78,6 +83,13 @@ final class MenuBarItemImageCache: ObservableObject {
     /// Logs a reason for skipping the cache.
     private func logSkippingCache(reason: String) {
         Logger.imageCache.debug("Skipping menu bar item image cache as \(reason)")
+    }
+
+    /// 无需重新截图也能释放已退出应用的图片，隐藏浮栏时同样执行。
+    private func discardRemovedImages() {
+        let liveInfos = Set(appState?.itemManager.itemCache.allItems.map(\.info) ?? [])
+        let retainedImages = images.filter { liveInfos.contains($0.key) }
+        if retainedImages.count != images.count { images = retainedImages }
     }
 
     /// Returns a Boolean value that indicates whether caching menu bar items failed for
@@ -105,7 +117,7 @@ final class MenuBarItemImageCache: ObservableObject {
             return [:]
         }
 
-        let items = await appState.itemManager.itemCache[section]
+        let items = appState.itemManager.itemCache[section]
 
         var images = [MenuBarItemInfo: CGImage]()
         let backingScaleFactor = screen.backingScaleFactor
@@ -134,7 +146,7 @@ final class MenuBarItemImageCache: ObservableObject {
         }
 
         if
-            let compositeImage = ScreenCapture.captureWindows(windowIDs, option: option),
+            let compositeImage = await ScreenCapture.captureWindows(windowIDs, option: option),
             CGFloat(compositeImage.width) == frame.width * backingScaleFactor
         {
             for windowID in windowIDs {
@@ -177,7 +189,7 @@ final class MenuBarItemImageCache: ObservableObject {
                 )
 
                 guard
-                    let itemImage = ScreenCapture.captureWindow(windowID, option: option),
+                    let itemImage = await ScreenCapture.captureWindow(windowID, option: option),
                     let croppedImage = itemImage.cropping(to: frame)
                 else {
                     continue
@@ -193,16 +205,19 @@ final class MenuBarItemImageCache: ObservableObject {
     /// Updates the cache for the given sections, without checking whether caching is necessary.
     func updateCacheWithoutChecks(sections: [MenuBarSection.Name]) async {
         guard
+            !isUpdating,
             let appState,
             let screen = NSScreen.main
         else {
             return
         }
+        isUpdating = true
+        defer { isUpdating = false }
 
         var newImages = [MenuBarItemInfo: CGImage]()
 
         for section in sections {
-            guard await !appState.itemManager.itemCache[section].isEmpty else {
+            guard !appState.itemManager.itemCache[section].isEmpty else {
                 continue
             }
             let sectionImages = await createImages(for: section, screen: screen)
@@ -213,10 +228,11 @@ final class MenuBarItemImageCache: ObservableObject {
             newImages.merge(sectionImages) { (_, new) in new }
         }
 
-        await MainActor.run { [newImages] in
-            images.merge(newImages) { (_, new) in new }
-        }
-
+        guard NSScreen.main == screen else { return }
+        // 状态项重建后身份会改变；移除已消失的项，避免图片缓存随运行时间不断增长。
+        let liveInfos = Set(appState.itemManager.itemCache.allItems.map(\.info))
+        images = screen == self.screen ? images.filter { liveInfos.contains($0.key) } : [:]
+        images.merge(newImages.filter { liveInfos.contains($0.key) }) { (_, new) in new }
         self.screen = screen
         self.menuBarHeight = screen.getMenuBarHeight()
     }
@@ -227,29 +243,29 @@ final class MenuBarItemImageCache: ObservableObject {
             return
         }
 
-        let isFloeBarPresented = await appState.navigationState.isFloeBarPresented
+        let isFloeBarPresented = appState.navigationState.isFloeBarPresented
 
         if !isFloeBarPresented {
-            guard await appState.navigationState.isAppFrontmost else {
+            guard appState.navigationState.isAppFrontmost else {
                 logSkippingCache(reason: "Floe Bar not visible, app not frontmost")
                 return
             }
-            guard await appState.navigationState.isSettingsPresented else {
+            guard appState.navigationState.isSettingsPresented else {
                 logSkippingCache(reason: "Floe Bar not visible, Settings not visible")
                 return
             }
-            guard case .menuBarLayout = await appState.navigationState.settingsNavigationIdentifier else {
+            guard case .menuBarLayout = appState.navigationState.settingsNavigationIdentifier else {
                 logSkippingCache(reason: "Floe Bar not visible, Settings visible but not on Menu Bar Layout")
                 return
             }
         }
 
-        guard await !appState.itemManager.isMovingItem else {
+        guard !appState.itemManager.isMovingItem else {
             logSkippingCache(reason: "an item is currently being moved")
             return
         }
 
-        guard await !appState.itemManager.itemHasRecentlyMoved else {
+        guard !appState.itemManager.itemHasRecentlyMoved else {
             logSkippingCache(reason: "an item was recently moved")
             return
         }
@@ -268,15 +284,15 @@ final class MenuBarItemImageCache: ObservableObject {
             return
         }
 
-        let isFloeBarPresented = await appState.navigationState.isFloeBarPresented
-        let isSettingsPresented = await appState.navigationState.isSettingsPresented
+        let isFloeBarPresented = appState.navigationState.isFloeBarPresented
+        let isSettingsPresented = appState.navigationState.isSettingsPresented
 
         var sectionsNeedingDisplay = [MenuBarSection.Name]()
         if isSettingsPresented {
             sectionsNeedingDisplay = MenuBarSection.Name.allCases
         } else if
             isFloeBarPresented,
-            let section = await appState.menuBarManager.floeBarPanel.currentSection
+            let section = appState.menuBarManager.floeBarPanel.currentSection
         {
             sectionsNeedingDisplay.append(section)
         }

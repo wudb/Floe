@@ -278,6 +278,8 @@ final class MenuBarSection {
     func hide(persistState: Bool = true) {
         guard
             persistState || floeBarPanel?.isActivatingAXItem != true,
+            // 自动 hover/计时/智能隐藏不能打断其他应用的菜单或原生表单弹窗。
+            persistState || !MenuInteractionGuard.isInteracting,
             let appState,
             !isHidden
         else {
@@ -359,20 +361,16 @@ final class MenuBarSection {
                     rehideTimer = .scheduledTimer(
                         withTimeInterval: appState.settingsManager.generalSettingsManager.rehideInterval,
                         repeats: false
-                    ) { [weak self] _ in
-                        guard
-                            let self,
-                            let screen = NSScreen.main
-                        else {
-                            return
-                        }
-                        if NSEvent.mouseLocation.y < screen.visibleFrame.maxY {
-                            Task {
-                                await self.hide(persistState: false)
-                            }
-                        } else {
-                            Task {
-                                await self.startRehideChecks()
+                    ) { [weak self] timer in
+                        Task { @MainActor in
+                            guard let self, self.rehideTimer === timer else { return }
+                            // 即使菜单保护拒绝隐藏，也必须清除已触发的 timer，允许后续重新调度。
+                            self.rehideTimer = nil
+                            guard let screen = NSScreen.main else { return }
+                            if NSEvent.mouseLocation.y < screen.visibleFrame.maxY {
+                                self.hide(persistState: false)
+                            } else {
+                                self.startRehideChecks()
                             }
                         }
                     }

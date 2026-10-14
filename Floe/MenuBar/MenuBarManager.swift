@@ -13,6 +13,12 @@ final class MenuBarManager: ObservableObject {
     /// Information for the menu bar's average color.
     @Published private(set) var averageColorInfo: MenuBarAverageColorInfo?
 
+    /// 异步采样期间跳过重复触发，主线程只发布最终颜色。
+    private var isSamplingAverageColor = false
+
+    /// 自动隐藏应用菜单前的宿主；恢复时回到原应用，避免切到无关进程。
+    private var applicationBeforeHidingMenus: NSRunningApplication?
+
     /// A Boolean value that indicates whether the menu bar is either always hidden
     /// by the system, or automatically hidden and shown by the system based on the
     /// location of the mouse.
@@ -133,14 +139,14 @@ final class MenuBarManager: ObservableObject {
         appState?.settingsWindow?.publisher(for: \.isVisible)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.updateAverageColorInfo()
+                Task { await self?.updateAverageColorInfo() }
             }
             .store(in: &c)
 
         Timer.publish(every: 5, on: .main, in: .default)
             .autoconnect()
             .sink { [weak self] _ in
-                self?.updateAverageColorInfo()
+                Task { await self?.updateAverageColorInfo() }
             }
             .store(in: &c)
 
@@ -221,13 +227,16 @@ final class MenuBarManager: ObservableObject {
 
     /// Updates the ``averageColorInfo`` property with the current average color
     /// of the menu bar.
-    func updateAverageColorInfo() {
+    func updateAverageColorInfo() async {
         guard
+            !isSamplingAverageColor,
             canUpdateAverageColorInfo,
             let screen = appState?.settingsWindow?.screen
         else {
             return
         }
+        isSamplingAverageColor = true
+        defer { isSamplingAverageColor = false }
 
         let image: CGImage?
         let source: MenuBarAverageColorInfo.Source
@@ -241,7 +250,7 @@ final class MenuBarManager: ObservableObject {
             bounds.origin.x = bounds.maxX - (bounds.width / 4)
             bounds.size.width /= 4
 
-            image = ScreenCapture.captureWindow(window.windowID, screenBounds: bounds, option: .nominalResolution)
+            image = await ScreenCapture.captureWindow(window.windowID, screenBounds: bounds, option: .nominalResolution)
             source = .menuBarWindow
         } else if let window = WindowInfo.getWallpaperWindow(from: windows, for: displayID) {
             var bounds = window.frame
@@ -249,13 +258,15 @@ final class MenuBarManager: ObservableObject {
             bounds.origin.x = bounds.midX
             bounds.size.width /= 2
 
-            image = ScreenCapture.captureWindow(window.windowID, screenBounds: bounds, option: .nominalResolution)
+            image = await ScreenCapture.captureWindow(window.windowID, screenBounds: bounds, option: .nominalResolution)
             source = .desktopWallpaper
         } else {
             return
         }
 
         guard
+            canUpdateAverageColorInfo,
+            appState?.settingsWindow?.screen == screen,
             let image,
             let color = image.averageColor(makeOpaque: true)
         else {
@@ -361,23 +372,28 @@ final class MenuBarManager: ObservableObject {
 
     /// Hides the application menus.
     func hideApplicationMenus() {
+        guard !isHidingApplicationMenus, !MenuInteractionGuard.isInteracting else { return }
         guard let appState else {
             Logger.menuBarManager.error("Error hiding application menus: Missing app state")
             return
         }
         Logger.menuBarManager.info("Hiding application menus")
-        appState.activate(withPolicy: .regular)
+        applicationBeforeHidingMenus = NSWorkspace.shared.frontmostApplication
+        // 自动腾出菜单栏不使用首次激活的 Dock 绕行，避免中断宿主菜单跟踪。
+        appState.activate(withPolicy: .regular, usingDock: false)
         isHidingApplicationMenus = true
     }
 
     /// Shows the application menus.
     func showApplicationMenus() {
+        guard isHidingApplicationMenus else { return }
         guard let appState else {
             Logger.menuBarManager.error("Error showing application menus: Missing app state")
             return
         }
         Logger.menuBarManager.info("Showing application menus")
-        appState.deactivate(withPolicy: .accessory)
+        appState.deactivate(withPolicy: .accessory, yieldingTo: applicationBeforeHidingMenus)
+        applicationBeforeHidingMenus = nil
         isHidingApplicationMenus = false
     }
 

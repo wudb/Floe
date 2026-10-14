@@ -743,22 +743,10 @@ extension EventManager {
     /// Standard menus take keyboard focus while tracking, so a focused menu
     /// element (or one nested inside a menu/popover) means a dropdown is open
     /// somewhere — even below the menu bar, where geometry checks can't see
-    /// it. Non-activating custom panels don't move focus and are covered by
-    /// the window-geometry spare instead. Without AX permission this reads
-    /// false, preserving the old behavior.
+    /// it. The shared guard also checks foreground popup-layer windows when
+    /// Accessibility focus is unavailable or has not followed menu tracking.
     private func isMenuOpenGlobally() -> Bool {
-        let focused: UIElement? = (try? systemWideElement.attribute("AXFocusedUIElement")) ?? nil
-        var current = focused
-        var depth = 0
-        while let element = current, depth < 6 {
-            if let role: String = try? element.attribute("AXRole"),
-               role == "AXMenu" || role == "AXMenuItem" || role == "AXPopover" {
-                return true
-            }
-            current = (try? element.attribute("AXParent")) ?? nil
-            depth += 1
-        }
-        return false
+        MenuInteractionGuard.isInteracting
     }
 
     /// Whether the given window looks like a dropdown/panel hanging from the

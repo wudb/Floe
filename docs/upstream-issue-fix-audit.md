@@ -11,14 +11,18 @@
 | 仓库 | 审计前 | 已修复/已满足并删除 | 当前保留 |
 | --- | ---: | ---: | ---: |
 | cavaldos/Ice | 5 | 1 | 4 |
-| jordanbaird/Ice | 397 | 21 | 376 |
-| 合计 | 402 | 22 | 380 |
+| jordanbaird/Ice | 397 | 22 | 375 |
+| 合计 | 402 | 23 | 379 |
 
 删除仅作用于 `docs` 的本地待处理清单、分类总结和 JSON 数据，不更改 GitHub 状态。22 条删除候选已通过主机 GitHub API 再次核对，当前仍全部是 `open`，标题和正文与原始采集一致。它们是在 Floe 中有对应修复或已满足需求，不能据此宣称上游 Ice 已修复。
 
 对照报告的完整标题和正文、当前代码路径及提交记录；只出现相似现象、只找到兜底代码、只改善一个子问题、只绕开了另一条分支，均不足以认定整条已修复。缺少明确复现信息或必须依赖真实应用/显示器/系统版本验证的报告保留。功能请求和使用问答若已被当前界面或文档直接满足，也从本地待处理清单移除。
 
 这里的“已修复”是代码与配置层面的判定；没有对 402 条进行逐条实机复现。现有回归运行的是受控场景；新增迁移核验从生产方法提取，仅替换 macOS availability 条件来检查 26/27 两条逻辑分支，未冒充 macOS 27 实机结果。
+
+## M1 补充归档（2026-10-14）
+
+[jordanbaird/Ice#925](https://github.com/jordanbaird/Ice/issues/925) 的 [符号化根因评论](https://github.com/jordanbaird/Ice/issues/925#issuecomment-5325109637) 明确定位 `ControlItem.windowID` 将 4294967296 转为 UInt32 的溢出 trap，而不是已确认的并发 race。当前 `ControlItem.swift:98` 已采用 `CGWindowID(exactly:)`，浮栏另一转换点也采用 failable initializer；Dynamic/图标定位在 nil ID 时走已有 frame fallback。新增 `script/tests/window-id.swift` 编译生产 getter，验证缺失/负值/UInt32.max+1/Int.max/正常值；现有 `floe-bar-position.swift` 验证 nil ID 定位。代码层确认该特定根因已解决，从本地清单删除；未执行 macOS 26 实机验收，不推广为 #840/#905 或全部启动崩溃已修复。累计删除 23、保留 379；完整 M1 记录见 [M1 审计](m1-issue-audit.md)。
 
 ## 删除依据
 

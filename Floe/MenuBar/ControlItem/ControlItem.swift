@@ -169,6 +169,12 @@ final class ControlItem {
         StatusItemDefaults[.preferredPosition, autosaveName] = cached
     }
 
+    /// 相同长度不重复提交给 AppKit，避免状态发布造成不必要的辅助 scene 更新。
+    private func applyStatusItemLength(_ length: CGFloat) {
+        guard statusItem.length != length else { return }
+        statusItem.length = length
+    }
+
     /// Configures the internal observers for the control item.
     private func configureCancellables() {
         var c = Set<AnyCancellable>()
@@ -188,7 +194,7 @@ final class ControlItem {
                     return
                 }
                 if isVisible {
-                    statusItem.length = switch section.name {
+                    let length: CGFloat = switch section.name {
                     case .visible: Lengths.standard
                     case .hidden, .alwaysHidden:
                         switch state {
@@ -196,9 +202,10 @@ final class ControlItem {
                         case .showItems: Lengths.standard
                         }
                     }
+                    applyStatusItemLength(length)
                     constraint?.isActive = true
                 } else {
-                    statusItem.length = 0
+                    applyStatusItemLength(0)
                     constraint?.isActive = false
                     if let window {
                         var size = window.frame.size

@@ -8,6 +8,8 @@ import ScreenCaptureKit
 
 /// A namespace for screen capture operations.
 enum ScreenCapture {
+    /// 所有 CG 窗口截图共享一个有界后台执行器，避免阻塞主线程和任务持续堆积。
+    private static let executor = ScreenCaptureExecutor()
     /// A cache for the permission verdict.
     ///
     /// Both signals this wraps are comparatively expensive (a TCC lookup and a
@@ -179,8 +181,17 @@ enum ScreenCapture {
     ///   - windowIDs: The identifiers of the windows to capture.
     ///   - screenBounds: The bounds to capture. Pass `nil` to capture the minimum rectangle that encloses the windows.
     ///   - option: Options that specify the image to be captured.
-    static func captureWindows(_ windowIDs: [CGWindowID], screenBounds: CGRect? = nil, option: CGWindowImageOption = []) -> CGImage? {
+    static func captureWindows(_ windowIDs: [CGWindowID], screenBounds: CGRect? = nil, option: CGWindowImageOption = []) async -> CGImage? {
+        guard !windowIDs.isEmpty else { return nil }
+        return await executor.run {
+            captureWindowsSynchronously(windowIDs, screenBounds: screenBounds, option: option)
+        }
+    }
+
+    /// 只由后台执行器调用；指针在 CFArray 创建失败及截图失败时也必须释放。
+    private static func captureWindowsSynchronously(_ windowIDs: [CGWindowID], screenBounds: CGRect?, option: CGWindowImageOption) -> CGImage? {
         let pointer = UnsafeMutablePointer<UnsafeRawPointer?>.allocate(capacity: windowIDs.count)
+        defer { pointer.deallocate() }
         for (index, windowID) in windowIDs.enumerated() {
             pointer[index] = UnsafeRawPointer(bitPattern: UInt(windowID))
         }
@@ -196,8 +207,8 @@ enum ScreenCapture {
     ///   - windowID: The identifier of the window to capture.
     ///   - screenBounds: The bounds to capture. Pass `nil` to capture the minimum rectangle that encloses the window.
     ///   - option: Options that specify the image to be captured.
-    static func captureWindow(_ windowID: CGWindowID, screenBounds: CGRect? = nil, option: CGWindowImageOption = []) -> CGImage? {
-        captureWindows([windowID], screenBounds: screenBounds, option: option)
+    static func captureWindow(_ windowID: CGWindowID, screenBounds: CGRect? = nil, option: CGWindowImageOption = []) async -> CGImage? {
+        await captureWindows([windowID], screenBounds: screenBounds, option: option)
     }
 }
 

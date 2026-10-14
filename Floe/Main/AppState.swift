@@ -284,7 +284,7 @@ final class AppState: ObservableObject {
     }
 
     /// Activates the app and sets its activation policy to the given value.
-    func activate(withPolicy policy: NSApplication.ActivationPolicy) {
+    func activate(withPolicy policy: NSApplication.ActivationPolicy, usingDock: Bool = true) {
         // Store whether the app has previously activated inside an internal
         // context to keep it isolated.
         enum Context {
@@ -300,7 +300,7 @@ final class AppState: ObservableObject {
             NSApp.setActivationPolicy(policy)
         }
 
-        if Context.hasActivated.value(for: self) == true {
+        if !usingDock || Context.hasActivated.value(for: self) == true {
             activate()
         } else {
             Context.hasActivated.set(true, for: self)
@@ -314,8 +314,10 @@ final class AppState: ObservableObject {
     }
 
     /// Deactivates the app and sets its activation policy to the given value.
-    func deactivate(withPolicy policy: NSApplication.ActivationPolicy) {
-        if let nextApp = NSWorkspace.shared.runningApplications.first(where: { $0 != .current }) {
+    func deactivate(withPolicy policy: NSApplication.ActivationPolicy, yieldingTo previousApp: NSRunningApplication? = nil) {
+        if let previousApp, !previousApp.isTerminated, previousApp != .current {
+            NSApp.yieldActivation(to: previousApp)
+        } else if let nextApp = NSWorkspace.shared.runningApplications.first(where: { $0 != .current }) {
             NSApp.yieldActivation(to: nextApp)
         } else {
             NSApp.deactivate()

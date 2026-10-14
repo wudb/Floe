@@ -104,6 +104,10 @@ final class MenuBarItemManager: ObservableObject {
     /// regardless of how many other windows the server still returns.
     @Published private(set) var isItemDiscoveryUnavailable = false
 
+    /// 扫描跨 await 可能重入；每次只允许一轮扫描，拖拽要求的强制刷新合并后补做。
+    private var isCachingItems = false
+    private var needsForcedCache = false
+
     /// The shared app state.
     private(set) weak var appState: AppState?
 
@@ -337,6 +341,18 @@ extension MenuBarItemManager {
     ///   window IDs, so without this the post-drag reconcile would classify
     ///   pre-drag frames and the icon would look like it "snapped back".
     func cacheItemsIfNeeded(force: Bool = false) async {
+        guard !isCachingItems else {
+            needsForcedCache = needsForcedCache || force
+            return
+        }
+        isCachingItems = true
+        defer {
+            isCachingItems = false
+            if needsForcedCache {
+                needsForcedCache = false
+                Task { await self.cacheItemsIfNeeded(force: true) }
+            }
+        }
         do {
             try await waitForItemsToStopMoving(timeout: .seconds(1))
         } catch is TaskTimeoutError {

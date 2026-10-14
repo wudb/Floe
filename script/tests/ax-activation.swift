@@ -43,6 +43,7 @@ let hoverMethod = eventMethod("    private func handleShowOnHover()")
 let scrollMethod = eventMethod("    private func handleShowOnScroll(")
 let fixtures = #"""
 import Cocoa
+@MainActor enum MenuInteractionGuard { static var isInteracting = false }
 final class TestScreen {
     static let main: TestScreen? = TestScreen()
     let visibleFrame = CGRect(x: 0, y: 0, width: 1200, height: 700)
@@ -307,6 +308,28 @@ let tests = #"""
     for section in rehideApp.menuBarManager.sections { section.setState(.showItems, persist: false) }
     rehideApp.menuBarManager.sections[1].hide(persistState: false)
     expect("automatic rehide is enabled again after activation", rehideApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems })
+
+    let (popupApp, _, _) = setup()
+    let popupSection = popupApp.menuBarManager.sections[1]
+    popupSection.setState(.showItems, persist: false)
+    MenuInteractionGuard.isInteracting = true
+    popupSection.hide(persistState: false)
+    expect("foreign popup prevents automatic rehide", popupSection.controlItem.state == .showItems)
+    popupSection.startRehideChecks()
+    _ = popupSection.rehideMonitor?.handler(0)
+    popupSection.rehideTimer?.fire()
+    await until("guarded timer release") { popupSection.rehideTimer == nil }
+    expect("foreign popup survives a fired automatic rehide timer", popupSection.controlItem.state == .showItems)
+    MenuInteractionGuard.isInteracting = false
+    _ = popupSection.rehideMonitor?.handler(0)
+    expect("a guarded timer can schedule again after the foreign popup closes", popupSection.rehideTimer?.isValid == true)
+    popupSection.hide(persistState: false)
+    expect("automatic rehide resumes after the foreign popup closes", popupSection.controlItem.state == .hideItems)
+    popupSection.setState(.showItems, persist: false)
+    MenuInteractionGuard.isInteracting = true
+    popupSection.hide()
+    expect("explicit user hide remains available during a foreign popup", popupSection.controlItem.state == .hideItems)
+    MenuInteractionGuard.isInteracting = false
 
     let (manualApp, manualPanel, manualContent) = setup()
     manualContent.press(AXRowItem())

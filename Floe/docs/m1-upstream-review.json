@@ -1,0 +1,346 @@
+{
+  "reviewed_at": "2026-10-14T10:15:19+08:00",
+  "issues": [
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 777,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/777",
+      "title": "[Bug]:  Ice App Freezes During Screen Capture Operations",
+      "state": "open",
+      "updated_at": "2025-11-08T14:43:42Z",
+      "comments": []
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 840,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/840",
+      "title": "Crash when enabling Ice Bar: EXC_BREAKPOINT in window handling",
+      "state": "open",
+      "updated_at": "2026-05-25T22:50:34Z",
+      "comments": [
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/840#issuecomment-3716425920",
+          "updated_at": "2026-01-06T21:26:16Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/840#issuecomment-3716455833",
+          "updated_at": "2026-01-06T21:37:19Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/840#issuecomment-3722752301",
+          "updated_at": "2026-01-08T08:23:36Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/840#issuecomment-3768269988",
+          "updated_at": "2026-01-19T13:11:16Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/840#issuecomment-3976674192",
+          "updated_at": "2026-02-28T08:32:27Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/840#issuecomment-4210854740",
+          "updated_at": "2026-04-09T01:37:35Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/840#issuecomment-4369431962",
+          "updated_at": "2026-05-04T08:38:41Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/840#issuecomment-4537777057",
+          "updated_at": "2026-05-25T22:50:34Z"
+        }
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 905,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/905",
+      "title": "[Bug]:",
+      "state": "open",
+      "updated_at": "2026-04-03T15:22:10Z",
+      "comments": [
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/905#issuecomment-4183863938",
+          "updated_at": "2026-04-03T15:05:36Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/905#issuecomment-4183925515",
+          "updated_at": "2026-04-03T15:22:10Z"
+        }
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 925,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/925",
+      "title": "[Bug]: Crash when enabling \"Use Ice Bar\" with Dynamic location",
+      "state": "open",
+      "updated_at": "2026-09-13T14:42:26Z",
+      "comments": [
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/925#issuecomment-4294329687",
+          "updated_at": "2026-04-22T07:22:05Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/925#issuecomment-4294401078",
+          "updated_at": "2026-04-22T07:35:25Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/925#issuecomment-4537776859",
+          "updated_at": "2026-05-25T22:50:31Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/925#issuecomment-5325109637",
+          "updated_at": "2026-08-18T07:39:31Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/925#issuecomment-5444251803",
+          "updated_at": "2026-08-27T19:33:03Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/925#issuecomment-5653953695",
+          "updated_at": "2026-09-13T14:42:26Z"
+        }
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 530,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/530",
+      "title": "[Bug]: high memory usage",
+      "state": "open",
+      "updated_at": "2026-04-23T10:37:18Z",
+      "comments": [
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-2943037978",
+          "updated_at": "2025-06-05T07:18:27Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-2957159481",
+          "updated_at": "2025-06-09T22:17:02Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3547157908",
+          "updated_at": "2025-11-18T11:36:57Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3709143217",
+          "updated_at": "2026-01-05T06:46:31Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3715343217",
+          "updated_at": "2026-01-06T16:25:36Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3715804154",
+          "updated_at": "2026-01-07T07:21:09Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3717630971",
+          "updated_at": "2026-01-07T07:20:25Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3719505234",
+          "updated_at": "2026-01-07T15:43:33Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3719742888",
+          "updated_at": "2026-01-07T16:38:45Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3720140135",
+          "updated_at": "2026-01-07T18:16:42Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3720377716",
+          "updated_at": "2026-01-07T19:15:44Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3789972079",
+          "updated_at": "2026-01-23T12:14:32Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3811563783",
+          "updated_at": "2026-01-28T14:23:02Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-3914381517",
+          "updated_at": "2026-02-17T12:13:51Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-4280881235",
+          "updated_at": "2026-04-20T12:50:00Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-4281972230",
+          "updated_at": "2026-04-20T15:09:23Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-4282169443",
+          "updated_at": "2026-04-20T15:32:42Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-4299518740",
+          "updated_at": "2026-04-22T20:00:59Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/530#issuecomment-4303699500",
+          "updated_at": "2026-04-23T10:37:18Z"
+        }
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 819,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/819",
+      "title": "[Bug]: memory leak in WindowServer caused by Ice?",
+      "state": "open",
+      "updated_at": "2026-07-07T18:43:21Z",
+      "comments": [
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/819#issuecomment-3649657756",
+          "updated_at": "2025-12-13T17:43:17Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/819#issuecomment-3649760658",
+          "updated_at": "2025-12-13T20:06:04Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/819#issuecomment-3650659446",
+          "updated_at": "2025-12-14T10:12:09Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/819#issuecomment-3658992737",
+          "updated_at": "2025-12-16T06:09:46Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/819#issuecomment-3661873809",
+          "updated_at": "2025-12-16T18:32:34Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/819#issuecomment-3661994719",
+          "updated_at": "2025-12-16T19:10:30Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/819#issuecomment-3662010550",
+          "updated_at": "2025-12-16T19:15:03Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/819#issuecomment-3662414671",
+          "updated_at": "2025-12-16T21:17:01Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/819#issuecomment-3789974052",
+          "updated_at": "2026-01-23T12:15:08Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/819#issuecomment-4907282775",
+          "updated_at": "2026-07-07T18:43:21Z"
+        }
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 908,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/908",
+      "title": "[Bug]: Ice appears to have caused system-wide freeze & kernel panic after ~33 hours of uptime",
+      "state": "open",
+      "updated_at": "2026-03-28T22:01:57Z",
+      "comments": []
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 968,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/968",
+      "title": "macOS 26.5.2: Ice stuck / menu bar stays hidden after form dropdown hang (Dock auto-hide also stuck)",
+      "state": "open",
+      "updated_at": "2026-07-23T21:36:26Z",
+      "comments": []
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 974,
+      "html_url": "https://github.com/jordanbaird/Ice/issues/974",
+      "title": "[Bug]: Orphaned application menu-bar windows stuck at CGWindow layer 101, invisible to accessibility (macOS 26.6.1, 0.11.13-dev.2)",
+      "state": "open",
+      "updated_at": "2026-09-29T15:40:22Z",
+      "comments": [
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/974#issuecomment-5347321094",
+          "updated_at": "2026-08-19T20:00:57Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/974#issuecomment-5404258488",
+          "updated_at": "2026-08-25T02:25:29Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/974#issuecomment-5475471285",
+          "updated_at": "2026-08-31T07:58:58Z"
+        },
+        {
+          "url": "https://github.com/jordanbaird/Ice/issues/974#issuecomment-5893538942",
+          "updated_at": "2026-09-29T15:40:22Z"
+        }
+      ]
+    },
+    {
+      "repository": "cavaldos/Ice",
+      "number": 9,
+      "html_url": "https://github.com/cavaldos/Ice/issues/9",
+      "title": "[Bug]: Nothing is being shown on \"Menu Bar Layout\" in settings",
+      "state": "open",
+      "updated_at": "2026-10-02T21:01:43Z",
+      "comments": [
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5708480275",
+          "updated_at": "2026-09-17T04:23:26Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5708569306",
+          "updated_at": "2026-09-17T04:31:55Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5708693341",
+          "updated_at": "2026-09-17T04:43:38Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5709033399",
+          "updated_at": "2026-09-17T05:08:40Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5709071186",
+          "updated_at": "2026-09-17T05:11:33Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5710449035",
+          "updated_at": "2026-09-17T07:07:23Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5715160969",
+          "updated_at": "2026-09-17T13:29:32Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5721604423",
+          "updated_at": "2026-09-17T21:39:50Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5721828339",
+          "updated_at": "2026-09-17T22:02:26Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5738389042",
+          "updated_at": "2026-09-19T01:50:08Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5896022981",
+          "updated_at": "2026-09-29T18:17:17Z"
+        },
+        {
+          "url": "https://github.com/cavaldos/Ice/issues/9#issuecomment-5961416717",
+          "updated_at": "2026-10-02T21:01:43Z"
+        }
+      ]
+    }
+  ]
+}

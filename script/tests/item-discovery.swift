@@ -55,11 +55,16 @@ struct Cache {
     var count = 0
     mutating func clear() { count = 0 }
 }
-final class Manager {
+@MainActor final class Manager {
+    var isCachingItems = false
+    var needsForcedCache = false
+    var waitDelay = false
     var isItemDiscoveryUnavailable = false
     var itemCache = Cache()
     var itemHasRecentlyMoved = false
-    func waitForItemsToStopMoving(timeout: Duration) async throws {}
+    func waitForItemsToStopMoving(timeout: Duration) async throws {
+        if waitDelay { try await Task.sleep(for: .milliseconds(30)) }
+    }
     func logSkippingCache(reason: String) {}
     func enforceControlItemOrder(hiddenControlItem: MenuBarItem, alwaysHiddenControlItem: MenuBarItem) async throws {}
     func uncheckedCacheItems(hiddenControlItem: MenuBarItem, alwaysHiddenControlItem: MenuBarItem?, otherItems: [MenuBarItem]) {
@@ -79,7 +84,7 @@ let tests = #"""
         Bridging.allWindowIDs = all ?? ids
         MenuBarItem.snapshot = hasDivider ? [.init(info: .hiddenControlItem), .init(info: .app)] : []
     }
-    static func main() async {
+    @MainActor static func main() async {
         let empty = Manager()
         input([])
         await empty.cacheItemsIfNeeded()
@@ -113,6 +118,21 @@ let tests = #"""
         await recovery.cacheItemsIfNeeded()
         expect(!recovery.isItemDiscoveryUnavailable && recovery.itemCache.count == 1,
                "return to an earlier successful ID list rebuilds a cleared cache")
+        let coalesced = Manager()
+        coalesced.waitDelay = true
+        input([11], hasDivider: true)
+        MenuBarItem.scans = 0
+        let first = Task { await coalesced.cacheItemsIfNeeded() }
+        while !coalesced.isCachingItems { await Task.yield() }
+        for _ in 0..<50 { await coalesced.cacheItemsIfNeeded() }
+        await coalesced.cacheItemsIfNeeded(force: true)
+        expect(MenuBarItem.scans == 0, "reentrant triggers do not overlap an in-flight scan")
+        await first.value
+        for _ in 0..<100 {
+            if MenuBarItem.scans == 2 { break }
+            try? await Task.sleep(for: .milliseconds(5))
+        }
+        expect(MenuBarItem.scans == 2, "forced refresh is coalesced and runs after the in-flight scan")
         exit(failures == 0 ? 0 : 1)
     }
 }

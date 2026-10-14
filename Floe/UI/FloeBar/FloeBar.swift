@@ -271,10 +271,7 @@ final class FloeBarPanel: NSPanel {
 
         updateOrigin(for: screen)
 
-        // Color manager must be updated after updating the panel's origin, but before it is shown.
-        //
-        // Color manager handles frame changes automatically, but does so on the main queue, so we
-        // need to update manually once before showing the panel to prevent the color from flashing.
+        // 先使用已有颜色显示面板，新颜色异步更新；同步截图可能永久阻塞主线程。
         colorManager.updateAllProperties(with: frame, screen: screen)
 
         orderFrontRegardless()

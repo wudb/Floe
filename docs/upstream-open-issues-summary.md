@@ -2,7 +2,7 @@
 
 原始采集时间：2026-10-13T14:04:27+08:00（Asia/Shanghai）。本地代码审计时间：2026-10-13T15:17:39+08:00。
 
-原始采集范围为两个上游仓库的全部 open issues（排除 pull requests）。原始共 402 条；现已排除 Floe 中已修复或需求已满足的 22 条，保留 **380** 条。此文件是本项目的待处理清单，不再等同于上游实时 open issues 总数。
+原始采集范围为两个上游仓库的全部 open issues（排除 pull requests）。原始共 402 条；现已排除 Floe 中已修复或需求已满足的 23 条，保留 **379** 条。此文件是本项目的待处理清单，不再等同于上游实时 open issues 总数。
 
 删除依据与验证边界见 [修复核对记录](upstream-issue-fix-audit.md)。仅清理本地文档，未关闭或修改 GitHub 上的 issue。
 
@@ -10,12 +10,16 @@
 
 直接上游复核已确认 Floe 继承 `cavaldos/Ice@82be80f` 的 macOS 26/27 适配，关键方法与上游一致。M0 当前分为 4 条有适配依据、1 条部分修复、2 条报告特定根因不适用、2 条材料不足；不能从未采用 PR #995 推断缺少适配，也不能把这 9 条统一标为已修复。
 
+2026-10-14 M1 首批更新：[修复记录](m1-issue-audit.md)。#925 的已定位整数溢出根因已归档；#777/#530 部分修复，#819 与三个 P0 保留调查。待处理总数 **379**。
+
+2026-10-14 C0 更新见 [专项记录](c0-issue-audit.md)：3 条均已实施相关防护，P0 和待处理数量保持不变；系统级因果未确认。
+
 ## 总览
 
 | 仓库 | 故障报告 | 功能请求 | 其他反馈 | 当前保留 |
 | --- | ---: | ---: | ---: | ---: |
 | [cavaldos/Ice](https://github.com/cavaldos/Ice) | 4 | 0 | 0 | 4 |
-| [jordanbaird/Ice](https://github.com/jordanbaird/Ice) | 271 | 99 | 6 | 376 |
+| [jordanbaird/Ice](https://github.com/jordanbaird/Ice) | 270 | 99 | 6 | 375 |
 
 类型依据原始标题与 GitHub 标签整理；主分类是本地分析，不是上游官方标签。每条只分配一个主分类，跨领域问题仍可能需要多个维度验证。保留表示尚未确认已完整修复，不能直接理解为已在 Floe 复现。
 
@@ -31,7 +35,7 @@
 | 触发、点击与自动隐藏 | 1 | 56 | 57 |
 | Ice Bar 功能与交互 | 0 | 23 | 23 |
 | 菜单栏外观与渲染 | 0 | 39 | 39 |
-| 崩溃、冻结与资源消耗 | 0 | 37 | 37 |
+| 崩溃、冻结与资源消耗 | 0 | 36 | 36 |
 | 权限、更新、安装与分发 | 0 | 7 | 7 |
 | 第三方应用与系统项目兼容 | 0 | 40 | 40 |
 | 快捷键、自动化与配置能力 | 0 | 9 | 9 |
@@ -44,7 +48,7 @@
 2. **布局发现与隐藏后的可访问性。** [#716](https://github.com/jordanbaird/Ice/issues/716)、[#1003](https://github.com/jordanbaird/Ice/issues/1003)、[#1009](https://github.com/jordanbaird/Ice/issues/1009) 等有兼容处理，但 CGS 缺失时依赖 AX 节点，源码仍注明深度隐藏的项目可能没有可发现节点，因此保留同类报告。
 3. **第三方应用、自动隐藏和窗口生命周期。** [#452](https://github.com/jordanbaird/Ice/issues/452)、[#621](https://github.com/jordanbaird/Ice/issues/621)、[#729](https://github.com/jordanbaird/Ice/issues/729)、[#857](https://github.com/jordanbaird/Ice/issues/857) 涉及具体交互场景。AX 路径回归通过不能证明 CGS 路径、系统 Live Activities 和每个第三方应用的行为均已恢复。
 4. **多屏、全屏与渲染。** [#986](https://github.com/jordanbaird/Ice/issues/986)、[#987](https://github.com/jordanbaird/Ice/issues/987)、[#988](https://github.com/jordanbaird/Ice/issues/988) 等需要多屏实机验证。缺少每个报告对应的验证结果，本次不删除。
-5. **崩溃、长期运行、性能和资源泄漏。** [#840](https://github.com/jordanbaird/Ice/issues/840)、[#905](https://github.com/jordanbaird/Ice/issues/905)、[#925](https://github.com/jordanbaird/Ice/issues/925) 的 windowNumber 相关代码已有安全转换，但原始报告不足以确认所有崩溃都是该转换导致。[#530](https://github.com/jordanbaird/Ice/issues/530)、[#777](https://github.com/jordanbaird/Ice/issues/777)、[#819](https://github.com/jordanbaird/Ice/issues/819)、[#908](https://github.com/jordanbaird/Ice/issues/908)、[#968](https://github.com/jordanbaird/Ice/issues/968)、[#974](https://github.com/jordanbaird/Ice/issues/974) 也不能用一次构建或短时回归证明已修复。
+5. **崩溃、长期运行、性能和资源泄漏。** [#840](https://github.com/jordanbaird/Ice/issues/840)、[#905](https://github.com/jordanbaird/Ice/issues/905) 的 windowNumber 相关代码已有安全转换，但原始报告不足以确认所有崩溃都是该转换导致。[#530](https://github.com/jordanbaird/Ice/issues/530)、[#777](https://github.com/jordanbaird/Ice/issues/777)、[#819](https://github.com/jordanbaird/Ice/issues/819)、[#908](https://github.com/jordanbaird/Ice/issues/908)、[#968](https://github.com/jordanbaird/Ice/issues/968)、[#974](https://github.com/jordanbaird/Ice/issues/974) 也不能用一次构建或短时回归证明已修复。
 6. **PR #995 特定实现的问题。** [#1006](https://github.com/jordanbaird/Ice/issues/1006)、[#1007](https://github.com/jordanbaird/Ice/issues/1007)、[#1014](https://github.com/jordanbaird/Ice/issues/1014) 涉及 Concealer27、MacOS27Layout 和点击重放。当前 Floe 没有这套实现，属于不同实现路线；没有该代码不能作为“已经 fix”的依据，仍保留。
 7. **功能需求与项目沟通。** 分组/Profiles、按显示器配置、CLI/AppleScript、语言包、图标默认位置、Homebrew 正式提交以及上游维护计划等仍未被当前项目完整满足；感谢、维护询问等也没有“已修复”结论，不因不属于代码 bug 就删掉。
 
@@ -65,7 +69,7 @@
 
 ## 全量分类索引
 
-以下列出保留的全部 **380** 条；已排除本次删除条目。
+以下列出保留的全部 **379** 条；已排除本次删除条目。
 
 ### 布局编辑、图标发现与搜索
 
@@ -397,7 +401,6 @@
 | [jordanbaird/Ice #905](https://github.com/jordanbaird/Ice/issues/905) | 故障报告 | [Bug]: |
 | [jordanbaird/Ice #908](https://github.com/jordanbaird/Ice/issues/908) | 故障报告 | [Bug]: Ice appears to have caused system-wide freeze & kernel panic after ~33 hours of uptime |
 | [jordanbaird/Ice #915](https://github.com/jordanbaird/Ice/issues/915) | 故障报告 | [Bug]: Unsplash client crashes shortly after being hidden by ICE |
-| [jordanbaird/Ice #925](https://github.com/jordanbaird/Ice/issues/925) | 故障报告 | [Bug]: Crash when enabling "Use Ice Bar" with Dynamic location |
 | [jordanbaird/Ice #947](https://github.com/jordanbaird/Ice/issues/947) | 故障报告 | [Bug]: app crash after click in menubar |
 | [jordanbaird/Ice #968](https://github.com/jordanbaird/Ice/issues/968) | 其他反馈 | macOS 26.5.2: Ice stuck / menu bar stays hidden after form dropdown hang (Dock auto-hide also stuck) |
 | [jordanbaird/Ice #974](https://github.com/jordanbaird/Ice/issues/974) | 故障报告 | [Bug]: Orphaned application menu-bar windows stuck at CGWindow layer 101, invisible to accessibility (macOS 26.6.1, 0.11.13-dev.2) |

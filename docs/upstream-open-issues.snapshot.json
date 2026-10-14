@@ -319,7 +319,7 @@
     },
     "jordanbaird/Ice": {
       "source_count": 397,
-      "count": 376,
+      "count": 375,
       "issues": [
         {
           "url": "https://api.github.com/repos/jordanbaird/Ice/issues/6",
@@ -30077,92 +30077,6 @@
           "pinned_comment": null
         },
         {
-          "url": "https://api.github.com/repos/jordanbaird/Ice/issues/925",
-          "repository_url": "https://api.github.com/repos/jordanbaird/Ice",
-          "labels_url": "https://api.github.com/repos/jordanbaird/Ice/issues/925/labels{/name}",
-          "comments_url": "https://api.github.com/repos/jordanbaird/Ice/issues/925/comments",
-          "events_url": "https://api.github.com/repos/jordanbaird/Ice/issues/925/events",
-          "html_url": "https://github.com/jordanbaird/Ice/issues/925",
-          "id": 4287912417,
-          "node_id": "I_kwDOKDkfRs7_lFnh",
-          "number": 925,
-          "title": "[Bug]: Crash when enabling \"Use Ice Bar\" with Dynamic location",
-          "user": {
-            "login": "fulvi0",
-            "id": 4769081,
-            "node_id": "MDQ6VXNlcjQ3NjkwODE=",
-            "avatar_url": "https://avatars.githubusercontent.com/u/4769081?v=4",
-            "gravatar_id": "",
-            "url": "https://api.github.com/users/fulvi0",
-            "html_url": "https://github.com/fulvi0",
-            "followers_url": "https://api.github.com/users/fulvi0/followers",
-            "following_url": "https://api.github.com/users/fulvi0/following{/other_user}",
-            "gists_url": "https://api.github.com/users/fulvi0/gists{/gist_id}",
-            "starred_url": "https://api.github.com/users/fulvi0/starred{/owner}{/repo}",
-            "subscriptions_url": "https://api.github.com/users/fulvi0/subscriptions",
-            "organizations_url": "https://api.github.com/users/fulvi0/orgs",
-            "repos_url": "https://api.github.com/users/fulvi0/repos",
-            "events_url": "https://api.github.com/users/fulvi0/events{/privacy}",
-            "received_events_url": "https://api.github.com/users/fulvi0/received_events",
-            "type": "User",
-            "user_view_type": "public",
-            "site_admin": false
-          },
-          "labels": [
-            {
-              "id": 5811653659,
-              "node_id": "LA_kwDOKDkfRs8AAAABWmbMGw",
-              "url": "https://api.github.com/repos/jordanbaird/Ice/labels/Bug",
-              "name": "Bug",
-              "color": "BB0000",
-              "default": false,
-              "description": "Something isn't working",
-              "archived_at": null,
-              "archived_by": null
-            }
-          ],
-          "state": "open",
-          "locked": false,
-          "assignees": [],
-          "milestone": null,
-          "comments": 6,
-          "created_at": "2026-04-18T12:12:37Z",
-          "updated_at": "2026-09-13T14:42:26Z",
-          "closed_at": null,
-          "assignee": null,
-          "author_association": "NONE",
-          "active_lock_reason": null,
-          "sub_issues_summary": {
-            "total": 0,
-            "completed": 0,
-            "percent_completed": 0
-          },
-          "issue_dependencies_summary": {
-            "blocked_by": 0,
-            "total_blocked_by": 0,
-            "blocking": 0,
-            "total_blocking": 0
-          },
-          "body": "### Search for Similar Reports\n\n- [x] I have searched existing issues for similar reports\n\n### Description\n\nIce crashes with an EXC_BREAKPOINT exception when enabling the \"Use Ice Bar\" option and setting the location to \"Dynamic\". The crash occurs immediately after clicking to apply the settings.\n\n### Steps to Reproduce\n\n1. Open Ice preferences/settings\n2. Enable the \"Use Ice Bar\" toggle\n3. Set Location to \"Dynamic\"\n4. Click to apply the settings\n5. Application crashes\n\n### App Version\n\n0.11.12\n\n### macOS Version\n\n26.3.1\n\n### Additional Information\n\n### Environment\n- **Ice version:** 0.11.12 (build 1117)\n- **macOS version:** 26.3.1 (25D771280a)\n- **Hardware:** Mac16,8 (Apple Silicon)\n- **Crash date:** 2026-04-18 08:02:28 -0400\n\n### Crash Details\n- **Exception Type:** EXC_BREAKPOINT (SIGTRAP)\n- **Exception Code:** 0x0000000000000001, 0x0000000104644934\n- **Crashed Thread:** 0 (com.apple.main-thread)\n- **Termination Reason:** Namespace SIGNAL, Code 5, Trace/BPT trap\n- **Crash Report ID:** C6297023-5490-4EF4-AB75-C6AD11BA587E\n\n### Stack Trace (main thread)\n```\n0   Ice                           0x104644934 0x104638000 + 51508\n1   Ice                           0x1046fab18 0x104638000 + 797464\n2   Ice                           0x1046faaa0 0x104638000 + 797344\n3   Ice                           0x1046f95e0 0x104638000 + 792032\n4   Ice                           0x1046b87e1 0x104638000 + 526305\n5   Ice                           0x104658151 0x104638000 + 131409\n6   Ice                           0x10465bfb9 0x104638000 + 147385\n7   Ice                           0x10464a319 0x104638000 + 74521\n8   libswift_Concurrency.dylib    0x2823df31d completeTaskWithClosure\n```\n\n### Analysis\nThe crash appears to be related to Ice Bar initialization when set to Dynamic location mode, possibly involving async task handling in the Swift concurrency layer.\n\n### Labels\n`bug` `crash` `ice-bar`",
-          "closed_by": null,
-          "reactions": {
-            "url": "https://api.github.com/repos/jordanbaird/Ice/issues/925/reactions",
-            "total_count": 13,
-            "+1": 13,
-            "-1": 0,
-            "laugh": 0,
-            "hooray": 0,
-            "confused": 0,
-            "heart": 0,
-            "rocket": 0,
-            "eyes": 0
-          },
-          "timeline_url": "https://api.github.com/repos/jordanbaird/Ice/issues/925/timeline",
-          "performed_via_github_app": null,
-          "state_reason": null,
-          "pinned_comment": null
-        },
-        {
           "url": "https://api.github.com/repos/jordanbaird/Ice/issues/929",
           "repository_url": "https://api.github.com/repos/jordanbaird/Ice",
           "labels_url": "https://api.github.com/repos/jordanbaird/Ice/issues/929/labels{/name}",
@@ -33378,9 +33292,38 @@
     "baseline_commit": "82be80fea77edd89f34a43ddfbc677234a416dee",
     "reviewed_working_tree": true,
     "original_issue_count": 402,
-    "removed_issue_count": 22,
-    "retained_issue_count": 380,
+    "removed_issue_count": 23,
+    "retained_issue_count": 379,
     "audit_document": "upstream-issue-fix-audit.md",
-    "note": "Local Floe status only; upstream GitHub issues were not changed; no exhaustive macOS 26/27 device verification."
+    "note": "Local Floe status only; upstream GitHub issues were not changed; no exhaustive macOS 26/27 device verification.",
+    "m1_review": {
+      "reviewed_at": "2026-10-14T10:15:19+08:00",
+      "audit_document": "m1-issue-audit.md",
+      "fixed_removed": [
+        "jordanbaird/Ice#925"
+      ],
+      "retained_status": {
+        "jordanbaird/Ice#777": "部分修复 · 后台截图/超时隔离；系统复测待补",
+        "jordanbaird/Ice#530": "部分修复 · 指针释放/缓存淘汰；长时结果待补",
+        "jordanbaird/Ice#819": "调查中 · 减少隐藏浮栏采样；WindowServer 因果未确认",
+        "jordanbaird/Ice#840": "相关防护已继承 · 保留原报告验收",
+        "jordanbaird/Ice#905": "相关防护已继承 · 保留原报告验收",
+        "jordanbaird/Ice#908": "调查中 · 因果及 36 小时对照未完成",
+        "jordanbaird/Ice#968": "调查中 · 未确认 Floe 导致宿主弹窗卡死",
+        "jordanbaird/Ice#974": "调查中 · 作者已纠正快照误报；因果未确认"
+      },
+      "note": "Code-level fix and controlled regressions; no macOS 26/27 device or 36h memory validation."
+    },
+    "c0_review": {
+      "reviewed_at": "2026-10-14T10:43:43+08:00",
+      "audit_document": "c0-issue-audit.md",
+      "fully_fixed_count": 0,
+      "retained_status": {
+        "jordanbaird/Ice#908": "防护已实现 · 扫描合并/状态项去重；系统因果未确认",
+        "jordanbaird/Ice#968": "防护已实现 · popup/焦点保护；系统复测待补",
+        "jordanbaird/Ice#974": "防护已实现 · 跟踪期间避免干预；残留因果未确认"
+      },
+      "note": "Controlled interaction defenses implemented; no 36h or macOS 26/27 system causal validation."
+    }
   }
 }

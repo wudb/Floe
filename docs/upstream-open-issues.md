@@ -2,7 +2,7 @@
 
 原始采集时间：2026-10-13T14:04:27+08:00（Asia/Shanghai）。本地代码审计时间：2026-10-13T15:17:39+08:00。
 
-原始采集范围为两个上游仓库的全部 open issues（排除 pull requests）。原始共 402 条；现已排除 Floe 中已修复或需求已满足的 22 条，保留 **380** 条。此文件是本项目的待处理清单，不再等同于上游实时 open issues 总数。
+原始采集范围为两个上游仓库的全部 open issues（排除 pull requests）。原始共 402 条；现已排除 Floe 中已修复或需求已满足的 23 条，保留 **379** 条。此文件是本项目的待处理清单，不再等同于上游实时 open issues 总数。
 
 删除依据与验证边界见 [修复核对记录](upstream-issue-fix-audit.md)。仅清理本地文档，未关闭或修改 GitHub 上的 issue。
 
@@ -11,7 +11,7 @@
 | 仓库 | 原始 open 数量 | 本次删除 | 当前保留 | 来源 |
 | --- | ---: | ---: | ---: | --- |
 | cavaldos/Ice | 5 | 1 | 4 | [GitHub Issues](https://github.com/cavaldos/Ice/issues?q=is%3Aissue%20is%3Aopen) |
-| jordanbaird/Ice | 397 | 21 | 376 | [GitHub Issues](https://github.com/jordanbaird/Ice/issues?q=is%3Aissue%20is%3Aopen) |
+| jordanbaird/Ice | 397 | 22 | 375 | [GitHub Issues](https://github.com/jordanbaird/Ice/issues?q=is%3Aissue%20is%3Aopen) |
 
 其余每条独立保留，不合并疑似重复问题。标题与正文原样保存于代码块；附件链接保留，但未下载附件、识别图片或转录视频。空正文明确标注；不包含评论区。
 
@@ -577,7 +577,6 @@ https://cdn.zappy.app/v1cc80ccaef538ca26a0267e93a1748e2.mp4
 | [#919](https://github.com/jordanbaird/Ice/issues/919) | [Bug]: Ice icon dissappeared | 布局编辑、图标发现与搜索 |
 | [#920](https://github.com/jordanbaird/Ice/issues/920) | I have searched existing issues for similar reports | 系统升级兼容与待澄清反馈 |
 | [#921](https://github.com/jordanbaird/Ice/issues/921) | [Bug]: Icons in re-arrange menu in settings aren't visible | 分区、排序与状态持久化 |
-| [#925](https://github.com/jordanbaird/Ice/issues/925) | [Bug]: Crash when enabling "Use Ice Bar" with Dynamic location | 崩溃、冻结与资源消耗 |
 | [#929](https://github.com/jordanbaird/Ice/issues/929) | [Bug]: Menu bar scaling and layout issues on external/built-in displays (macOS 26.4.1) | 显示器、分辨率与刘海适配 |
 | [#934](https://github.com/jordanbaird/Ice/issues/934) | [Bug]: Nothing happens when I try to run Ice | 权限、更新、安装与分发 |
 | [#935](https://github.com/jordanbaird/Ice/issues/935) | [Bug]: Website SSL cert expired | 本地化、文档与项目维护 |
@@ -19104,85 +19103,6 @@ Tested in both dark and light mode and nothing is visible.
 
 _No response_
 ```
-
-### jordanbaird/Ice #925
-
-- 链接：https://github.com/jordanbaird/Ice/issues/925
-- 作者：[fulvi0](https://github.com/fulvi0)
-- 状态：open
-- 创建时间：2026-04-18T12:12:37Z（UTC）
-- 更新时间：2026-09-13T14:42:26Z（UTC）
-- 标签：Bug
-- 评论数：6（本清单不采集评论正文）
-- 主分类：崩溃、冻结与资源消耗
-
-**标题原文**
-
-```text
-[Bug]: Crash when enabling "Use Ice Bar" with Dynamic location
-```
-
-**正文原文**
-
-````markdown
-### Search for Similar Reports
-
-- [x] I have searched existing issues for similar reports
-
-### Description
-
-Ice crashes with an EXC_BREAKPOINT exception when enabling the "Use Ice Bar" option and setting the location to "Dynamic". The crash occurs immediately after clicking to apply the settings.
-
-### Steps to Reproduce
-
-1. Open Ice preferences/settings
-2. Enable the "Use Ice Bar" toggle
-3. Set Location to "Dynamic"
-4. Click to apply the settings
-5. Application crashes
-
-### App Version
-
-0.11.12
-
-### macOS Version
-
-26.3.1
-
-### Additional Information
-
-### Environment
-- **Ice version:** 0.11.12 (build 1117)
-- **macOS version:** 26.3.1 (25D771280a)
-- **Hardware:** Mac16,8 (Apple Silicon)
-- **Crash date:** 2026-04-18 08:02:28 -0400
-
-### Crash Details
-- **Exception Type:** EXC_BREAKPOINT (SIGTRAP)
-- **Exception Code:** 0x0000000000000001, 0x0000000104644934
-- **Crashed Thread:** 0 (com.apple.main-thread)
-- **Termination Reason:** Namespace SIGNAL, Code 5, Trace/BPT trap
-- **Crash Report ID:** C6297023-5490-4EF4-AB75-C6AD11BA587E
-
-### Stack Trace (main thread)
-```
-0   Ice                           0x104644934 0x104638000 + 51508
-1   Ice                           0x1046fab18 0x104638000 + 797464
-2   Ice                           0x1046faaa0 0x104638000 + 797344
-3   Ice                           0x1046f95e0 0x104638000 + 792032
-4   Ice                           0x1046b87e1 0x104638000 + 526305
-5   Ice                           0x104658151 0x104638000 + 131409
-6   Ice                           0x10465bfb9 0x104638000 + 147385
-7   Ice                           0x10464a319 0x104638000 + 74521
-8   libswift_Concurrency.dylib    0x2823df31d completeTaskWithClosure
-```
-
-### Analysis
-The crash appears to be related to Ice Bar initialization when set to Dynamic location mode, possibly involving async task handling in the Swift concurrency layer.
-
-### Labels
-`bug` `crash` `ice-bar`
-````
 
 ### jordanbaird/Ice #929
 
