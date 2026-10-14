@@ -19,6 +19,10 @@ struct MenuBarLayoutSettingsPane: View {
     @State private var anchorY: CGFloat = 0
     /// Guards against overlapping Refreshes: stacked AX + CGS scans cause stutter.
     @State private var isRefreshing = false
+    /// 异步扫描只能发布最新请求；离开页面后丢弃迟到结果。
+    @State private var scanGeneration = 0
+    /// CGS 无可展示项时保留最近 AX 快照，供缓存更新和分隔符重分类使用。
+    @State private var axSnapshot = [MenuBarItemAXDiscovery.AXMenuBarItem]()
     /// Guards against overlapping drags: two concurrent Command-drags would fight over the mouse.
     @State private var isMoving = false
     /// IDs of icons currently being moved in the background: the UI updates
@@ -40,6 +44,14 @@ struct MenuBarLayoutSettingsPane: View {
     /// Generation for the missing-icon retry: a new scan bumps it to cancel
     /// the previous retry, so only the latest scan keeps retrying.
     @State private var iconRetryGeneration = 0
+
+    /// Floe 自身分隔符不会展示；仅有这些项不能阻止 AX fallback，否则布局会空白。
+    private var displayableCachedItems: [MenuBarItem] {
+        let ownBundleID = Bundle.main.bundleIdentifier
+        return appState.itemManager.itemCache.allItems.filter {
+            $0.owningApplication?.bundleIdentifier != ownBundleID
+        }
+    }
 
     private var totalCount: Int {
         sections.values.reduce(0) { $0 + $1.count }
@@ -123,6 +135,16 @@ struct MenuBarLayoutSettingsPane: View {
             // opening the tab shows icons right away, no Refresh tap needed.
             applySnapshotFromCache()
             await refresh()
+            // AX-only 系统不会发布新的 CGS 项；页面可见期间持续发现新启动/退出的应用。
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .seconds(5))
+                } catch {
+                    return
+                }
+                guard !isMoving else { continue }
+                await refresh()
+            }
         }
         .onReceive(appState.itemManager.$itemCache) { _ in
             // When the cache changes (background timer, newly opened app,
@@ -134,6 +156,7 @@ struct MenuBarLayoutSettingsPane: View {
             applySnapshotFromCache()
         }
         .onDisappear {
+            scanGeneration += 1
             // Stop the divider poll + icon retry when leaving the tab.
             dividerPollGeneration += 1
             iconRetryGeneration += 1
@@ -676,26 +699,31 @@ struct MenuBarLayoutSettingsPane: View {
     /// macOS 27 clears the CGS item cache because per-item windows are gone,
     /// so an AX scan is the only real source of fresh frames and membership.
     private func rescanAfterDrag() async {
+        guard !Task.isCancelled else { return }
+        scanGeneration += 1
+        let generation = scanGeneration
         await appState.itemManager.cacheItemsIfNeeded(force: true)
+        guard generation == scanGeneration, !Task.isCancelled else { return }
         let (hiddenX, alwaysHiddenX) = resolveDividers()
         hiddenDividerX = hiddenX
         alwaysHiddenDividerX = alwaysHiddenX
 
         var axFallback = [MenuBarItemAXDiscovery.AXMenuBarItem]()
-        if appState.itemManager.itemCache.allItems.isEmpty, MenuBarItemAXDiscovery.isTrusted() {
+        if MenuBarItemAXDiscovery.isTrusted() {
             let apps = NSWorkspace.shared.runningApplications
             axFallback = await Task.detached(priority: .userInitiated) {
                 MenuBarItemAXDiscovery.discoverItems(in: apps)
             }.value
         }
+        guard generation == scanGeneration, !Task.isCancelled else { return }
+        axSnapshot = axFallback
         let (grouped, midY) = buildSections(
             hiddenX: hiddenX,
             alwaysHiddenX: alwaysHiddenX,
             axFallback: axFallback
         )
-        if !grouped.isEmpty {
-            sections = grouped
-        }
+        // 完整扫描得到空结果时清除旧分组，不能永久保留已退出应用的行。
+        sections = grouped
         if let midY {
             anchorY = midY
         }
@@ -734,7 +762,7 @@ struct MenuBarLayoutSettingsPane: View {
         let (grouped, midQuartzY) = buildSections(
             hiddenX: hiddenX,
             alwaysHiddenX: alwaysHiddenX,
-            axFallback: []
+            axFallback: hasAccessibilityPermission ? axSnapshot : []
         )
         // Cache still empty (fresh boot, timer hasn't pumped yet): keep the old
         // sections so the UI doesn't flash back to the placeholder; the background scan will fill it in.
@@ -745,6 +773,28 @@ struct MenuBarLayoutSettingsPane: View {
             anchorY = midQuartzY
         } else if anchorY == 0 {
             anchorY = 8
+        }
+    }
+
+    /// CGS 与 AX 同时可用时仅补入缺失项；有几何信息时不能仅凭同名合并不同图标。
+    private func supplementalAXItems(
+        _ axItems: [MenuBarItemAXDiscovery.AXMenuBarItem],
+        cached: [MenuBarItem]
+    ) -> [MenuBarItemAXDiscovery.AXMenuBarItem] {
+        axItems.filter { axItem in
+            !cached.contains { item in
+                if let frame = axItem.axFrame, !frame.isEmpty {
+                    return abs(frame.midX - item.frame.midX) <= 1 &&
+                        abs(frame.midY - item.frame.midY) <= 1 &&
+                        abs(frame.width - item.frame.width) <= 2 &&
+                        abs(frame.height - item.frame.height) <= 2
+                }
+                guard let title = axItem.title, !title.isEmpty else { return false }
+                guard axItem.pid == item.ownerPID, title == item.title else { return false }
+                // 无坐标时只合并双方都唯一的身份；同一宿主的多个同名图标不能被吞掉。
+                return axItems.filter { $0.pid == axItem.pid && $0.title == title }.count == 1 &&
+                    cached.filter { $0.ownerPID == item.ownerPID && $0.title == title }.count == 1
+            }
         }
     }
 
@@ -769,9 +819,7 @@ struct MenuBarLayoutSettingsPane: View {
         var quartzYs = [CGFloat]()
         // Both CGS and AX sort by ascending center X = left-to-right on the menu
         // bar, matching the real-world order with Clock at the far right.
-        let cached = appState.itemManager.itemCache.allItems
-            .filter { $0.owningApplication?.bundleIdentifier != ownBundleID }
-            .sorted { $0.frame.midX < $1.frame.midX }
+        let cached = displayableCachedItems.sorted { $0.frame.midX < $1.frame.midX }
         if !cached.isEmpty {
             for item in cached {
                 quartzYs.append(item.frame.midY)
@@ -804,37 +852,43 @@ struct MenuBarLayoutSettingsPane: View {
                     )
                 )
             }
-        } else {
-            for item in axFallback.sorted(by: { ($0.axFrame?.midX ?? .greatestFiniteMagnitude) < ($1.axFrame?.midX ?? .greatestFiniteMagnitude) }) {
-                let systemImage = MenuBarItemAXDiscovery.systemImageName(forIdentifier: item.identifier)
-                var appIcon: NSImage?
-                if systemImage == nil {
-                    if let cachedIcon = iconCache[item.pid] {
-                        appIcon = cachedIcon
-                    } else if item.bundleID == "com.apple.TextInputMenuAgent" {
-                        if let icon = MenuBarItemAXDiscovery.inputSourceIcon() {
-                            iconCache[item.pid] = icon
-                            appIcon = icon
-                        }
-                    } else if let icon = NSRunningApplication(processIdentifier: item.pid)?.icon {
+        }
+        for item in supplementalAXItems(axFallback, cached: cached).sorted(by: { ($0.axFrame?.midX ?? .greatestFiniteMagnitude) < ($1.axFrame?.midX ?? .greatestFiniteMagnitude) }) {
+            let systemImage = MenuBarItemAXDiscovery.systemImageName(forIdentifier: item.identifier)
+            var appIcon: NSImage?
+            if systemImage == nil {
+                if let cachedIcon = iconCache[item.pid] {
+                    appIcon = cachedIcon
+                } else if item.bundleID == "com.apple.TextInputMenuAgent" {
+                    if let icon = MenuBarItemAXDiscovery.inputSourceIcon() {
                         iconCache[item.pid] = icon
                         appIcon = icon
                     }
+                } else if let icon = NSRunningApplication(processIdentifier: item.pid)?.icon {
+                    iconCache[item.pid] = icon
+                    appIcon = icon
                 }
-                if let frame = item.axFrame {
-                    quartzYs.append(frame.midY)
-                }
-                grouped[kind(centerX: item.axFrame?.midX), default: []].append(
-                    RowItem(
-                        id: stableID(for: "ax:\(item.pid):\(item.bundleID ?? ""):\(item.identifier ?? ""):\(item.title ?? "")"),
-                        title: item.displayName,
-                        subtitle: item.subtitle,
-                        systemImage: systemImage,
-                        appIcon: appIcon,
-                        isSystem: item.bundleID?.hasPrefix("com.apple.") == true,
-                        quartzFrame: item.axFrame
-                    )
+            }
+            if let frame = item.axFrame {
+                quartzYs.append(frame.midY)
+            }
+            grouped[kind(centerX: item.axFrame?.midX), default: []].append(
+                RowItem(
+                    id: stableID(for: "ax:\(item.pid):\(item.bundleID ?? ""):\(item.identifier ?? ""):\(item.title ?? "")"),
+                    title: item.displayName,
+                    subtitle: item.subtitle,
+                    systemImage: systemImage,
+                    appIcon: appIcon,
+                    isSystem: item.bundleID?.hasPrefix("com.apple.") == true,
+                    quartzFrame: item.axFrame
                 )
+            )
+        }
+        // 补充项也按实际位置插入，不能把 AX 项全部堆在 CGS 项后面。
+        grouped = grouped.mapValues { rows in
+            rows.sorted {
+                ($0.quartzFrame?.midX ?? .greatestFiniteMagnitude) <
+                    ($1.quartzFrame?.midX ?? .greatestFiniteMagnitude)
             }
         }
         let midY: CGFloat? = quartzYs.isEmpty ? nil : quartzYs.sorted()[quartzYs.count / 2]
@@ -892,6 +946,9 @@ struct MenuBarLayoutSettingsPane: View {
 
     /// One real scan: read permissions, CGS cache, classify by dividers.
     private func scanAndApply() async {
+        guard !Task.isCancelled else { return }
+        scanGeneration += 1
+        let generation = scanGeneration
         // Cancel any previous divider poll + icon retry; this scan starts its own if needed.
         dividerPollGeneration += 1
         iconRetryGeneration += 1
@@ -904,8 +961,11 @@ struct MenuBarLayoutSettingsPane: View {
         // Paint a temporary frame from the old cache first so the screen doesn't go blank while waiting.
         applySnapshotFromCache()
         if hasScreenRecordingPermission {
-            await appState.itemManager.cacheItemsIfNeeded()
+            // 相同 window ID 的位置/标题仍会变化；显式刷新不能复用旧元数据。
+            await appState.itemManager.cacheItemsIfNeeded(force: true)
         }
+
+        guard generation == scanGeneration, !Task.isCancelled else { return }
 
         // Dividers have no window right after boot → minX is nil → every icon
         // would be misclassified as Visible. Prefer fast AX, waiting at most ~2s
@@ -914,6 +974,7 @@ struct MenuBarLayoutSettingsPane: View {
         if isMissingExpectedDivider(hiddenX: hiddenX, alwaysHiddenX: alwaysHiddenX) {
             for _ in 0..<20 {
                 try? await Task.sleep(for: .milliseconds(100))
+                guard generation == scanGeneration, !Task.isCancelled else { return }
                 (hiddenX, alwaysHiddenX) = resolveDividers()
                 if !isMissingExpectedDivider(hiddenX: hiddenX, alwaysHiddenX: alwaysHiddenX) {
                     break
@@ -924,16 +985,17 @@ struct MenuBarLayoutSettingsPane: View {
         alwaysHiddenDividerX = alwaysHiddenX
 
         var axFallback = [MenuBarItemAXDiscovery.AXMenuBarItem]()
-        if appState.itemManager.itemCache.allItems.isEmpty, hasAccessibilityPermission {
+        if hasAccessibilityPermission {
             let apps = NSWorkspace.shared.runningApplications
             axFallback = await Task.detached(priority: .userInitiated) {
                 MenuBarItemAXDiscovery.discoverItems(in: apps)
             }.value
         }
+        guard generation == scanGeneration, !Task.isCancelled else { return }
+        axSnapshot = axFallback
         let (grouped, midY) = buildSections(hiddenX: hiddenX, alwaysHiddenX: alwaysHiddenX, axFallback: axFallback)
-        if !grouped.isEmpty {
-            sections = grouped
-        }
+        // 完整扫描得到空结果时清除旧分组，不能永久保留已退出应用的行。
+        sections = grouped
         if let midY {
             anchorY = midY
         } else if anchorY == 0 {

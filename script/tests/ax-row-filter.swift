@@ -109,6 +109,13 @@ struct Logger {
     MenuBarItemAXDiscovery.items = [1000, 600, 400].map {
         .init(title: String($0), axFrame: CGRect(x: $0 - 10, y: 0, width: 20, height: 24))
     } + [.init(title: "unframed", axFrame: nil)]
+    let cancelledContent = Content()
+    let cancelledScan = Task { @MainActor in
+        withUnsafeCurrentTask { $0?.cancel() }
+        await cancelledContent.scanAXRowsOnce(attempt: 0)
+    }
+    await cancelledScan.value
+    expect("cancelled AX scan does not publish rows", cancelledContent.axRows.isEmpty)
     await check("known dividers exclude visible items", hidden: 800, always: 500, expected: ["400", "600"])
     await check("missing always-hidden divider retains hidden items", hidden: 800, always: nil, expected: ["400", "600"])
     await check("missing hidden boundary does not discard unknown items", hidden: nil, always: 500, expected: ["400", "600", "1000", "unframed"])

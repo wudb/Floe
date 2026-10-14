@@ -687,7 +687,7 @@ private struct FloeBarContentView: View {
     /// may hit the garbage frame of a parking spacer.
     @MainActor
     private func loadAXRows() async {
-        guard !isLoadingAXRows else {
+        guard !Task.isCancelled, !isLoadingAXRows else {
             return
         }
         isLoadingAXRows = true
@@ -723,6 +723,8 @@ private struct FloeBarContentView: View {
                 MenuBarItemAXDiscovery.dividerFrames()
             )
         }.value
+
+        guard !Task.isCancelled else { return }
 
         // Prefer dividers via AX, but EXCLUDE the garbage frame of a parking spacer
         // (hundreds of pt wide at the bottom of the screen) — if its minX (e.g. 7.0) leaks

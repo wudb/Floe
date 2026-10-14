@@ -22,6 +22,7 @@ import ApplicationServices
 final class FixtureAXUIElement: NSObject {
     var attributes: [String: AnyObject]
     var actionResult = AXError.success
+    var attributeDelay: TimeInterval = 0
     init(_ role: String, title: String? = nil, identifier: String? = nil, children: [FixtureAXUIElement] = []) {
         attributes = [kAXRoleAttribute: role as NSString, kAXChildrenAttribute: children as NSArray]
         attributes[kAXTitleAttribute] = title as NSString?
@@ -29,7 +30,8 @@ final class FixtureAXUIElement: NSObject {
     }
 }
 struct FixtureNSRunningApplication {
-    let processIdentifier: pid_t = 42
+    let processIdentifier: pid_t
+    init(processIdentifier: pid_t = 42) { self.processIdentifier = processIdentifier }
     let localizedName: String? = "Control Center"
     let bundleIdentifier: String? = "com.apple.controlcenter"
     static let current = FixtureNSRunningApplication()
@@ -37,12 +39,14 @@ struct FixtureNSRunningApplication {
 var trusted = true
 var application = FixtureAXUIElement("AXApplication")
 var pressed: [FixtureAXUIElement] = []
+var applications: [pid_t: FixtureAXUIElement] = [:]
 func FixtureAXIsProcessTrusted() -> Bool { trusted }
 func FixtureAXUIElementGetTypeID() -> CFTypeID { CFGetTypeID(application) }
-func FixtureAXUIElementCreateApplication(_ pid: pid_t) -> FixtureAXUIElement { application }
+func FixtureAXUIElementCreateApplication(_ pid: pid_t) -> FixtureAXUIElement { applications[pid] ?? application }
 @discardableResult
 func FixtureAXUIElementSetMessagingTimeout(_ element: FixtureAXUIElement, _ timeout: Float) -> AXError { .success }
 func FixtureAXUIElementCopyAttributeValue(_ element: FixtureAXUIElement, _ attribute: CFString, _ value: UnsafeMutablePointer<AnyObject?>) -> AXError {
+    if element.attributeDelay > 0 { Thread.sleep(forTimeInterval: element.attributeDelay) }
     value.pointee = element.attributes[attribute as String]
     return value.pointee == nil ? .noValue : .success
 }
@@ -53,6 +57,41 @@ func FixtureAXUIElementPerformAction(_ element: FixtureAXUIElement, _ action: CF
 }
 """#
 let tests = #"""
+trusted = true
+let complexApp = FixtureAXUIElement("AXApplication")
+complexApp.attributes["AXExtrasMenuBar"] = FixtureAXUIElement("AXMenuBar", children: (0..<300).map {
+    FixtureAXUIElement("AXMenuBarItem", title: "Complex \($0)")
+})
+let laterApp = FixtureAXUIElement("AXApplication")
+laterApp.attributes["AXExtrasMenuBar"] = FixtureAXUIElement("AXMenuBar", children: [FixtureAXUIElement("AXMenuBarItem", title: "Later App")])
+applications = [42: complexApp, 43: laterApp]
+let fair = MenuBarItemAXDiscovery.discoverItems(in: [FixtureNSRunningApplication(processIdentifier: 42), FixtureNSRunningApplication(processIdentifier: 43)])
+precondition(fair.contains { $0.title == "Later App" }, "one host must not consume later applications' traversal budgets")
+precondition(fair.filter { $0.pid == 42 }.count <= 256)
+let slowApp = FixtureAXUIElement("AXApplication")
+let slowNodes = (0..<30).map { index -> FixtureAXUIElement in
+    let node = FixtureAXUIElement("AXMenuBarItem", title: "Slow \(index)")
+    node.attributeDelay = 0.1
+    return node
+}
+slowApp.attributes["AXExtrasMenuBar"] = FixtureAXUIElement("AXMenuBar", children: slowNodes)
+applications = [42: slowApp, 43: laterApp]
+let deadlineStart = Date()
+let timed = MenuBarItemAXDiscovery.discoverItems(in: [FixtureNSRunningApplication(processIdentifier: 42), FixtureNSRunningApplication(processIdentifier: 43)])
+precondition(timed.contains { $0.title == "Later App" })
+precondition(timed.filter { $0.pid == 42 }.count < 30 && Date().timeIntervalSince(deadlineStart) < 3)
+let wrappers = (0..<30).map { _ -> FixtureAXUIElement in
+    let node = FixtureAXUIElement("AXGroup")
+    node.attributeDelay = 0.1
+    return node
+}
+slowApp.attributes["AXExtrasMenuBar"] = FixtureAXUIElement("AXMenuBar", title: "Truncated root", children: wrappers)
+applications = [42: slowApp, 43: laterApp]
+let truncated = MenuBarItemAXDiscovery.discoverItems(in: [FixtureNSRunningApplication(processIdentifier: 42), FixtureNSRunningApplication(processIdentifier: 43)])
+precondition(!truncated.contains { $0.title == "Truncated root" })
+precondition(truncated.contains { $0.title == "Later App" })
+applications = [:]
+print("PASS: production AX discovery isolates node/time budgets and never turns a truncated root into an icon")
 var failures = 0
 func check(_ name: String, title: String? = nil, identifier: String? = nil, changedTitle: Bool = false,
            stale: Bool = false, permission: Bool = true) {

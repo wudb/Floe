@@ -102,6 +102,8 @@
 
 2026-10-14 C1 后续见 [C1 核对与修复记录](c1-issue-audit.md)：29 条状态/评论已刷新，修复事件 tap 失效后的永久等待、输入等待的取消/超时，同分区显示请求的重入覆盖，CGS 窗口数量/列表边界导致的 trap，以及移动到位忙轮询和取消失效；原报告仍需对应系统验证，第五批 #563 和第六批 7 条窗口 ID 溢出精确签名均已按代码层归档，第七批再归档 #796/#905，第八批归档 #603/#742，当前 C1 17 条、M1 70 条、总清单 367 条。
 
+2026-10-14 C2 首批见 [C2 核对与修复](c2-issue-audit.md)：全部 45 条已刷新并逐条审计；修复缓存 fallback、CGS/AX 合并、每宿主 AX 预算、扫描生命周期及页面持续刷新。原场景尚未全部验收，逐条条件见审计。C2 45 条与总清单数量不变。
+
 范围：系统级异常调查、崩溃/冻结、权限阻塞、布局空白/持续加载及长时内存增长。
 
 | 工作包 | 内容 | 条目数 | 排期考虑 |
@@ -231,51 +233,51 @@
 | M1 | C1 | [jordanbaird/Ice #855](https://github.com/jordanbaird/Ice/issues/855) | [Bug]: Ice keeps crashing after updating to OS26.2 | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #877](https://github.com/jordanbaird/Ice/issues/877) | [Bug]: PROJECT DEAD, no updates in 1.5 years, crashes all the time. | 正文含更新阻塞、Floe Bar 崩溃和图标缺失，不能只当作维护状态询问；拆分验证各子问题。 | 待复现/验证 |
 | M1 | C1 | [jordanbaird/Ice #977](https://github.com/jordanbaird/Ice/issues/977) | [Bug]: crashes whenever I use the trigger button in the menu bar | 崩溃或无响应阻塞基本使用；优先确认堆栈和最小复现。 | 已核对 · 点击崩溃栈未符号化；保留报告验收 |
-| M1 | C2 | [cavaldos/Ice #9](https://github.com/cavaldos/Ice/issues/9) | [Bug]: Nothing is being shown on "Menu Bar Layout" in settings | 当前直接上游：布局空白同时阻塞查看与分区拖拽。 | 已核对 · CGS/AX fallback 已继承；报告级验证待补 |
-| M1 | C2 | [jordanbaird/Ice #283](https://github.com/jordanbaird/Ice/issues/283) | [Bug]: Ice's view of the menu bar is missing the icon for AltTab | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #312](https://github.com/jordanbaird/Ice/issues/312) | [Bug]: No items in Menu Bar | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #623](https://github.com/jordanbaird/Ice/issues/623) | [Bug]:Icons in MenuBar Layout page Disappear After Using ICE Bar in Full-Screen Mode | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #643](https://github.com/jordanbaird/Ice/issues/643) | [Bug]: Completely lost Stats app when dragging into Menu Bar Layout section | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #655](https://github.com/jordanbaird/Ice/issues/655) | [Bug]: ICE - Some Apps icons not appearing in the Menu Bar Layout setting | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #664](https://github.com/jordanbaird/Ice/issues/664) | [Bug]: MacOS Tahoe Breaks Menu Bar Layout Editor | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #677](https://github.com/jordanbaird/Ice/issues/677) | [Bug]: Ice bar do not work:endless loading menu bar items | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #679](https://github.com/jordanbaird/Ice/issues/679) | [Bug]: "Unable to display menu bar items" on macOS Tahoe/Ice 0.11.13-dev.2 | 已授权后布局与浮栏都无法展示，先查发现/缓存链路。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #682](https://github.com/jordanbaird/Ice/issues/682) | [Bug]: <Menebar Layout Pane> | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #685](https://github.com/jordanbaird/Ice/issues/685) | Whitened sections in Menu Bar Layout | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #687](https://github.com/jordanbaird/Ice/issues/687) | [Bug]: Doesn't display menu bar layout | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #696](https://github.com/jordanbaird/Ice/issues/696) | [Bug]: nothing showing up in the menu editing | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #710](https://github.com/jordanbaird/Ice/issues/710) | [Bug]: Ice shows "Unable to display menu bar item" under macOS 26 Tahoe | Unable to display 指无法显示菜单栏项目，属于基础发现/展示问题。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #711](https://github.com/jordanbaird/Ice/issues/711) | [Bug]: "Unable to display menu bar items" \| macOS Tahoe Version 26.0 (25A354) \| Ice 0.11.13-dev.2 | 布局与浮栏均无法显示且已授权，属于基础数据链路阻塞。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #716](https://github.com/jordanbaird/Ice/issues/716) | [Bug]: Menu Bar Layout BLANK (can't see any icons) | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #730](https://github.com/jordanbaird/Ice/issues/730) | [Bug]: Menu bar layout in settings bug | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #741](https://github.com/jordanbaird/Ice/issues/741) | [Bug]: Apps gone from Ice Layout | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #743](https://github.com/jordanbaird/Ice/issues/743) | [Bug]: I cannot see any icons | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #744](https://github.com/jordanbaird/Ice/issues/744) | [Bug]: Menu Bar Layout settings is empty | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #753](https://github.com/jordanbaird/Ice/issues/753) | [Bug]: Always Hidden items are empty under new Tahoe Beta 4 | 隐藏区没有可显示项目，先确认发现与分区数据来源。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #758](https://github.com/jordanbaird/Ice/issues/758) | [Bug]: Unable to re-arrange menu bar via Ice app | 正文指出布局页面无项目，先解决发现和展示再验证拖拽。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #762](https://github.com/jordanbaird/Ice/issues/762) | [Bug]: Cannot use Ice Bar nor Menu Bar layout icons | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #773](https://github.com/jordanbaird/Ice/issues/773) | [Bug]: Menu Bar Layout empty - All icons in hidden section | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #802](https://github.com/jordanbaird/Ice/issues/802) | [Bug]: After updating the Mac version, the layout settings disappeared. | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #816](https://github.com/jordanbaird/Ice/issues/816) | [Bug]: Menu Bar Layout does not give option to customize anything | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #818](https://github.com/jordanbaird/Ice/issues/818) | [Bug]: Menu bar layout editor is just empty/white | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #832](https://github.com/jordanbaird/Ice/issues/832) | [Bug]: Menu Bar Layout with Tahoe OS | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #835](https://github.com/jordanbaird/Ice/issues/835) | [Bug]: Ice stopped doing anything other than changing the Bar's appearance | 正文同时描述隐藏失效和布局页空白，先查核心发现链路。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #846](https://github.com/jordanbaird/Ice/issues/846) | [Bug]: MenuBar in Settings Is Empty White Space | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #872](https://github.com/jordanbaird/Ice/issues/872) | [Bug]: Unstable, Layout menu area broken | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #878](https://github.com/jordanbaird/Ice/issues/878) | [Bug]: Menu bar items are not appearing | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #891](https://github.com/jordanbaird/Ice/issues/891) | [Bug]: ICons List Blank In Settings | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #913](https://github.com/jordanbaird/Ice/issues/913) | [Bug]: Settings Menu: Menu Bar Layout Icons Do Not Appear | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #916](https://github.com/jordanbaird/Ice/issues/916) | [Bug]:  I can't edit my layout, because it's all blank | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #919](https://github.com/jordanbaird/Ice/issues/919) | [Bug]: Ice icon dissappeared | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #921](https://github.com/jordanbaird/Ice/issues/921) | [Bug]: Icons in re-arrange menu in settings aren't visible | 设置中的整理列表没有可见图标，阻塞布局编辑。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #951](https://github.com/jordanbaird/Ice/issues/951) | [Bug]: Can't view the icons on Menu Bar Layout | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #965](https://github.com/jordanbaird/Ice/issues/965) | [Bug]: Menubar layout broken/spinning in MacOS 27 Public Beta | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #973](https://github.com/jordanbaird/Ice/issues/973) | [Bug]: Menu bar layout shown nothing on the sections | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #992](https://github.com/jordanbaird/Ice/issues/992) | [Bug]: unavailable under MacOS27 | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #999](https://github.com/jordanbaird/Ice/issues/999) | [Bug]: Can't see layout | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #1003](https://github.com/jordanbaird/Ice/issues/1003) | [Bug]: [Bug]: Updated to MacOS 27.0.1 and cannot customize Menu Bar Layout on Ice | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #1009](https://github.com/jordanbaird/Ice/issues/1009) | [Bug]: | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
-| M1 | C2 | [jordanbaird/Ice #1010](https://github.com/jordanbaird/Ice/issues/1010) | [Bug]: always loading meum bar items | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 待复现/验证 |
+| M1 | C2 | [cavaldos/Ice #9](https://github.com/cavaldos/Ice/issues/9) | [Bug]: Nothing is being shown on "Menu Bar Layout" in settings | 当前直接上游：布局空白同时阻塞查看与分区拖拽。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #283](https://github.com/jordanbaird/Ice/issues/283) | [Bug]: Ice's view of the menu bar is missing the icon for AltTab | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · AX 独立额度/混合补充/持续刷新 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #312](https://github.com/jordanbaird/Ice/issues/312) | [Bug]: No items in Menu Bar | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #623](https://github.com/jordanbaird/Ice/issues/623) | [Bug]:Icons in MenuBar Layout page Disappear After Using ICE Bar in Full-Screen Mode | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 迟到扫描/快照恢复 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #643](https://github.com/jordanbaird/Ice/issues/643) | [Bug]: Completely lost Stats app when dragging into Menu Bar Layout section | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 已核对 · 系统允许列表线索，未修改第三方设置 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #655](https://github.com/jordanbaird/Ice/issues/655) | [Bug]: ICE - Some Apps icons not appearing in the Menu Bar Layout setting | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · AX 独立额度/混合补充/持续刷新 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #664](https://github.com/jordanbaird/Ice/issues/664) | [Bug]: MacOS Tahoe Breaks Menu Bar Layout Editor | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #677](https://github.com/jordanbaird/Ice/issues/677) | [Bug]: Ice bar do not work:endless loading menu bar items | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描生命周期 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #679](https://github.com/jordanbaird/Ice/issues/679) | [Bug]: "Unable to display menu bar items" on macOS Tahoe/Ice 0.11.13-dev.2 | 已授权后布局与浮栏都无法展示，先查发现/缓存链路。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #682](https://github.com/jordanbaird/Ice/issues/682) | [Bug]: <Menebar Layout Pane> | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #685](https://github.com/jordanbaird/Ice/issues/685) | Whitened sections in Menu Bar Layout | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #687](https://github.com/jordanbaird/Ice/issues/687) | [Bug]: Doesn't display menu bar layout | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描生命周期 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #696](https://github.com/jordanbaird/Ice/issues/696) | [Bug]: nothing showing up in the menu editing | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 已核对 · 发现与布局路径修复，缺少具体根因 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #710](https://github.com/jordanbaird/Ice/issues/710) | [Bug]: Ice shows "Unable to display menu bar item" under macOS 26 Tahoe | Unable to display 指无法显示菜单栏项目，属于基础发现/展示问题。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #711](https://github.com/jordanbaird/Ice/issues/711) | [Bug]: "Unable to display menu bar items" \| macOS Tahoe Version 26.0 (25A354) \| Ice 0.11.13-dev.2 | 布局与浮栏均无法显示且已授权，属于基础数据链路阻塞。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #716](https://github.com/jordanbaird/Ice/issues/716) | [Bug]: Menu Bar Layout BLANK (can't see any icons) | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #730](https://github.com/jordanbaird/Ice/issues/730) | [Bug]: Menu bar layout in settings bug | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #741](https://github.com/jordanbaird/Ice/issues/741) | [Bug]: Apps gone from Ice Layout | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #743](https://github.com/jordanbaird/Ice/issues/743) | [Bug]: I cannot see any icons | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #744](https://github.com/jordanbaird/Ice/issues/744) | [Bug]: Menu Bar Layout settings is empty | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #753](https://github.com/jordanbaird/Ice/issues/753) | [Bug]: Always Hidden items are empty under new Tahoe Beta 4 | 隐藏区没有可显示项目，先确认发现与分区数据来源。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #758](https://github.com/jordanbaird/Ice/issues/758) | [Bug]: Unable to re-arrange menu bar via Ice app | 正文指出布局页面无项目，先解决发现和展示再验证拖拽。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #762](https://github.com/jordanbaird/Ice/issues/762) | [Bug]: Cannot use Ice Bar nor Menu Bar layout icons | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #773](https://github.com/jordanbaird/Ice/issues/773) | [Bug]: Menu Bar Layout empty - All icons in hidden section | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #802](https://github.com/jordanbaird/Ice/issues/802) | [Bug]: After updating the Mac version, the layout settings disappeared. | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 已核对 · 发现与布局路径修复，缺少具体根因 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #816](https://github.com/jordanbaird/Ice/issues/816) | [Bug]: Menu Bar Layout does not give option to customize anything | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #818](https://github.com/jordanbaird/Ice/issues/818) | [Bug]: Menu bar layout editor is just empty/white | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #832](https://github.com/jordanbaird/Ice/issues/832) | [Bug]: Menu Bar Layout with Tahoe OS | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #835](https://github.com/jordanbaird/Ice/issues/835) | [Bug]: Ice stopped doing anything other than changing the Bar's appearance | 正文同时描述隐藏失效和布局页空白，先查核心发现链路。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #846](https://github.com/jordanbaird/Ice/issues/846) | [Bug]: MenuBar in Settings Is Empty White Space | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #872](https://github.com/jordanbaird/Ice/issues/872) | [Bug]: Unstable, Layout menu area broken | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #878](https://github.com/jordanbaird/Ice/issues/878) | [Bug]: Menu bar items are not appearing | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · AX 独立额度/混合补充/持续刷新 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #891](https://github.com/jordanbaird/Ice/issues/891) | [Bug]: ICons List Blank In Settings | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · AX 独立额度/混合补充/持续刷新 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #913](https://github.com/jordanbaird/Ice/issues/913) | [Bug]: Settings Menu: Menu Bar Layout Icons Do Not Appear | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #916](https://github.com/jordanbaird/Ice/issues/916) | [Bug]:  I can't edit my layout, because it's all blank | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 已核对 · 发现与布局路径修复，缺少具体根因 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #919](https://github.com/jordanbaird/Ice/issues/919) | [Bug]: Ice icon dissappeared | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描取消 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #921](https://github.com/jordanbaird/Ice/issues/921) | [Bug]: Icons in re-arrange menu in settings aren't visible | 设置中的整理列表没有可见图标，阻塞布局编辑。 | 已核对 · 发现与布局路径修复，缺少具体根因 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #951](https://github.com/jordanbaird/Ice/issues/951) | [Bug]: Can't view the icons on Menu Bar Layout | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 已核对 · 发现与布局路径修复，缺少具体根因 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #965](https://github.com/jordanbaird/Ice/issues/965) | [Bug]: Menubar layout broken/spinning in MacOS 27 Public Beta | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描生命周期 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #973](https://github.com/jordanbaird/Ice/issues/973) | [Bug]: Menu bar layout shown nothing on the sections | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · fallback/合并/刷新/快照 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #992](https://github.com/jordanbaird/Ice/issues/992) | [Bug]: unavailable under MacOS27 | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描生命周期 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #999](https://github.com/jordanbaird/Ice/issues/999) | [Bug]: Can't see layout | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 已核对 · 发现与布局路径修复，缺少具体根因 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #1003](https://github.com/jordanbaird/Ice/issues/1003) | [Bug]: [Bug]: Updated to MacOS 27.0.1 and cannot customize Menu Bar Layout on Ice | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描生命周期 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #1009](https://github.com/jordanbaird/Ice/issues/1009) | [Bug]: | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描生命周期 · 完整报告保留 |
+| M1 | C2 | [jordanbaird/Ice #1010](https://github.com/jordanbaird/Ice/issues/1010) | [Bug]: always loading meum bar items | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描生命周期 · 完整报告保留 |
 | M1 | C3 | [jordanbaird/Ice #770](https://github.com/jordanbaird/Ice/issues/770) | [Bug]: App gets stuck when installed | 权限、启动或安装路径可能阻塞应用使用；先核实实际权限及签名状态。 | 待复现/验证 |
 | M1 | C3 | [jordanbaird/Ice #834](https://github.com/jordanbaird/Ice/issues/834) | [Bug]: | 已授权但仍出现权限/对话框异常，存在启动与使用阻塞。 | 待复现/验证 |
 | M1 | C3 | [jordanbaird/Ice #934](https://github.com/jordanbaird/Ice/issues/934) | [Bug]: Nothing happens when I try to run Ice | 权限、启动或安装路径可能阻塞应用使用；先核实实际权限及签名状态。 | 待复现/验证 |

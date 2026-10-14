@@ -178,14 +178,12 @@ enum MenuBarItemAXDiscovery {
         // Drops Floe's own icons (the dividers) from the list.
         let ownBundleID = Bundle.main.bundleIdentifier
         var result = [AXMenuBarItem]()
-        var visited = 0
         for app in apps {
-            guard visited < maxElementsVisited else {
-                break
-            }
             guard app.bundleIdentifier != ownBundleID else {
                 continue
             }
+            // 每个宿主独立限制树遍历，不能让一个复杂宿主耗尽所有后续应用的额度。
+            var visited = 0
             result.append(contentsOf: items(for: app, visited: &visited))
         }
         return result.sorted {
@@ -306,7 +304,7 @@ enum MenuBarItemAXDiscovery {
         }
     }
 
-    /// Maximum number of elements read in a single scan.
+    /// Maximum number of elements read from one application in a scan.
     private static let maxElementsVisited = 256
 
     /// Maximum depth when descending the AX tree.
@@ -319,8 +317,9 @@ enum MenuBarItemAXDiscovery {
     /// Reads an app's `AXExtrasMenuBar`.
     private static func items(for app: NSRunningApplication, visited: inout Int) -> [AXMenuBarItem] {
         let axApp = AXUIElementCreateApplication(app.processIdentifier)
-        // ponytail: short timeout per app — one hung app must not block the whole scan (the system default waits up to 6s).
-        AXUIElementSetMessagingTimeout(axApp, 1)
+        // 单次 AX 消息采用短超时，整棵宿主树有独立时间预算，避免无响应宿主拖住后续发现。
+        AXUIElementSetMessagingTimeout(axApp, 0.1)
+        let deadline = Date.now.addingTimeInterval(1)
 
         var bar: AnyObject?
         guard
@@ -342,6 +341,7 @@ enum MenuBarItemAXDiscovery {
             bundleID: app.bundleIdentifier,
             depth: maxWalkDepth,
             visited: &visited,
+            deadline: deadline,
             into: &result
         )
         return result
@@ -360,9 +360,10 @@ enum MenuBarItemAXDiscovery {
         bundleID: String?,
         depth: Int,
         visited: inout Int,
+        deadline: Date,
         into result: inout [AXMenuBarItem]
     ) {
-        guard depth > 0, visited < maxElementsVisited else {
+        guard depth > 0, visited < maxElementsVisited, Date.now < deadline else {
             return
         }
         visited += 1
@@ -386,7 +387,7 @@ enum MenuBarItemAXDiscovery {
         {
             let countBefore = result.count
             for child in elements {
-                collectItems(from: child, pid: pid, appName: appName, bundleID: bundleID, depth: depth - 1, visited: &visited, into: &result)
+                collectItems(from: child, pid: pid, appName: appName, bundleID: bundleID, depth: depth - 1, visited: &visited, deadline: deadline, into: &result)
             }
             // When a child is an item, skip the wrapper element.
             guard result.count == countBefore else {
@@ -394,6 +395,8 @@ enum MenuBarItemAXDiscovery {
             }
         }
 
+        // 超时截断子树后不能把未读完的 wrapper 冒充状态项。
+        guard Date.now < deadline else { return }
         record(element, pid: pid, appName: appName, bundleID: bundleID, into: &result, recordNameless: false)
     }
 
