@@ -419,6 +419,11 @@ struct MenuBarLayoutSettingsPane: View {
                 await refresh()
                 return
             }
+            guard item.isMovable, kind == .visible || item.canBeHidden else {
+                sections = snapshotBeforeDrag
+                moveFailed = true
+                return
+            }
             guard fromKind != kind else {
                 // Already in the destination group; put it back where it was,
                 // then re-scan so the UI is truth, not the optimistic append.
@@ -542,6 +547,10 @@ struct MenuBarLayoutSettingsPane: View {
                 return
             }
             let toKind = target.kind
+            guard item.isMovable, toKind == .visible || item.canBeHidden else {
+                moveFailed = true
+                return
+            }
             if fromKind == toKind, isImmediatelyBefore(itemID: itemID, targetID: targetID, in: toKind) {
                 // Already in position — no drag needed.
                 return
@@ -941,7 +950,9 @@ struct MenuBarLayoutSettingsPane: View {
                         systemImage: systemImage,
                         appIcon: appIcon,
                         isSystem: bundleID?.hasPrefix("com.apple.") == true,
-                        quartzFrame: item.frame
+                        quartzFrame: item.frame,
+                        isMovable: item.isMovable,
+                        canBeHidden: item.canBeHidden
                     )
                 )
             }
@@ -1165,6 +1176,9 @@ private struct RowItem: Identifiable {
     /// Frame in Quartz coordinates (top-left origin, same system as `CGEvent`),
     /// used as the start point for a Command-drag.
     let quartzFrame: CGRect?
+    /// CGS 已知系统限制；AX 未提供可靠限制时保留系统实际拒绝结果。
+    var isMovable = true
+    var canBeHidden = true
 }
 
 private struct SectionMeta {

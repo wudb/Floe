@@ -87,11 +87,7 @@ final class MenuBarSection {
         guard let appState else {
             return nil
         }
-        if appState.isActiveSpaceFullscreen {
-            return NSScreen.screenWithMouse ?? NSScreen.main
-        } else {
-            return NSScreen.main
-        }
+        return appState.eventManager.bestScreen
     }
 
     /// A Boolean value that indicates whether the section is hidden.
@@ -371,12 +367,11 @@ final class MenuBarSection {
 
         rehideMonitor = UniversalEventMonitor(mask: .mouseMoved) { [weak self] event in
             guard
-                let self,
-                let screen = NSScreen.main
+                let self
             else {
                 return event
             }
-            if NSEvent.mouseLocation.y < screen.visibleFrame.maxY,
+            if !appState.eventManager.isMouseInsideMenuBar,
                !appState.eventManager.isMouseInsideFloeBar {
                 if rehideTimer == nil {
                     rehideTimer = .scheduledTimer(
@@ -387,11 +382,10 @@ final class MenuBarSection {
                             guard let self, self.rehideTimer === timer else { return }
                             // 即使菜单保护拒绝隐藏，也必须清除已触发的 timer，允许后续重新调度。
                             self.rehideTimer = nil
-                            guard let screen = NSScreen.main,
-                                  appState.settingsManager.generalSettingsManager.autoRehide,
+                            guard appState.settingsManager.generalSettingsManager.autoRehide,
                                   case .timed = appState.settingsManager.generalSettingsManager.rehideStrategy
                             else { return }
-                            if NSEvent.mouseLocation.y < screen.visibleFrame.maxY,
+                            if !appState.eventManager.isMouseInsideMenuBar,
                                !appState.eventManager.isMouseInsideFloeBar {
                                 self.hide(persistState: false)
                             } else {

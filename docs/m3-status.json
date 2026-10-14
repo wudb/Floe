@@ -1,0 +1,987 @@
+{
+  "date": "2026-10-14",
+  "total": 94,
+  "work_packages": {
+    "S1": 41,
+    "S2": 15,
+    "S3": 38
+  },
+  "items": [
+    {
+      "repository": "cavaldos/Ice",
+      "number": 5,
+      "url": "https://github.com/cavaldos/Ice/issues/5",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "macOS 27 合盖外接屏隐藏失效的原系统场景未复现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 94,
+      "url": "https://github.com/jordanbaird/Ice/issues/94",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "超宽屏隐藏长度/系统布局原场景未复现；当前外屏 1920×1080 无法替代 7680×2160"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 260,
+      "url": "https://github.com/jordanbaird/Ice/issues/260",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "实际像素倍率/逻辑尺寸；目标屏布局；低分辨率内缩高度下限",
+      "remaining_acceptance": "真机截图及图标/外观像素高度；#657 还需原生外观对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 383,
+      "url": "https://github.com/jordanbaird/Ice/issues/383",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "指针所属显示器、真实菜单栏命中、滑动菜单栏不用旧帧；计时收起也按实际菜单栏/浮栏判断",
+      "remaining_acceptance": "原模式真实点击/悬停/滚轮验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 416,
+      "url": "https://github.com/jordanbaird/Ice/issues/416",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "截图不可用/跨屏时 AX 项目访问回退与独立搜索入口；现有应用菜单避让保护",
+      "remaining_acceptance": "刘海/空间不足时原宿主 AX 可见性与真实点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 456,
+      "url": "https://github.com/jordanbaird/Ice/issues/456",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "指针所属显示器、真实菜单栏命中、滑动菜单栏不用旧帧；计时收起也按实际菜单栏/浮栏判断",
+      "remaining_acceptance": "原模式真实点击/悬停/滚轮验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 486,
+      "url": "https://github.com/jordanbaird/Ice/issues/486",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "系统 Display Zoom 视野跟随合成鼠标场景未验收；未读取不受支持的 Zoom 偏好猜测状态"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 573,
+      "url": "https://github.com/jordanbaird/Ice/issues/573",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "同 #94 的 7680×2160 超宽屏场景，不能以调整截图倍率当作隐藏已修复"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 589,
+      "url": "https://github.com/jordanbaird/Ice/issues/589",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "截图不可用/跨屏时 AX 项目访问回退与独立搜索入口；现有应用菜单避让保护",
+      "remaining_acceptance": "刘海/空间不足时原宿主 AX 可见性与真实点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 639,
+      "url": "https://github.com/jordanbaird/Ice/issues/639",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "指针所属显示器、真实菜单栏命中、滑动菜单栏不用旧帧；计时收起也按实际菜单栏/浮栏判断",
+      "remaining_acceptance": "原模式真实点击/悬停/滚轮验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 646,
+      "url": "https://github.com/jordanbaird/Ice/issues/646",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "指针所属显示器、真实菜单栏命中、滑动菜单栏不用旧帧；计时收起也按实际菜单栏/浮栏判断",
+      "remaining_acceptance": "原模式真实点击/悬停/滚轮验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 698,
+      "url": "https://github.com/jordanbaird/Ice/issues/698",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "实际像素倍率/逻辑尺寸；目标屏布局；低分辨率内缩高度下限",
+      "remaining_acceptance": "真机截图及图标/外观像素高度；#657 还需原生外观对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 715,
+      "url": "https://github.com/jordanbaird/Ice/issues/715",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "截图不可用/跨屏时 AX 项目访问回退与独立搜索入口；现有应用菜单避让保护",
+      "remaining_acceptance": "刘海/空间不足时原宿主 AX 可见性与真实点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 824,
+      "url": "https://github.com/jordanbaird/Ice/issues/824",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "指针所属显示器、真实菜单栏命中、滑动菜单栏不用旧帧；计时收起也按实际菜单栏/浮栏判断",
+      "remaining_acceptance": "原模式真实点击/悬停/滚轮验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 825,
+      "url": "https://github.com/jordanbaird/Ice/issues/825",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "实际像素倍率/逻辑尺寸；目标屏布局；低分辨率内缩高度下限",
+      "remaining_acceptance": "真机截图及图标/外观像素高度；#657 还需原生外观对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 829,
+      "url": "https://github.com/jordanbaird/Ice/issues/829",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "实际像素倍率/逻辑尺寸；目标屏布局；低分辨率内缩高度下限",
+      "remaining_acceptance": "真机截图及图标/外观像素高度；#657 还需原生外观对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 836,
+      "url": "https://github.com/jordanbaird/Ice/issues/836",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "自动隐藏菜单栏下提供 AX 访问回退，不再因原状态项隐藏强制关闭浮栏",
+      "remaining_acceptance": "系统自动隐藏下真实 AX 节点及点击行为"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 929,
+      "url": "https://github.com/jordanbaird/Ice/issues/929",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "实际像素倍率/逻辑尺寸；目标屏布局；低分辨率内缩高度下限",
+      "remaining_acceptance": "真机截图及图标/外观像素高度；#657 还需原生外观对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 955,
+      "url": "https://github.com/jordanbaird/Ice/issues/955",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "实际像素倍率/逻辑尺寸；目标屏布局；低分辨率内缩高度下限",
+      "remaining_acceptance": "真机截图及图标/外观像素高度；#657 还需原生外观对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 987,
+      "url": "https://github.com/jordanbaird/Ice/issues/987",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "实际像素倍率/逻辑尺寸；目标屏布局；低分辨率内缩高度下限",
+      "remaining_acceptance": "真机截图及图标/外观像素高度；#657 还需原生外观对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 201,
+      "url": "https://github.com/jordanbaird/Ice/issues/201",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "自动隐藏菜单栏下提供 AX 访问回退，不再因原状态项隐藏强制关闭浮栏",
+      "remaining_acceptance": "系统自动隐藏下真实 AX 节点及点击行为"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 234,
+      "url": "https://github.com/jordanbaird/Ice/issues/234",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片与颜色环境代次失效；迟到结果不可发布；全屏旧外观撤下",
+      "remaining_acceptance": "真实 Spaces 快速切换与壁纸/颜色/全屏视觉验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 254,
+      "url": "https://github.com/jordanbaird/Ice/issues/254",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片与颜色环境代次失效；迟到结果不可发布；全屏旧外观撤下",
+      "remaining_acceptance": "真实 Spaces 快速切换与壁纸/颜色/全屏视觉验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 286,
+      "url": "https://github.com/jordanbaird/Ice/issues/286",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "指针所属显示器、真实菜单栏命中、滑动菜单栏不用旧帧；计时收起也按实际菜单栏/浮栏判断",
+      "remaining_acceptance": "原模式真实点击/悬停/滚轮验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 331,
+      "url": "https://github.com/jordanbaird/Ice/issues/331",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "自动隐藏菜单栏下提供 AX 访问回退，不再因原状态项隐藏强制关闭浮栏",
+      "remaining_acceptance": "系统自动隐藏下真实 AX 节点及点击行为"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 708,
+      "url": "https://github.com/jordanbaird/Ice/issues/708",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "指针所属显示器、真实菜单栏命中、滑动菜单栏不用旧帧；计时收起也按实际菜单栏/浮栏判断",
+      "remaining_acceptance": "原模式真实点击/悬停/滚轮验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 714,
+      "url": "https://github.com/jordanbaird/Ice/issues/714",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "Mission Control 悬停误触发仍待可靠可见性信号及真机复现，未加入未经证实的 Dock 标题启发式"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 899,
+      "url": "https://github.com/jordanbaird/Ice/issues/899",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "指针所属显示器、真实菜单栏命中、滑动菜单栏不用旧帧；计时收起也按实际菜单栏/浮栏判断",
+      "remaining_acceptance": "原模式真实点击/悬停/滚轮验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 244,
+      "url": "https://github.com/jordanbaird/Ice/issues/244",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 300,
+      "url": "https://github.com/jordanbaird/Ice/issues/300",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片、分区、临时显示/归位、用户取消均按窗口 ID；歧义重建不猜测",
+      "remaining_acceptance": "OneDrive 等多实例实际交互；#854 需区分重复安装/正常多账号"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 330,
+      "url": "https://github.com/jordanbaird/Ice/issues/330",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "现有菜单保护、点击/移动有界等待；本轮增加窗口身份和自动隐藏/截图失败 AX 回退",
+      "remaining_acceptance": "对应宿主菜单/子菜单/自定义弹窗；不是所有报告同一根因"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 404,
+      "url": "https://github.com/jordanbaird/Ice/issues/404",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片、分区、临时显示/归位、用户取消均按窗口 ID；歧义重建不猜测",
+      "remaining_acceptance": "OneDrive 等多实例实际交互；#854 需区分重复安装/正常多账号"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 440,
+      "url": "https://github.com/jordanbaird/Ice/issues/440",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "CGS 布局拖拽遵守已有不可移动/不可隐藏名单，不对受保护项目盲目重试",
+      "remaining_acceptance": "系统约束待原生对照；没有绕过系统保护实现隐藏"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 462,
+      "url": "https://github.com/jordanbaird/Ice/issues/462",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 467,
+      "url": "https://github.com/jordanbaird/Ice/issues/467",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 480,
+      "url": "https://github.com/jordanbaird/Ice/issues/480",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "Alcove 特定设置交互需该应用原场景对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 526,
+      "url": "https://github.com/jordanbaird/Ice/issues/526",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "现有菜单保护、点击/移动有界等待；本轮增加窗口身份和自动隐藏/截图失败 AX 回退",
+      "remaining_acceptance": "对应宿主菜单/子菜单/自定义弹窗；不是所有报告同一根因"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 586,
+      "url": "https://github.com/jordanbaird/Ice/issues/586",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "现有菜单保护、点击/移动有界等待；本轮增加窗口身份和自动隐藏/截图失败 AX 回退",
+      "remaining_acceptance": "对应宿主菜单/子菜单/自定义弹窗；不是所有报告同一根因"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 642,
+      "url": "https://github.com/jordanbaird/Ice/issues/642",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "现有菜单保护、点击/移动有界等待；本轮增加窗口身份和自动隐藏/截图失败 AX 回退",
+      "remaining_acceptance": "对应宿主菜单/子菜单/自定义弹窗；不是所有报告同一根因"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 656,
+      "url": "https://github.com/jordanbaird/Ice/issues/656",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "Live Activities 的真实移动能力/标识需要 macOS 26 原生对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 658,
+      "url": "https://github.com/jordanbaird/Ice/issues/658",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "尚未定位并验证原场景根因；不能因其他代码改进归档"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 697,
+      "url": "https://github.com/jordanbaird/Ice/issues/697",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "现有菜单保护、点击/移动有界等待；本轮增加窗口身份和自动隐藏/截图失败 AX 回退",
+      "remaining_acceptance": "对应宿主菜单/子菜单/自定义弹窗；不是所有报告同一根因"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 701,
+      "url": "https://github.com/jordanbaird/Ice/issues/701",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "尚未定位并验证原场景根因；不能因其他代码改进归档"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 704,
+      "url": "https://github.com/jordanbaird/Ice/issues/704",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "iPhone 实时通知移动能力需要原系统与设备对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 707,
+      "url": "https://github.com/jordanbaird/Ice/issues/707",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "现有菜单保护、点击/移动有界等待；本轮增加窗口身份和自动隐藏/截图失败 AX 回退",
+      "remaining_acceptance": "对应宿主菜单/子菜单/自定义弹窗；不是所有报告同一根因"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 718,
+      "url": "https://github.com/jordanbaird/Ice/issues/718",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "Game Mode 状态项与游戏全屏需要原系统对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 719,
+      "url": "https://github.com/jordanbaird/Ice/issues/719",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "尚未定位并验证原场景根因；不能因其他代码改进归档"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 729,
+      "url": "https://github.com/jordanbaird/Ice/issues/729",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "现有菜单保护、点击/移动有界等待；本轮增加窗口身份和自动隐藏/截图失败 AX 回退",
+      "remaining_acceptance": "对应宿主菜单/子菜单/自定义弹窗；不是所有报告同一根因"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 732,
+      "url": "https://github.com/jordanbaird/Ice/issues/732",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 739,
+      "url": "https://github.com/jordanbaird/Ice/issues/739",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片、分区、临时显示/归位、用户取消均按窗口 ID；歧义重建不猜测",
+      "remaining_acceptance": "OneDrive 等多实例实际交互；#854 需区分重复安装/正常多账号"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 748,
+      "url": "https://github.com/jordanbaird/Ice/issues/748",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 766,
+      "url": "https://github.com/jordanbaird/Ice/issues/766",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "现有菜单保护、点击/移动有界等待；本轮增加窗口身份和自动隐藏/截图失败 AX 回退",
+      "remaining_acceptance": "对应宿主菜单/子菜单/自定义弹窗；不是所有报告同一根因"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 798,
+      "url": "https://github.com/jordanbaird/Ice/issues/798",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 806,
+      "url": "https://github.com/jordanbaird/Ice/issues/806",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 817,
+      "url": "https://github.com/jordanbaird/Ice/issues/817",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "系统用户切换项发现与移动，需要原系统 AX/CGS 对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 844,
+      "url": "https://github.com/jordanbaird/Ice/issues/844",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 852,
+      "url": "https://github.com/jordanbaird/Ice/issues/852",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "CGS 布局拖拽遵守已有不可移动/不可隐藏名单，不对受保护项目盲目重试",
+      "remaining_acceptance": "系统约束待原生对照；没有绕过系统保护实现隐藏"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 853,
+      "url": "https://github.com/jordanbaird/Ice/issues/853",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 854,
+      "url": "https://github.com/jordanbaird/Ice/issues/854",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片、分区、临时显示/归位、用户取消均按窗口 ID；歧义重建不猜测",
+      "remaining_acceptance": "OneDrive 等多实例实际交互；#854 需区分重复安装/正常多账号"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 857,
+      "url": "https://github.com/jordanbaird/Ice/issues/857",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片、分区、临时显示/归位、用户取消均按窗口 ID；歧义重建不猜测",
+      "remaining_acceptance": "OneDrive 等多实例实际交互；#854 需区分重复安装/正常多账号"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 887,
+      "url": "https://github.com/jordanbaird/Ice/issues/887",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 909,
+      "url": "https://github.com/jordanbaird/Ice/issues/909",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片、分区、临时显示/归位、用户取消均按窗口 ID；歧义重建不猜测",
+      "remaining_acceptance": "OneDrive 等多实例实际交互；#854 需区分重复安装/正常多账号"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 915,
+      "url": "https://github.com/jordanbaird/Ice/issues/915",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "Unsplash 宿主崩溃缺少 Floe 同环境堆栈/因果证据，未定位根因"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 918,
+      "url": "https://github.com/jordanbaird/Ice/issues/918",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局恢复识别宿主退出/窗口 ID 复用；失败退避后重试；明确用户选择优先",
+      "remaining_acceptance": "唯一身份宿主重建、更新与启动；多状态项无稳定标识仍未解决"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 53,
+      "url": "https://github.com/jordanbaird/Ice/issues/53",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 211,
+      "url": "https://github.com/jordanbaird/Ice/issues/211",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "浮栏拖到另一屏后重绑定内容与颜色；跨屏图片来源不可靠时用 AX",
+      "remaining_acceptance": "非活动屏真实项目颜色和 AX 激活"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 241,
+      "url": "https://github.com/jordanbaird/Ice/issues/241",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "副屏分隔符占位仍需原模式真实布局验证"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 272,
+      "url": "https://github.com/jordanbaird/Ice/issues/272",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "Sidecar 原生状态项额外间距仍需 iPad 设备对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 359,
+      "url": "https://github.com/jordanbaird/Ice/issues/359",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "每屏菜单栏 AX 几何与刘海外观需要实际截图对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 445,
+      "url": "https://github.com/jordanbaird/Ice/issues/445",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 517,
+      "url": "https://github.com/jordanbaird/Ice/issues/517",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 529,
+      "url": "https://github.com/jordanbaird/Ice/issues/529",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "超宽屏右侧外观宽度需原分辨率截图/AX 对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 550,
+      "url": "https://github.com/jordanbaird/Ice/issues/550",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 576,
+      "url": "https://github.com/jordanbaird/Ice/issues/576",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 609,
+      "url": "https://github.com/jordanbaird/Ice/issues/609",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 636,
+      "url": "https://github.com/jordanbaird/Ice/issues/636",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 657,
+      "url": "https://github.com/jordanbaird/Ice/issues/657",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "实际像素倍率/逻辑尺寸；目标屏布局；低分辨率内缩高度下限",
+      "remaining_acceptance": "真机截图及图标/外观像素高度；#657 还需原生外观对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 683,
+      "url": "https://github.com/jordanbaird/Ice/issues/683",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "全局状态项展开会跨屏共享，尚未实现每屏独立分区策略"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 750,
+      "url": "https://github.com/jordanbaird/Ice/issues/750",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 780,
+      "url": "https://github.com/jordanbaird/Ice/issues/780",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 858,
+      "url": "https://github.com/jordanbaird/Ice/issues/858",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 863,
+      "url": "https://github.com/jordanbaird/Ice/issues/863",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 910,
+      "url": "https://github.com/jordanbaird/Ice/issues/910",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 986,
+      "url": "https://github.com/jordanbaird/Ice/issues/986",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 988,
+      "url": "https://github.com/jordanbaird/Ice/issues/988",
+      "work_package": "S1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "外观显示/更新统一校验；全屏/隐藏/断屏撤下旧面板；睡眠清理及唤醒重建",
+      "remaining_acceptance": "原显示器布局、合盖/睡眠、VMWare/Sidecar 原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 216,
+      "url": "https://github.com/jordanbaird/Ice/issues/216",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "Mission Control 删除 Space 后的排序仍待真机复现；全屏/隐藏撤下不是该场景的完成证据"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 336,
+      "url": "https://github.com/jordanbaird/Ice/issues/336",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片与颜色环境代次失效；迟到结果不可发布；全屏旧外观撤下",
+      "remaining_acceptance": "真实 Spaces 快速切换与壁纸/颜色/全屏视觉验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 337,
+      "url": "https://github.com/jordanbaird/Ice/issues/337",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片与颜色环境代次失效；迟到结果不可发布；全屏旧外观撤下",
+      "remaining_acceptance": "真实 Spaces 快速切换与壁纸/颜色/全屏视觉验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 451,
+      "url": "https://github.com/jordanbaird/Ice/issues/451",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片与颜色环境代次失效；迟到结果不可发布；全屏旧外观撤下",
+      "remaining_acceptance": "真实 Spaces 快速切换与壁纸/颜色/全屏视觉验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 521,
+      "url": "https://github.com/jordanbaird/Ice/issues/521",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片与颜色环境代次失效；迟到结果不可发布；全屏旧外观撤下",
+      "remaining_acceptance": "真实 Spaces 快速切换与壁纸/颜色/全屏视觉验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 606,
+      "url": "https://github.com/jordanbaird/Ice/issues/606",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片与颜色环境代次失效；迟到结果不可发布；全屏旧外观撤下",
+      "remaining_acceptance": "真实 Spaces 快速切换与壁纸/颜色/全屏视觉验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 959,
+      "url": "https://github.com/jordanbaird/Ice/issues/959",
+      "work_package": "S2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "图片与颜色环境代次失效；迟到结果不可发布；全屏旧外观撤下",
+      "remaining_acceptance": "真实 Spaces 快速切换与壁纸/颜色/全屏视觉验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 731,
+      "url": "https://github.com/jordanbaird/Ice/issues/731",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "investigated_unresolved_original_scenario",
+      "note": "已刷新上游原文及评论；原显示器/系统/宿主组合待复现",
+      "remaining_acceptance": "Live Activities 默认显示是产品需求，尚未实现每项稳定策略"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 886,
+      "url": "https://github.com/jordanbaird/Ice/issues/886",
+      "work_package": "S3",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "CGS 布局拖拽遵守已有不可移动/不可隐藏名单，不对受保护项目盲目重试",
+      "remaining_acceptance": "系统约束待原生对照；没有绕过系统保护实现隐藏"
+    }
+  ],
+  "validation": {
+    "swift_regressions": 33,
+    "debug_build": "passed",
+    "signed_debug_readonly_diagnostic": "passed",
+    "release_build": "passed",
+    "swiftlint_strict": "passed",
+    "original_scenarios": "not_complete"
+  },
+  "environment": {
+    "system": "macOS 15.8.1",
+    "displays": [
+      {
+        "id": 1,
+        "scale": 2,
+        "size": "1728x1117"
+      },
+      {
+        "id": 2,
+        "scale": 1,
+        "size": "1920x1080",
+        "x": -1920
+      },
+      {
+        "id": 3,
+        "scale": 1,
+        "size": "1920x1080",
+        "x": 1728
+      }
+    ],
+    "probe_ax_trusted": false,
+    "probe_screen_capture_allowed": false,
+    "floe_running": false,
+    "floe_native_accessibility_trusted": false,
+    "floe_native_screen_capture_allowed": false,
+    "native_menu_bars_verified": 3
+  }
+}

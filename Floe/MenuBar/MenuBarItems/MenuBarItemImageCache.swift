@@ -10,7 +10,7 @@ import Combine
 @MainActor
 final class MenuBarItemImageCache: ObservableObject {
     /// The cached item images.
-    @Published private(set) var images = [MenuBarItemInfo: CGImage]()
+    @Published private(set) var images = [CGWindowID: CGImage]()
 
     /// The screen of the cached item images.
     private(set) var screen: NSScreen?
@@ -26,6 +26,9 @@ final class MenuBarItemImageCache: ObservableObject {
 
     /// 多个 UI/定时器触发共用一次更新，避免重复截图及较旧结果覆盖新缓存。
     private var isUpdating = false
+    /// Space/显示器改变淘汰旧截图；忙碌时合并一次新环境刷新。
+    private var captureGeneration = 0
+    private var needsRefresh = false
 
     /// Creates a cache with the given app state.
     init(appState: AppState) {
@@ -77,7 +80,27 @@ final class MenuBarItemImageCache: ObservableObject {
             .store(in: &c)
         }
 
+        Publishers.Merge(
+            NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification),
+            NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _ in
+            self?.invalidate()
+            Task { await self?.updateCache() }
+        }
+        .store(in: &c)
+
         cancellables = c
+    }
+
+    /// 立即撤下旧环境图片；尚未返回的捕获只能完成资源清理，不能发布。
+    func invalidate() {
+        captureGeneration += 1
+        images.removeAll()
+        screen = nil
+        menuBarHeight = nil
+        needsRefresh = isUpdating
     }
 
     /// Logs a reason for skipping the cache.
@@ -87,7 +110,7 @@ final class MenuBarItemImageCache: ObservableObject {
 
     /// 无需重新截图也能释放已退出应用的图片，隐藏浮栏时同样执行。
     private func discardRemovedImages() {
-        let liveInfos = Set(appState?.itemManager.itemCache.allItems.map(\.info) ?? [])
+        let liveInfos = Set(appState?.itemManager.itemCache.allItems.map(\.windowID) ?? [])
         let retainedImages = images.filter { liveInfos.contains($0.key) }
         if retainedImages.count != images.count { images = retainedImages }
     }
@@ -104,28 +127,27 @@ final class MenuBarItemImageCache: ObservableObject {
             return false
         }
         let keys = Set(images.keys)
-        for item in items where keys.contains(item.info) {
+        for item in items where keys.contains(item.windowID) {
             return false
         }
         return true
     }
 
     /// Captures the images of the current menu bar items and returns a dictionary containing
-    /// the images, keyed by the current menu bar item infos.
-    func createImages(for section: MenuBarSection.Name, screen: NSScreen) async -> [MenuBarItemInfo: CGImage] {
+    /// the images, keyed by the current menu bar window identifiers.
+    func createImages(for section: MenuBarSection.Name, screen: NSScreen) async -> [CGWindowID: CGImage] {
         guard !Task.isCancelled, let appState else {
             return [:]
         }
 
+        let generation = captureGeneration
         let items = appState.itemManager.itemCache[section]
 
-        var images = [MenuBarItemInfo: CGImage]()
+        var images = [CGWindowID: CGImage]()
         let backingScaleFactor = screen.backingScaleFactor
         let displayBounds = CGDisplayBounds(screen.displayID)
         let option: CGWindowImageOption = [.boundsIgnoreFraming, .bestResolution]
-        let defaultItemThickness = NSStatusBar.system.thickness * backingScaleFactor
 
-        var itemInfos = [CGWindowID: MenuBarItemInfo]()
         var itemFrames = [CGWindowID: CGRect]()
         var windowIDs = [CGWindowID]()
         var frame = CGRect.null
@@ -139,7 +161,6 @@ final class MenuBarItemImageCache: ObservableObject {
             else {
                 continue
             }
-            itemInfos[windowID] = item.info
             itemFrames[windowID] = itemFrame
             windowIDs.append(windowID)
             frame = frame.union(itemFrame)
@@ -149,11 +170,10 @@ final class MenuBarItemImageCache: ObservableObject {
             let compositeImage = await ScreenCapture.captureWindows(windowIDs, option: option),
             CGFloat(compositeImage.width) == frame.width * backingScaleFactor
         {
-            guard !Task.isCancelled else { return [:] }
+            guard !Task.isCancelled, generation == captureGeneration else { return [:] }
             for windowID in windowIDs {
-                guard !Task.isCancelled else { return [:] }
+                guard !Task.isCancelled, generation == captureGeneration else { return [:] }
                 guard
-                    let itemInfo = itemInfos[windowID],
                     let itemFrame = itemFrames[windowID]
                 else {
                     continue
@@ -170,58 +190,67 @@ final class MenuBarItemImageCache: ObservableObject {
                     continue
                 }
 
-                images[itemInfo] = itemImage
+                images[windowID] = itemImage
             }
         } else {
             // 取消导致的 nil 不能触发逐项截图，否则关闭窗口后仍持续请求 WindowServer。
-            guard !Task.isCancelled else { return [:] }
+            guard !Task.isCancelled, generation == captureGeneration else { return [:] }
             Logger.imageCache.warning("Composite image capture failed. Attempting to capturing items individually.")
 
             for windowID in windowIDs {
-                guard !Task.isCancelled else { return [:] }
+                guard !Task.isCancelled, generation == captureGeneration else { return [:] }
                 guard
-                    let itemInfo = itemInfos[windowID],
                     let itemFrame = itemFrames[windowID]
                 else {
                     continue
                 }
 
-                let frame = CGRect(
+                guard let itemImage = await ScreenCapture.captureWindow(windowID, option: option),
+                      !Task.isCancelled, generation == captureGeneration, itemFrame.width > 0
+                else { continue }
+                // bestResolution 的像素倍率可能来自另一个显示器，按返回图片推导实际倍率。
+                let actualScale = CGFloat(itemImage.width) / itemFrame.width
+                let pixelHeight = min(CGFloat(itemImage.height), NSStatusBar.system.thickness * actualScale)
+                guard actualScale.isFinite, actualScale > 0, pixelHeight > 0 else { continue }
+                let cropFrame = CGRect(
                     x: 0,
-                    y: ((itemFrame.height * backingScaleFactor) / 2) - (defaultItemThickness / 2),
-                    width: itemFrame.width * backingScaleFactor,
-                    height: defaultItemThickness
+                    y: (CGFloat(itemImage.height) - pixelHeight) / 2,
+                    width: CGFloat(itemImage.width),
+                    height: pixelHeight
                 )
+                guard let croppedImage = itemImage.cropping(to: cropFrame) else { continue }
 
-                guard
-                    let itemImage = await ScreenCapture.captureWindow(windowID, option: option),
-                    !Task.isCancelled,
-                    let croppedImage = itemImage.cropping(to: frame)
-                else {
-                    continue
-                }
-
-                images[itemInfo] = croppedImage
+                images[windowID] = croppedImage
             }
         }
 
-        return Task.isCancelled ? [:] : images
+        return Task.isCancelled || generation != captureGeneration ? [:] : images
     }
 
     /// Updates the cache for the given sections, without checking whether caching is necessary.
     func updateCacheWithoutChecks(sections: [MenuBarSection.Name]) async {
+        guard !Task.isCancelled else { return }
+        guard !isUpdating else {
+            needsRefresh = true
+            return
+        }
         guard
-            !Task.isCancelled,
-            !isUpdating,
             let appState,
             let screen = NSScreen.main
         else {
             return
         }
         isUpdating = true
-        defer { isUpdating = false }
+        let generation = captureGeneration
+        defer {
+            isUpdating = false
+            if needsRefresh {
+                needsRefresh = false
+                Task { await updateCache() }
+            }
+        }
 
-        var newImages = [MenuBarItemInfo: CGImage]()
+        var newImages = [CGWindowID: CGImage]()
 
         for section in sections {
             guard !Task.isCancelled else { return }
@@ -237,9 +266,9 @@ final class MenuBarItemImageCache: ObservableObject {
         }
 
         // 取消后丢弃局部结果，避免已关闭的 UI 请求重新持有图片。
-        guard !Task.isCancelled, NSScreen.main == screen else { return }
+        guard !Task.isCancelled, generation == captureGeneration, NSScreen.main == screen else { return }
         // 状态项重建后身份会改变；移除已消失的项，避免图片缓存随运行时间不断增长。
-        let liveInfos = Set(appState.itemManager.itemCache.allItems.map(\.info))
+        let liveInfos = Set(appState.itemManager.itemCache.allItems.map(\.windowID))
         images = screen == self.screen ? images.filter { liveInfos.contains($0.key) } : [:]
         images.merge(newImages.filter { liveInfos.contains($0.key) }) { (_, new) in new }
         self.screen = screen

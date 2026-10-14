@@ -64,7 +64,7 @@ final class EventManager {
                let point = MouseCursor.locationCoreGraphics,
                let item = appState?.itemManager.itemCache.allItems.first(where: { $0.frame.contains(point) }) {
                 // 明确用户拖拽取消该项的自动归位，保留用户的新选择。
-                appState?.itemManager.removeTempShownItemFromCache(with: item.info)
+                appState?.itemManager.removeTempShownItemFromCache(windowID: item.windowID)
             }
             handleShowOnClick(with: event)
             handleSmartRehide(with: event)
@@ -573,55 +573,36 @@ extension EventManager {
 extension EventManager {
     /// Returns the best screen to use for event manager calculations.
     var bestScreen: NSScreen? {
-        guard let appState else {
-            return nil
-        }
-        if appState.isActiveSpaceFullscreen {
-            return NSScreen.screenWithMouse ?? NSScreen.main
-        } else {
-            return NSScreen.main
-        }
+        // 指针操作属于指针所在屏，不依赖前台窗口所在的 NSScreen.main。
+        NSScreen.screenWithMouse ?? NSScreen.main
     }
 
     /// A Boolean value that indicates whether the mouse pointer is within
     /// the bounds of the menu bar.
     var isMouseInsideMenuBar: Bool {
-        guard
-            let screen = bestScreen,
-            let appState
-        else {
+        guard let screen = bestScreen, let appState,
+              let mouseLocation = MouseCursor.locationCoreGraphics
+        else { return false }
+        let bounds = CGDisplayBounds(screen.displayID)
+        // 同时检查横纵边界；副屏窗口顶部不能借用主屏菜单栏的 Y 范围。
+        guard bounds.contains(mouseLocation),
+              mouseLocation.y <= bounds.minY + Self.menuBarStripHeight
+        else { return false }
+        let displayID = screen.displayID
+        let isSliding = appState.menuBarManager.isMenuBarHiddenBySystem || appState.isActiveSpaceFullscreen
+        // 自动隐藏/全屏的菜单栏会滑动，不能沿用旧帧，否则隐藏后仍拦截顶部点击。
+        if !isSliding, let cached = cachedMenuBarFrames[displayID],
+           Date().timeIntervalSince(cached.date) < Self.menuBarFrameTTL {
+            return cached.frame.contains(mouseLocation)
+        }
+        guard let window = WindowInfo.getMenuBarWindow(for: displayID), window.isOnScreen else {
+            cachedMenuBarFrames.removeValue(forKey: displayID)
             return false
         }
-        if appState.menuBarManager.isMenuBarHiddenBySystem || appState.isActiveSpaceFullscreen {
-            guard let mouseLocation = MouseCursor.locationCoreGraphics else {
-                return false
-            }
-            // ponytail: cheap reject before CGWindowListCopyWindowInfo. The bar
-            // is a thin strip at the display's top edge; ~all mouse-move events
-            // are below it and would miss the contains() check anyway.
-            let displayBounds = CGDisplayBounds(screen.displayID)
-            guard
-                displayBounds.contains(mouseLocation),
-                mouseLocation.y <= displayBounds.origin.y + Self.menuBarStripHeight
-            else {
-                return false
-            }
-            let displayID = screen.displayID
-            if
-                let cached = cachedMenuBarFrames[displayID],
-                Date().timeIntervalSince(cached.date) < Self.menuBarFrameTTL
-            {
-                return cached.frame.contains(mouseLocation)
-            }
-            guard let menuBarWindow = WindowInfo.getMenuBarWindow(for: displayID) else {
-                return false
-            }
-            cachedMenuBarFrames[displayID] = (menuBarWindow.frame, Date())
-            return menuBarWindow.frame.contains(mouseLocation)
-        } else if let mouseLocation = MouseCursor.locationAppKit {
-            return mouseLocation.y > screen.visibleFrame.maxY && mouseLocation.y <= screen.frame.maxY
+        if !isSliding {
+            cachedMenuBarFrames[displayID] = (window.frame, Date())
         }
-        return false
+        return window.frame.contains(mouseLocation)
     }
 
     /// A Boolean value that indicates whether the mouse pointer is within

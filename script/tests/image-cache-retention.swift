@@ -18,7 +18,7 @@ defer { try? FileManager.default.removeItem(at: directory) }
 let fixture = #"""
 import Foundation
 
-struct Item { let info: Int }
+struct Item { let info: Int; var explicitWindowID: Int? = nil; var windowID: Int { explicitWindowID ?? info } }
 struct ItemCache { var allItems: [Item] = [] }
 struct ItemManager { var itemCache = ItemCache() }
 struct AppState { var itemManager = ItemManager() }
@@ -52,6 +52,14 @@ final class Image {}
         }
         precondition(retained == nil)
         print("PASS: repeated status-item recreation cannot grow the retained cache")
+        cache.images = [10: Image(), 20: Image()]
+        cache.appState?.itemManager.itemCache.allItems = [Item(info: 1, explicitWindowID: 10), Item(info: 1, explicitWindowID: 20)]
+        cache.prune()
+        precondition(Set(cache.images.keys) == [10, 20])
+        cache.appState?.itemManager.itemCache.allItems = [Item(info: 1, explicitWindowID: 20)]
+        cache.prune()
+        precondition(Set(cache.images.keys) == [20])
+        print("PASS: same-name instances retain separate images; removing one does not prune its sibling")
         cache.appState?.itemManager.itemCache.allItems = []
         cache.prune()
         precondition(cache.images.isEmpty)

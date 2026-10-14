@@ -121,7 +121,7 @@ final class MenuBarManager {
     var floeBarPanel: FloeBarPanel!
     func section(withName name: MenuBarSection.Name) -> MenuBarSection? { sections.first { $0.name == name } }
 }
-final class EventStub { var isMouseInsideFloeBar = false; func cancelDelayedInteractions() {} }
+final class EventStub { var isMouseInsideMenuBar = false; var isMouseInsideFloeBar = false; func cancelDelayedInteractions() {} }
 final class AppState {
     let eventManager = EventStub()
     func preventShowOnHover() {}

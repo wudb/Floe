@@ -11,6 +11,11 @@ struct FloeApp: App {
     @ObservedObject var appState = AppState()
 
     init() {
+        #if DEBUG
+        if CommandLine.arguments.contains("--diagnose-runtime") {
+            RuntimeDiagnostics.run()
+        }
+        #endif
         appDelegate.assignAppState(appState)
         // ponytail: migration touches UserDefaults + SettingsManager; defer past
         // first paint so login-window boot isn't blocked on disk decode.

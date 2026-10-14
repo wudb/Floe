@@ -1,0 +1,28 @@
+{
+  "accessibilityTrusted": false,
+  "bundleIdentifier": "com.wudb.Floe",
+  "displays": [
+    {
+      "displayID": 1,
+      "frame": "{{0, 0}, {1728, 1117}}",
+      "quartzBounds": "{{0, 0}, {1728, 1117}}",
+      "scale": 2,
+      "visibleMenuBar": true
+    },
+    {
+      "displayID": 2,
+      "frame": "{{-1920, 37}, {1920, 1080}}",
+      "quartzBounds": "{{-1920, 0}, {1920, 1080}}",
+      "scale": 1,
+      "visibleMenuBar": true
+    },
+    {
+      "displayID": 3,
+      "frame": "{{1728, 37}, {1920, 1080}}",
+      "quartzBounds": "{{1728, 0}, {1920, 1080}}",
+      "scale": 1,
+      "visibleMenuBar": true
+    }
+  ],
+  "screenCaptureAllowed": false
+}

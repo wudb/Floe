@@ -28,7 +28,7 @@ enum MenuBarItemAXDiscovery { enum SectionKind: Hashable { case visible, hidden,
     func recordLayoutChoice() { records += 1 }
 }
 @MainActor final class AppState { let itemManager = ItemManager(); let menuBarManager = Bar() }
-struct RowItem { let id: String; let quartzFrame: CGRect? }
+struct RowItem { let id: String; let quartzFrame: CGRect?; var isMovable = true; var canBeHidden = true }
 struct Animation { static func easeInOut(duration: Double) -> Animation { Animation() } }
 func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
 @MainActor final class Pane {

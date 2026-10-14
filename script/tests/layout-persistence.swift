@@ -5,12 +5,14 @@ let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     .deletingLastPathComponent().deletingLastPathComponent()
 let source = try String(contentsOf: repo.appendingPathComponent("Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift"), encoding: .utf8)
     .replacingOccurrences(of: "UserDefaults.standard", with: "MemoryDefaults.shared")
+    .replacingOccurrences(of: "Date()", with: "Clock.now")
 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("floe-persist-\(UUID().uuidString)")
 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 defer { try? FileManager.default.removeItem(at: directory) }
 let fixture = #"""
 import Foundation
 import CoreGraphics
+@MainActor enum Clock { static var now = Date(timeIntervalSince1970: 100) }
 @MainActor final class MemoryDefaults {
     static let shared = MemoryDefaults()
     var value: Data?
@@ -52,8 +54,9 @@ struct MenuBarItem {
     var isMovingItem = false; var mouseHasRecentlyMoved = false; var hasTemporarilyShownItems = false
     var appState: AppState? = AppState()
     var itemCache = ItemCache()
+    var fail = false
     var moves = [UInt32]()
-    func move(item: MenuBarItem, to: MoveDestination) async throws { moves.append(item.windowID) }
+    func move(item: MenuBarItem, to: MoveDestination) async throws { moves.append(item.windowID); if fail { throw CancellationError() } }
 }
 struct Logger {
     init(category: String) {}
@@ -100,6 +103,24 @@ __PRODUCTION__
         let before = MemoryDefaults.shared.value
         restored.record(.init())
         precondition(MemoryDefaults.shared.value == before)
+        let failedStore = MenuBarLayoutStore()
+        manager.fail = true; manager.moves = []
+        await failedStore.restoreIfNeeded(manager: manager)
+        let failedCount = manager.moves.count
+        precondition(failedCount > 0)
+        manager.fail = false
+        await failedStore.restoreIfNeeded(manager: manager)
+        precondition(manager.moves.count == failedCount)
+        Clock.now = Clock.now.addingTimeInterval(31)
+        await failedStore.restoreIfNeeded(manager: manager)
+        precondition(manager.moves.count > failedCount)
+        let retryCount = manager.moves.count
+        manager.itemCache.groups = [.visible: [newB]]
+        await failedStore.restoreIfNeeded(manager: manager)
+        manager.itemCache.groups = [.visible: [newB, newA]]
+        await failedStore.restoreIfNeeded(manager: manager)
+        precondition(manager.moves.count > retryCount)
+        print("PASS: failed restoration backs off and retries; disappearance/reappearance with reused window ID is restored")
         print("PASS: production layout persists unique identities, rejects ambiguous items, restores recreated windows, protects menus/temporary reveals and does not repeatedly reorder live items")
     }
 }

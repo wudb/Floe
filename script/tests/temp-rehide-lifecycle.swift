@@ -18,6 +18,8 @@ let fixture = #"""
 import Foundation
 @MainActor struct MenuBarItem {
     let info: Int
+    var explicitWindowID: Int? = nil
+    var windowID: Int { explicitWindowID ?? info }
     var logString: String { "item \(info)" }
     static var discovered = [MenuBarItem(info: 1), MenuBarItem(info: 2)]
     static func getMenuBarItems(onScreenOnly: Bool, activeSpaceOnly: Bool) -> [MenuBarItem] {
@@ -26,6 +28,8 @@ import Foundation
 }
 struct TempShownItemContext {
     let info: Int
+    var explicitWindowID: Int? = nil
+    var windowID: Int { explicitWindowID ?? info }
     var returnDestination: Int { info }
     var isShowingInterface = false
 }
@@ -56,11 +60,13 @@ enum Logger { static let itemManager = Log() }
     var tempShownItemsTimer: TimerStub? = TimerStub()
     var scheduled: [Int] = []
     var moves: [Int] = []
+    var moveWindows: [Int] = []
     var pending: CheckedContinuation<Void, Never>?
     var fail = false
     func runTempShownItemTimer(for seconds: Int) { scheduled.append(seconds) }
     func move(item: MenuBarItem, to: Int) async throws {
         moves.append(item.info)
+        moveWindows.append(item.windowID)
         await withCheckedContinuation { pending = $0 }
         if fail { throw CancellationError() }
     }
@@ -116,6 +122,18 @@ enum Logger { static let itemManager = Log() }
         unavailable.pending!.resume(); await recovery.value
         precondition(unavailable.tempShownItemContexts.isEmpty && unavailable.moves == [1])
         precondition(unavailable.itemMoveCount == 0 && MouseCursor.balance == 0)
+        MenuBarItem.discovered = [MenuBarItem(info: 1, explicitWindowID: 10), MenuBarItem(info: 1, explicitWindowID: 20)]
+        let siblings = Manager()
+        siblings.tempShownItemContexts = [TempShownItemContext(info: 1, explicitWindowID: 20)]
+        let siblingTask = Task { await siblings.rehideTempShownItems() }
+        await waitForMove(siblings)
+        siblings.pending!.resume(); await siblingTask.value
+        precondition(siblings.moveWindows == [20])
+        let ambiguous = Manager()
+        ambiguous.tempShownItemContexts = [TempShownItemContext(info: 1, explicitWindowID: 99)]
+        await ambiguous.rehideTempShownItems()
+        precondition(ambiguous.moves.isEmpty && ambiguous.tempShownItemContexts.count == 1 && ambiguous.scheduled == [3])
+        print("PASS: exact window identity restores the correct same-name sibling; ambiguous recreation retains the return record without guessing")
         print("PASS: empty discovery retains restoration records across retries and restores after recovery")
         print("PASS: production rehide prevents overlap, preserves new and failed contexts, retains newer timer and balances cleanup")
     }

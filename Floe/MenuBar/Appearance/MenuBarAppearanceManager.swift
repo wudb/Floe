@@ -59,19 +59,19 @@ final class MenuBarAppearanceManager: ObservableObject {
     private func configureCancellables() {
         var c = Set<AnyCancellable>()
 
-        NotificationCenter.default
-            .publisher(for: NSApplication.didChangeScreenParametersNotification)
+        Publishers.Merge(
+            NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification),
+            NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didWakeNotification)
+        )
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else {
                     return
                 }
                 while let panel = overlayPanels.popFirst() {
-                    panel.orderOut(self)
+                    panel.close()
                 }
-                if Set(overlayPanels.map { $0.owningScreen }) != Set(NSScreen.screens) {
-                    configureOverlayPanels(with: configuration)
-                }
+                configureOverlayPanels(with: configuration)
             }
             .store(in: &c)
 
@@ -93,6 +93,10 @@ final class MenuBarAppearanceManager: ObservableObject {
                 guard let self else {
                     return
                 }
+                if !needsOverlayPanels(for: configuration) {
+                    configureOverlayPanels(with: configuration)
+                    return
+                }
                 // The overlay panels may not have been configured yet. Since some of the
                 // properties on the manager might call for them, try to configure now.
                 // ponytail: defer past boot — panel init + orderFront + AX validate
@@ -105,6 +109,14 @@ final class MenuBarAppearanceManager: ObservableObject {
                         }
                     }
                 }
+            }
+            .store(in: &c)
+
+        NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.willSleepNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                while let panel = overlayPanels.popFirst() { panel.close() }
             }
             .store(in: &c)
 
@@ -142,6 +154,7 @@ final class MenuBarAppearanceManager: ObservableObject {
             return
         }
 
+        for panel in self.overlayPanels { panel.close() }
         var overlayPanels = Set<MenuBarOverlayPanel>()
         for screen in NSScreen.screens {
             let panel = MenuBarOverlayPanel(appState: appState, owningScreen: screen)

@@ -21,6 +21,7 @@ final class FloeBarPanel: NSPanel {
 
     /// 同一分区也可能连续请求不同屏幕；异步返回只能发布最新一次显示请求。
     private var presentationGeneration: UUID?
+    private var contentDisplayID: CGDirectDisplayID?
 
     /// Automatic rehide must not collapse originals while their menu is in use.
     private(set) var isActivatingAXItem = false
@@ -62,33 +63,14 @@ final class FloeBarPanel: NSPanel {
         }
         .store(in: &c)
 
-        if
-            let section = appState?.menuBarManager.section(withName: .hidden),
-            let window = section.controlItem.window
-        {
-            window.publisher(for: \.frame)
-                .debounce(for: 0.1, scheduler: DispatchQueue.main)
-                .sink { [weak self, weak window] _ in
-                    guard
-                        let self,
-                        let appState,
-                        // Only continue if the menu bar is automatically hidden, as Floe
-                        // can't currently display its menu bar items.
-                        appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults,
-                        // windowNumber is Int and traps on overflow with the non-failable
-                        // initializer on macOS 26 (see jordanbaird/Ice#580, #977).
-                        // Degrade to nil instead of crashing; call sites handle nil.
-                        let info = window.map(\.windowNumber).flatMap(CGWindowID.init(exactly:)).flatMap(WindowInfo.init(windowID:)),
-                        // Window being offscreen means the menu bar is currently hidden.
-                        // Close the bar, as things will start to look weird if we don't.
-                        !info.isOnScreen
-                    else {
-                        return
-                    }
-                    close()
-                }
-                .store(in: &c)
-        }
+        // 手动把浮栏拖到另一屏后，根视图的屏幕尺寸/数据来源也必须重新绑定。
+        publisher(for: \.screen)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] screen in
+                guard let self, let screen else { return }
+                refreshContent(for: screen)
+            }
+            .store(in: &c)
 
         // Update the panel's origin whenever its size changes.
         publisher(for: \.frame)
@@ -106,6 +88,18 @@ final class FloeBarPanel: NSPanel {
             .store(in: &c)
 
         cancellables = c
+    }
+
+    private func refreshContent(for screen: NSScreen) {
+        guard isVisible, contentDisplayID != screen.displayID,
+              let appState, let section = currentSection
+        else { return }
+        contentDisplayID = screen.displayID
+        contentView = FloeBarHostingView(appState: appState, colorManager: colorManager, screen: screen, section: section) { [weak self] in
+            self?.close()
+        }
+        colorManager.invalidate()
+        colorManager.updateAllProperties(with: frame, screen: screen)
     }
 
     private func updateOrigin(for screen: NSScreen) {
@@ -273,6 +267,7 @@ final class FloeBarPanel: NSPanel {
             return
         }
 
+        contentDisplayID = screen.displayID
         contentView = FloeBarHostingView(appState: appState, colorManager: colorManager, screen: screen, section: section) { [weak self] in
             self?.close()
         }
@@ -287,6 +282,8 @@ final class FloeBarPanel: NSPanel {
 
     override func close() {
         presentationGeneration = nil
+        contentDisplayID = nil
+        colorManager.invalidate()
         super.close()
         contentView = nil
         currentSection = nil
@@ -424,11 +421,12 @@ private struct FloeBarContentView: View {
     }
 
     private var contentHeight: CGFloat? {
-        guard let menuBarHeight = imageCache.menuBarHeight ?? screen.getMenuBarHeight() else {
+        guard let menuBarHeight = screen.getMenuBarHeight() ?? imageCache.menuBarHeight else {
             return nil
         }
         if configuration.shapeKind != .none && configuration.isInset && screen.hasNotch {
-            return menuBarHeight - appState.appearanceManager.menuBarInsetAmount * 2
+            // 低分辨率刘海屏扣除内缩后仍必须容纳完整图标/点击区域。
+            return max(NSStatusBar.system.thickness, menuBarHeight - appState.appearanceManager.menuBarInsetAmount * 2)
         }
         return menuBarHeight
     }
@@ -523,19 +521,30 @@ private struct FloeBarContentView: View {
             }
         }
         .padding(5)
-        .frame(maxWidth: imageCache.screen?.frame.width)
+        .frame(maxWidth: screen.frame.width)
         .fixedSize()
         .onFrameChange(update: $frame)
     }
 
+    /// 自动隐藏和跨屏截图不适合 CGS 临时移动，优先提供可访问的 AX 项目列表。
+    private var usesAXFallback: Bool {
+        itemManager.isItemDiscoveryUnavailable || menuBarManager.isMenuBarHiddenBySystemUserDefaults ||
+            (MenuBarItemAXDiscovery.isTrusted() &&
+                (imageCache.cacheFailed(for: section) || imageCache.screen?.displayID != screen.displayID))
+    }
+
     @ViewBuilder
     private var content: some View {
-        if itemManager.isItemDiscoveryUnavailable {
+        if usesAXFallback {
             // macOS 27+: CGS no longer has per-item windows — show the app icon and
             // press via Accessibility instead of window snapshots + temp-show.
             axFallbackView
                 .task {
                     await loadAXRows()
+                    while !Task.isCancelled {
+                        do { try await Task.sleep(for: .seconds(5)) } catch { return }
+                        await loadAXRows()
+                    }
                 }
         } else if !ScreenCapture.cachedCheckPermissions() {
             HStack {
@@ -552,9 +561,6 @@ private struct FloeBarContentView: View {
                 .foregroundStyle(.link)
             }
             .padding(.horizontal, 10)
-        } else if menuBarManager.isMenuBarHiddenBySystemUserDefaults {
-            Text("Floe cannot display menu bar items for automatically hidden menu bars")
-                .padding(.horizontal, 10)
         } else if imageCache.cacheFailed(for: section) {
             Text("Unable to display menu bar items")
                 .padding(.horizontal, 10)
@@ -566,7 +572,7 @@ private struct FloeBarContentView: View {
                     }
                 }
             }
-            .environment(\.isScrollEnabled, frame.width == imageCache.screen?.frame.width)
+            .environment(\.isScrollEnabled, frame.width >= screen.frame.width)
             .defaultScrollAnchor(.trailing)
             .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
             .task {
@@ -851,14 +857,14 @@ private struct FloeBarItemView: View {
 
     private var image: NSImage? {
         guard
-            let image = imageCache.images[item.info],
-            let screen = imageCache.screen
+            let image = imageCache.images[item.windowID],
+            image.width > 0, item.frame.width > 0
         else {
             return nil
         }
         let size = CGSize(
-            width: CGFloat(image.width) / screen.backingScaleFactor,
-            height: CGFloat(image.height) / screen.backingScaleFactor
+            width: item.frame.width,
+            height: CGFloat(image.height) * item.frame.width / CGFloat(image.width)
         )
         return NSImage(cgImage: image, size: size)
     }

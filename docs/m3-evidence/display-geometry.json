@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-14",
+  "system": "macOS 15.8.1",
+  "probe_ax_trusted": false,
+  "probe_screen_capture_allowed": false,
+  "menu_window_metadata": "verified from native Window Server menu windows; 37pt built-in and 24pt external",
+  "displays": [
+    {
+      "appKitFrame": "{{0, 0}, {1728, 1117}}",
+      "displayID": 1,
+      "quartzBounds": "{{0, 0}, {1728, 1117}}",
+      "scale": 2,
+      "visibleMenuBarFrames": [
+        "{{0, 0}, {1728, 37}}"
+      ]
+    },
+    {
+      "appKitFrame": "{{-1920, 37}, {1920, 1080}}",
+      "displayID": 2,
+      "quartzBounds": "{{-1920, 0}, {1920, 1080}}",
+      "scale": 1,
+      "visibleMenuBarFrames": [
+        "{{-1920, 0}, {1920, 24}}"
+      ]
+    },
+    {
+      "appKitFrame": "{{1728, 37}, {1920, 1080}}",
+      "displayID": 3,
+      "quartzBounds": "{{1728, 0}, {1920, 1080}}",
+      "scale": 1,
+      "visibleMenuBarFrames": [
+        "{{1728, 0}, {1920, 24}}"
+      ]
+    }
+  ]
+}

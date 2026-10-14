@@ -11,7 +11,9 @@ let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
 let source = try String(contentsOf: repo.appendingPathComponent("Floe/MenuBar/MenuBarItems/MenuBarItemImageCache.swift"), encoding: .utf8)
 let start = source.range(of: "    func createImages(")!.lowerBound
 let end = source.range(of: "    /// Updates the cache for the given sections, if", range: start..<source.endIndex)!.lowerBound
-let method = String(source[start..<end])
+let invalidateStart = source.range(of: "    func invalidate()")!.lowerBound
+let invalidateEnd = source.range(of: "\n    }", range: invalidateStart..<source.endIndex)!.upperBound
+let method = String(source[invalidateStart..<invalidateEnd]) + "\n" + String(source[start..<end])
 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("floe-capture-cancel-\(UUID().uuidString)")
 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 defer { try? FileManager.default.removeItem(at: directory) }
@@ -29,6 +31,7 @@ struct CGWindowImageOption: OptionSet {
 @MainActor final class CGImage {
     static var crops = 0
     var width = 20
+    var height = 20
     func cropping(to: CGRect) -> CGImage? { Self.crops += 1; return CGImage() }
 }
 @MainActor final class NSScreen: Equatable {
@@ -51,6 +54,7 @@ struct ItemCache {
 struct Log { func warning(_ text: String) {} }
 enum Logger { static let imageCache = Log() }
 @MainActor enum ScreenCapture {
+    static var onComposite: (() -> Void)?
     static var compositeCalls = 0
     static var individualCalls = 0
     static var cancelComposite = false
@@ -58,6 +62,7 @@ enum Logger { static let imageCache = Log() }
     static var returnCancelledImage = false
     static func captureWindows(_ ids: [UInt32], option: CGWindowImageOption) async -> CGImage? {
         compositeCalls += 1
+        onComposite?()
         if cancelComposite { withUnsafeCurrentTask { $0?.cancel() }; return returnCancelledImage ? CGImage() : nil }
         return nil
     }
@@ -70,7 +75,10 @@ enum Logger { static let imageCache = Log() }
 @MainActor final class Cache {
     var appState: AppState? = AppState()
     var isUpdating = false
-    var images: [MenuBarItemInfo: CGImage] = [:]
+    var captureGeneration = 0
+    var needsRefresh = false
+    func updateCache() async {}
+    var images: [CGWindowID: CGImage] = [:]
     var screen: NSScreen?
     var menuBarHeight: CGFloat?
     __METHOD__
@@ -102,6 +110,15 @@ enum Logger { static let imageCache = Log() }
         ScreenCapture.cancelIndividual = false
         await cache.updateCacheWithoutChecks(sections: [.hidden])
         precondition(cache.images.count == 2 && CGImage.crops == 2)
+        ScreenCapture.cancelComposite = false
+        ScreenCapture.cancelIndividual = false
+        ScreenCapture.compositeCalls = 0
+        ScreenCapture.individualCalls = 0
+        ScreenCapture.onComposite = { cache.invalidate() }
+        await cache.updateCacheWithoutChecks(sections: [.hidden])
+        precondition(cache.images.isEmpty && ScreenCapture.individualCalls == 0)
+        ScreenCapture.onComposite = nil
+        print("PASS: production environment invalidation drops old batches before fallback/publication")
         print("PASS: cancelled image batches skip fallback/cropping/publication; normal captures remain usable")
     }
 }

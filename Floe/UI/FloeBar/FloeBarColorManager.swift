@@ -16,6 +16,9 @@ final class FloeBarColorManager: ObservableObject {
 
     /// 截图完成前合并重复刷新，避免主线程等待 WindowServer。
     private var captureTask: Task<Void, Never>?
+    private var captureGeneration = UUID()
+    private var imageDisplayID: CGDirectDisplayID?
+    private var requestedDisplayID: CGDirectDisplayID?
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -33,8 +36,7 @@ final class FloeBarColorManager: ObservableObject {
                 .sink { [weak self] screen in
                     guard
                         let self,
-                        let screen,
-                        screen == .main
+                        let screen
                     else {
                         return
                     }
@@ -51,8 +53,7 @@ final class FloeBarColorManager: ObservableObject {
                 guard
                     let self,
                     let screen = floeBarPanel.screen,
-                    isVisible,
-                    screen == .main
+                    isVisible
                 else {
                     return
                 }
@@ -79,8 +80,7 @@ final class FloeBarColorManager: ObservableObject {
                 guard
                     let self,
                     let floeBarPanel,
-                    let screen = floeBarPanel.screen,
-                    screen == .main
+                    let screen = floeBarPanel.screen
                 else {
                     return
                 }
@@ -91,34 +91,81 @@ final class FloeBarColorManager: ObservableObject {
             .store(in: &c)
         }
 
+        Publishers.Merge3(
+            NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification).mapToVoid(),
+            NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification).mapToVoid(),
+            DistributedNotificationCenter.default().publisher(for: DistributedNotificationCenter.interfaceThemeChangedNotification).mapToVoid()
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] in
+            guard let self else { return }
+            invalidate()
+            if let panel = floeBarPanel, panel.isVisible, let screen = panel.screen {
+                updateWindowImage(for: screen)
+            }
+        }
+        .store(in: &c)
+
         cancellables = c
     }
 
+    /// Space/屏幕/主题变化和面板关闭都立即淘汰旧颜色及未完成截图。
+    func invalidate() {
+        captureGeneration = UUID()
+        captureTask?.cancel()
+        captureTask = nil
+        requestedDisplayID = nil
+        imageDisplayID = nil
+        windowImage = nil
+        colorInfo = nil
+    }
+
     private func updateWindowImage(for screen: NSScreen) {
-        guard captureTask == nil else { return }
+        if captureTask != nil {
+            guard requestedDisplayID != screen.displayID else { return }
+            invalidate()
+        }
+        if imageDisplayID != screen.displayID {
+            windowImage = nil
+            colorInfo = nil
+        }
+        let generation = UUID()
+        captureGeneration = generation
+        requestedDisplayID = screen.displayID
         captureTask = Task { [weak self] in
             guard let self else { return }
-            defer { captureTask = nil }
+            defer {
+                if captureGeneration == generation {
+                    captureTask = nil
+                    requestedDisplayID = nil
+                }
+            }
             guard let window = WindowInfo.getMenuBarWindow(for: screen.displayID) else {
                 windowImage = nil
+                colorInfo = nil
                 return
             }
             let image = await ScreenCapture.captureWindow(window.windowID, option: .nominalResolution)
-            guard let panel = floeBarPanel, panel.screen == screen, panel.isVisible else { return }
+            guard !Task.isCancelled, captureGeneration == generation,
+                  let panel = floeBarPanel, panel.screen?.displayID == screen.displayID, panel.isVisible
+            else { return }
+            imageDisplayID = screen.displayID
             windowImage = image
             updateColorInfo(with: panel.frame, screen: screen)
         }
     }
 
     private func updateColorInfo(with frame: CGRect, screen: NSScreen) {
-        guard let windowImage else {
+        guard imageDisplayID == screen.displayID, let windowImage else {
             colorInfo = nil
             return
         }
 
         let imageBounds = CGRect(x: 0, y: 0, width: windowImage.width, height: windowImage.height)
         let insetScreenFrame = screen.frame.insetBy(dx: frame.width / 2, dy: 0)
-        let percentage = ((frame.midX - insetScreenFrame.minX) / insetScreenFrame.width).clamped(to: 0...1)
+        let percentage = insetScreenFrame.width > 0
+            ? ((frame.midX - insetScreenFrame.minX) / insetScreenFrame.width).clamped(to: 0...1)
+            : 0.5
         let cropRect = CGRect(x: imageBounds.width * percentage, y: 0, width: 0, height: 1)
             .insetBy(dx: -50, dy: 0)
             .intersection(imageBounds)

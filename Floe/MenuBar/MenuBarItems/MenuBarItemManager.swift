@@ -54,7 +54,7 @@ final class MenuBarItemManager: ObservableObject {
 
         /// Returns the name of the section for the given menu bar item.
         func section(for item: MenuBarItem) -> MenuBarSection.Name? {
-            for (section, items) in self.items where items.contains(where: { $0.info == item.info }) {
+            for (section, items) in self.items where items.contains(where: { $0.windowID == item.windowID }) {
                 return section
             }
             return nil
@@ -71,6 +71,8 @@ final class MenuBarItemManager: ObservableObject {
     private struct TempShownItemContext {
         /// The information associated with the item.
         let info: MenuBarItemInfo
+        /// 同名多实例仍使用实际窗口身份，不能恢复到第一个同名兄弟项。
+        let windowID: CGWindowID
 
         /// The destination to return the item to.
         let returnDestination: MoveDestination
@@ -146,9 +148,9 @@ final class MenuBarItemManager: ObservableObject {
     /// 自动恢复跨 await 时可能再次触发；同一批恢复只能由一个任务处理。
     private var isRehidingTempShownItems = false
     /// 自动归位本轮快照中的项目也能被手动拖拽取消。
-    private var cancelledTempReturns = Set<MenuBarItemInfo>()
+    private var cancelledTempReturns = Set<CGWindowID>()
     private var isPreparingTempShow = false
-    private var tempChoiceRevisions = [MenuBarItemInfo: Int]()
+    private var tempChoiceRevisions = [CGWindowID: Int]()
 
     /// A Boolean value that indicates whether a mouse button is down.
     private var isMouseButtonDown = false
@@ -294,7 +296,7 @@ extension MenuBarItemManager {
         var tempShownItems = [(MenuBarItem, MoveDestination)]()
 
         for item in otherItems {
-            if let context = tempShownItemContexts.first(where: { $0.info == item.info }) {
+            if let context = tempShownItemContexts.first(where: { $0.windowID == item.windowID }) {
                 // Keep track of temporarily shown items and their return destinations separately.
                 // We want to cache them as if they were in their original locations. Once all other
                 // items are cached, use the return destinations to insert the items into the cache
@@ -384,6 +386,8 @@ extension MenuBarItemManager {
         let itemWindowIDs = Bridging.getWindowList(option: [.menuBarItems, .activeSpace])
         if !force, cachedItemWindowIDs == itemWindowIDs {
             logSkippingCache(reason: "item windows have not changed")
+            // 持久化归位失败后仍有机会按退避重试，无需等待窗口 ID 再次改变。
+            Task { await layoutStore.restoreIfNeeded(manager: self) }
             return
         }
         // A failed scan must be retried even when the IDs do not change:
@@ -1309,8 +1313,7 @@ extension MenuBarItemManager {
 extension MenuBarItemManager {
     /// Gets the destination to return the given item to after it is temporarily shown.
     private func getReturnDestination(for item: MenuBarItem, in items: [MenuBarItem]) -> MoveDestination? {
-        let info = item.info
-        if let index = items.firstIndex(where: { $0.info == info }) {
+        if let index = items.firstIndex(where: { $0.windowID == item.windowID }) {
             if items.indices.contains(index + 1) {
                 return .leftOfItem(items[index + 1])
             } else if items.indices.contains(index - 1) {
@@ -1359,7 +1362,7 @@ extension MenuBarItemManager {
     func tempShowItem(_ item: MenuBarItem, clickWhenFinished: Bool, mouseButton: CGMouseButton) {
         // 移动与点击共用鼠标；快速重复请求不能同时操纵不同图标。
         guard !isPreparingTempShow, !isMovingItem, !MenuBarItemAXMover.isDragging else { return }
-        let choiceRevision = tempChoiceRevisions[item.info, default: 0]
+        let choiceRevision = tempChoiceRevisions[item.windowID, default: 0]
         if
             let latest = MenuBarItem(windowID: item.windowID),
             latest.isOnScreen
@@ -1454,12 +1457,13 @@ extension MenuBarItemManager {
 
             let context = TempShownItemContext(
                 info: item.info,
+                windowID: item.windowID,
                 returnDestination: destination,
                 shownInterfaceWindow: shownInterfaceWindow
             )
             // 请求执行期间的用户拖拽优先，旧请求不能补回已取消的归位记录。
-            guard tempChoiceRevisions[item.info, default: 0] == choiceRevision else { return }
-            tempShownItemContexts.removeAll { $0.info == item.info }
+            guard tempChoiceRevisions[item.windowID, default: 0] == choiceRevision else { return }
+            tempShownItemContexts.removeAll { $0.windowID == item.windowID }
             tempShownItemContexts.append(context)
             runTempShownItemTimer(for: appState.settingsManager.advancedSettingsManager.tempShowInterval)
         }
@@ -1513,15 +1517,20 @@ extension MenuBarItemManager {
         var failedContexts = [TempShownItemContext]()
 
         while let context = pendingContexts.popLast() {
-            guard !cancelledTempReturns.contains(context.info) else { continue }
-            guard let item = items.first(where: { $0.info == context.info }) else {
+            guard !cancelledTempReturns.contains(context.windowID) else { continue }
+            let sameIdentity = items.filter { $0.info == context.info }
+            // 宿主重建窗口时仅允许唯一身份回退，多个同名窗口不能猜测。
+            guard let item = items.first(where: { $0.windowID == context.windowID })
+                ?? (sameIdentity.count == 1 ? sameIdentity.first : nil)
+            else {
+                if sameIdentity.count > 1 { failedContexts.append(context) }
                 continue
             }
             do {
                 try await move(item: item, to: context.returnDestination)
             } catch {
                 Logger.itemManager.error("Failed to rehide \(item.logString) (error: \(error))")
-                if !cancelledTempReturns.contains(context.info) {
+                if !cancelledTempReturns.contains(context.windowID) {
                     failedContexts.append(context)
                 }
             }
@@ -1541,11 +1550,11 @@ extension MenuBarItemManager {
     /// Removes a temporarily shown item from the cache.
     ///
     /// This ensures that the item will _not_ be returned to its previous location.
-    func removeTempShownItemFromCache(with info: MenuBarItemInfo) {
+    func removeTempShownItemFromCache(windowID: CGWindowID) {
         layoutStore.cancelPendingRestore()
-        tempChoiceRevisions[info, default: 0] += 1
-        if isRehidingTempShownItems { cancelledTempReturns.insert(info) }
-        tempShownItemContexts.removeAll { $0.info == info }
+        tempChoiceRevisions[windowID, default: 0] += 1
+        if isRehidingTempShownItems { cancelledTempReturns.insert(windowID) }
+        tempShownItemContexts.removeAll { $0.windowID == windowID }
     }
 }
 

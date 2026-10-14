@@ -44,6 +44,11 @@ final class MenuBarOverlayPanel: NSPanel {
             }
         }
 
+        func cancelAll() {
+            for task in tasks.values { task.cancel() }
+            tasks.removeAll()
+        }
+
         /// Cancels the task for the given update flag.
         ///
         /// - Parameter flag: The update flag to cancel the task for.
@@ -225,6 +230,7 @@ final class MenuBarOverlayPanel: NSPanel {
                 }
                 let windows = WindowInfo.getOnScreenWindows()
                 guard let owningDisplay = self.validate(for: .updates, with: windows) else {
+                    orderOut(nil)
                     return
                 }
                 performUpdates(for: flags, windows: windows, display: owningDisplay)
@@ -232,10 +238,19 @@ final class MenuBarOverlayPanel: NSPanel {
             .store(in: &c)
 
         if let appState {
-            appState.menuBarManager.$isMenuBarHiddenBySystem
-                .sink { [weak self] isHidden in
-                    self?.alphaValue = isHidden ? 0 : 1
+            Publishers.CombineLatest(
+                appState.menuBarManager.$isMenuBarHiddenBySystem,
+                appState.$isActiveSpaceFullscreen
+            )
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isHidden, isFullscreen in
+                guard let self else { return }
+                if isHidden || isFullscreen {
+                    orderOut(nil)
+                } else {
+                    needsShow = true
                 }
+            }
                 .store(in: &c)
         }
 
@@ -267,6 +282,7 @@ final class MenuBarOverlayPanel: NSPanel {
             return nil
         }
         let owningDisplay = owningScreen.displayID
+        guard NSScreen.screens.contains(where: { $0.displayID == owningDisplay }) else { return nil }
         guard appState.menuBarManager.hasValidMenuBar(in: windows, for: owningDisplay) else {
             if !hasLoggedMissingMenuBar {
                 hasLoggedMissingMenuBar = true
@@ -310,7 +326,11 @@ final class MenuBarOverlayPanel: NSPanel {
             return
         }
 
-        guard let menuBarHeight = owningScreen.getMenuBarHeight() else {
+        guard validate(for: .showing, with: WindowInfo.getOnScreenWindows()) != nil,
+              let menuBarHeight = owningScreen.getMenuBarHeight()
+        else {
+            // Space/屏幕变化后没有真实菜单栏时立即撤下旧外观，不能留下上一屏的面板。
+            orderOut(nil)
             return
         }
 
@@ -340,6 +360,14 @@ final class MenuBarOverlayPanel: NSPanel {
         if !appState.menuBarManager.isMenuBarHiddenBySystem {
             alphaValue = 1
         }
+    }
+
+    /// 移除屏幕或重建面板后取消旧 AX 轮询与通知，避免旧面板持续复活。
+    override func close() {
+        updateTaskContext.cancelAll()
+        cancellables.removeAll()
+        needsShow = false
+        super.close()
     }
 
     override func isAccessibilityElement() -> Bool {

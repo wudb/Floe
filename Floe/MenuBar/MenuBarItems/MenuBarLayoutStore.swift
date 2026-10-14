@@ -18,6 +18,7 @@ final class MenuBarLayoutStore {
     private var observedWindows = [String: UInt32]()
     private var isRestoring = false
     private var choiceRevision = 0
+    private var retryAfter = Date.distantPast
 
     init() {
         entries = UserDefaults.standard.data(forKey: Self.defaultsKey)
@@ -74,7 +75,7 @@ final class MenuBarLayoutStore {
 
     /// 只对首次观察/窗口重建执行恢复；正常扫描不不断覆盖用户的原生拖拽。
     func restoreIfNeeded(manager: MenuBarItemManager) async {
-        guard !isRestoring, !entries.isEmpty,
+        guard !isRestoring, !entries.isEmpty, Date() >= retryAfter,
               !manager.isMovingItem, !manager.isEditingLayout, !manager.mouseHasRecentlyMoved, !manager.hasTemporarilyShownItems,
               let appState = manager.appState,
               !MenuInteractionGuard.isInteracting
@@ -83,14 +84,25 @@ final class MenuBarLayoutStore {
         let recreated = Set(identified.compactMap { key, item in
             observedWindows[key] != item.windowID ? key : nil
         })
+        // 即使没有新项也记录退出，防止宿主重新出现时复用相同窗口 ID 而漏恢复。
+        observedWindows = identified.mapValues(\.windowID)
         guard !recreated.isEmpty else { return }
         isRestoring = true
         let revision = choiceRevision
-        defer { isRestoring = false }
-        // 先标记本轮，避免强制刷新再次排队恢复；下一次窗口重建仍会被检测。
-        observedWindows = identified.mapValues(\.windowID)
+        var pending = Set(entries.map(\.key)).intersection(recreated)
+        defer {
+            isRestoring = false
+            if choiceRevision == revision, !pending.isEmpty {
+                // 失败不是“已恢复”；退避后重试，不在每次扫描中反复操纵鼠标。
+                for key in pending { observedWindows.removeValue(forKey: key) }
+                retryAfter = Date().addingTimeInterval(30)
+            }
+        }
         for section in MenuBarSection.Name.allCases {
-            guard section != .alwaysHidden || appState.menuBarManager.section(withName: .alwaysHidden)?.isEnabled == true else { continue }
+            guard section != .alwaysHidden || appState.menuBarManager.section(withName: .alwaysHidden)?.isEnabled == true else {
+                for entry in entries where entry.section == "alwaysHidden" { pending.remove(entry.key) }
+                continue
+            }
             let desired = entries.filter { $0.section == String(describing: section) }
                 .compactMap { entry in identified[entry.key].map { (entry.key, $0) } }
             guard !desired.isEmpty else { continue }
@@ -107,9 +119,13 @@ final class MenuBarLayoutStore {
                         ? .rightOfItem(anchor) : .leftOfItem(anchor)
                     do {
                         try await manager.move(item: item, to: destination)
+                        pending.remove(key)
                     } catch {
                         Logger.layoutStore.error("Layout restore failed for \(item.logString): \(error)")
+                        continue
                     }
+                } else {
+                    pending.remove(key)
                 }
                 anchor = item
             }
