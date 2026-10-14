@@ -18,8 +18,11 @@ __PRODUCTION__
             exit(124)
         }
         var checks = 0
+        var requests = 0
         var granted = false
-        let permission = Permission(title: "Test", details: [], isRequired: true, settingsURL: nil, check: { checks += 1; return granted }, request: {})
+        let permission = Permission(title: "Test", details: [], isRequired: true, settingsURL: nil, check: { checks += 1; return granted }, request: { requests += 1 })
+        permission.performRequest()
+        precondition(requests == 1)
         permission.stopTimerCheck()
         let first = Task { try await permission.waitForPermission() }
         let second = Task { try await permission.waitForPermission() }
@@ -32,6 +35,8 @@ __PRODUCTION__
         granted = true
         try await second.value
         precondition(permission.hasPermission)
+        permission.performRequest()
+        precondition(requests == 1, "already granted permission must not be requested again")
         let third = Task { try await permission.waitForPermission() }
         let fourth = Task { try await permission.waitForPermission() }
         try await third.value
@@ -39,6 +44,11 @@ __PRODUCTION__
         granted = false
         NotificationCenter.default.post(name: NSApplication.didBecomeActiveNotification, object: nil)
         precondition(!permission.hasPermission, "stopped polling must still notice revocation on activation")
+        granted = true
+        permission.performRequest()
+        precondition(requests == 1, "stale denied UI must refresh before requesting")
+        granted = false
+        NotificationCenter.default.post(name: NSApplication.didBecomeActiveNotification, object: nil)
         granted = true
         // 不发送激活通知：撤权后应已恢复检测，后台授予也能被发现。
         try await Task.sleep(for: .milliseconds(1200))

@@ -28,3 +28,9 @@ macOS 15.8.1、Xcode 26.3：Debug、Release 构建通过，21 项 Swift 回归�
 本批未执行 36 小时真机对照，不将受控任务测试当作内存稳定性结果。C4 两条继续保留，M1 70 条、总清单 367 条不变；C3 未提交改动一并保留。
 
 验收应记录系统、硬件、显示器、签名/安装路径、权限、外观及浮栏设置，并覆盖至少 36 小时；相同设置分别记录 Floe 的 RSS/footprint 与 WindowServer 的 footprint（尤其 `untagged (VM_ALLOCATE)` Dirty），窗口数量及截图触发情况。隐藏浮栏、持续打开浮栏/布局页、多显示器与反复打开关闭窗口应分开记录。RSS 不是 footprint，单次截图或主机总内存不能证明泄漏；需要无 Floe 与有 Floe 的同环境对照才能判断 WindowServer 因果。不擅自重启用户系统或重置 TCC。
+
+## 后续优化：提前回收超时协调资源
+
+`ScreenCaptureExecutor` 原来每次截图都提交一个不可取消的 `asyncAfter` 回调，即使截图提前完成，该回调仍保留协调对象直到超时期限。本批使用可取消的 DispatchSourceTimer，正常完成或取消时清除并取消计时器；弱引用 handler 避免超时源形成持有环。超时注册与完成通过原锁保护，注册之前已完成则立即取消新源。系统截图实际返回前仍保留 worker 占用标记，不能以回收超时对象为由放开阻塞调用。
+
+生产执行器回归新增提前完成后协调对象立即释放检查，并通过原有超时/取消/完成竞争和阻塞后拒绝新请求检查。该变化减少短时挂起对象，并不构成长期泄漏已解决的证据。后续日志：`/tmp/Floe-C34-Debug.log`、`/tmp/Floe-C34-Release.log`、`/tmp/Floe-C34-regression.log`、`/tmp/Floe-C34-lint.log`。

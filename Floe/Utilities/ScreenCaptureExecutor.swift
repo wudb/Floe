@@ -33,9 +33,7 @@ final class ScreenCaptureExecutor: @unchecked Sendable {
         return await withTaskCancellationHandler {
             await withCheckedContinuation { continuation in
                 result.install(continuation)
-                DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + timeout) {
-                    result.finish(nil)
-                }
+                result.scheduleTimeout(after: timeout)
                 queue.async {
                     // 取消/超时早于队列执行时无需再调用系统 API；占用标记由队列负责释放。
                     guard !result.isFinished else {
@@ -61,6 +59,23 @@ private final class CaptureResult<Value: Sendable>: @unchecked Sendable {
     private var continuation: CheckedContinuation<Value?, Never>?
 
     private var finished = false
+    private var timeoutTimer: DispatchSourceTimer?
+
+    /// 提前完成时取消超时源，避免每次截图都留下等待期限到达的回调。
+    func scheduleTimeout(after interval: TimeInterval) {
+        let timer = DispatchSource.makeTimerSource(queue: .global(qos: .utility))
+        timer.setEventHandler { [weak self] in self?.finish(nil) }
+        timer.schedule(deadline: .now() + interval)
+        timer.activate()
+        lock.lock()
+        if finished {
+            lock.unlock()
+            timer.cancel()
+        } else {
+            timeoutTimer = timer
+            lock.unlock()
+        }
+    }
 
     var isFinished: Bool {
         lock.lock()
@@ -89,7 +104,10 @@ private final class CaptureResult<Value: Sendable>: @unchecked Sendable {
         finished = true
         let pending = continuation
         continuation = nil
+        let timer = timeoutTimer
+        timeoutTimer = nil
         lock.unlock()
+        timer?.cancel()
         pending?.resume(returning: value)
     }
 }

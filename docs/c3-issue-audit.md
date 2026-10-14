@@ -25,3 +25,9 @@
 日志：`/tmp/Floe-C3-Debug.log`、`/tmp/Floe-C3-Release.log`、`/tmp/Floe-C3-regression.log`、`/tmp/Floe-C3-lint.log`。
 
 本批没有重置 TCC、修改第三方授权或签名，也没有 macOS 26/27 真机验收。受控测试不证明 SwiftUI 窗口及系统对话框的实际交互；系统授权 API 阻塞、签名漂移和系统重复提示未据此宣称解决。三条原始报告和全部原始快照数据保留，C3 仍为 3 条、M1 70 条、总清单 367 条。
+
+## 后续优化：申请前核实真实状态
+
+`Permission.performRequest` 在系统请求及打开设置前刷新当前授权。界面尚未同步、但权限已在系统设置授予时，直接返回，不再重复请求。生产回归覆盖真实未授权请求、已授权请求及旧界面误判三种情况。未修改 TCC 或系统提示规则；#834 的每日重启后重复对话框仍需原环境验收。
+
+后续验证日志：`/tmp/Floe-C34-Debug.log`、`/tmp/Floe-C34-Release.log`、`/tmp/Floe-C34-regression.log`、`/tmp/Floe-C34-lint.log`。

@@ -32383,7 +32383,8 @@
         "jordanbaird/Ice#770": "已有防护 · 禁用 Sparkle 首启询问；原场景待验收",
         "jordanbaird/Ice#834": "相关代码已修复 · 授权等待与返回应用刷新",
         "jordanbaird/Ice#934": "已核对 · 外接屏线索；根因未确认"
-      }
+      },
+      "latest_optimization": "申请前刷新真实状态"
     },
     "c4_review": {
       "reviewed_at": "2026-10-14",
@@ -32394,7 +32395,8 @@
       "retained_status": {
         "jordanbaird/Ice#530": "部分修复 · 截图取消收尾/临时对象释放；长时验收待补",
         "jordanbaird/Ice#819": "部分修复 · 截图取消收尾/临时对象释放；长时验收待补"
-      }
+      },
+      "latest_optimization": "提前完成/取消后回收超时源"
     }
   }
 }

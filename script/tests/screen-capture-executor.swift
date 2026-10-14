@@ -18,6 +18,14 @@ func waitForGate(_ gate: DispatchSemaphore) { gate.wait() }
 
 @main struct Checks {
     static func main() async {
+        // 提前完成后不等待超时期限即可释放协调对象。
+        var completed: CaptureResult<Int>? = CaptureResult()
+        weak var released = completed
+        completed?.scheduleTimeout(after: 30)
+        completed?.finish(1)
+        completed = nil
+        precondition(released == nil)
+        print("PASS: completed capture releases timeout coordination immediately")
         let executor = ScreenCaptureExecutor()
         let first: Int? = await executor.run {
             precondition(!Thread.isMainThread, "Screenshot work must never run on the main thread")
@@ -116,11 +124,12 @@ func waitForGate(_ gate: DispatchSemaphore) { gate.wait() }
 }
 """#
 let fixturePath = directory.appendingPathComponent("Checks.swift")
-try fixture.write(to: fixturePath, atomically: true, encoding: .utf8)
+let production = try String(contentsOf: repo.appendingPathComponent("Floe/Utilities/ScreenCaptureExecutor.swift"), encoding: .utf8)
+try (production + "\n" + fixture).write(to: fixturePath, atomically: true, encoding: .utf8)
 let binary = directory.appendingPathComponent("checks")
 let compiler = Process()
 compiler.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
-compiler.arguments = ["swiftc", "-parse-as-library", repo.appendingPathComponent("Floe/Utilities/ScreenCaptureExecutor.swift").path, fixturePath.path, "-o", binary.path]
+compiler.arguments = ["swiftc", "-parse-as-library", fixturePath.path, "-o", binary.path]
 try compiler.run()
 compiler.waitUntilExit()
 guard compiler.terminationStatus == 0 else { exit(compiler.terminationStatus) }

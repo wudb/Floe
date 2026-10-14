@@ -89,6 +89,9 @@ class Permission: ObservableObject, Identifiable {
 
     /// Performs the request and opens the System Settings app to the appropriate pane.
     func performRequest() {
+        // 页面状态可能尚未刷新，先核实授权，避免重复请求或打开已无需处理的设置。
+        refreshPermission()
+        guard !hasPermission else { return }
         request()
         if let settingsURL {
             NSWorkspace.shared.open(settingsURL)

@@ -26,5 +26,6 @@
       "remaining": "需要至少 36 小时同环境对照；Floe 自身与 WindowServer 分开测量，尚未确认原报告根因。",
       "comment_count": 10
     }
-  ]
+  ],
+  "latest_optimization": "截图提前完成/取消时取消超时源并释放协调对象"
 }
