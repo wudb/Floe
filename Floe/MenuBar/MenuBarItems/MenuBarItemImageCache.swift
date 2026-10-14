@@ -113,7 +113,7 @@ final class MenuBarItemImageCache: ObservableObject {
     /// Captures the images of the current menu bar items and returns a dictionary containing
     /// the images, keyed by the current menu bar item infos.
     func createImages(for section: MenuBarSection.Name, screen: NSScreen) async -> [MenuBarItemInfo: CGImage] {
-        guard let appState else {
+        guard !Task.isCancelled, let appState else {
             return [:]
         }
 
@@ -149,7 +149,9 @@ final class MenuBarItemImageCache: ObservableObject {
             let compositeImage = await ScreenCapture.captureWindows(windowIDs, option: option),
             CGFloat(compositeImage.width) == frame.width * backingScaleFactor
         {
+            guard !Task.isCancelled else { return [:] }
             for windowID in windowIDs {
+                guard !Task.isCancelled else { return [:] }
                 guard
                     let itemInfo = itemInfos[windowID],
                     let itemFrame = itemFrames[windowID]
@@ -171,9 +173,12 @@ final class MenuBarItemImageCache: ObservableObject {
                 images[itemInfo] = itemImage
             }
         } else {
+            // 取消导致的 nil 不能触发逐项截图，否则关闭窗口后仍持续请求 WindowServer。
+            guard !Task.isCancelled else { return [:] }
             Logger.imageCache.warning("Composite image capture failed. Attempting to capturing items individually.")
 
             for windowID in windowIDs {
+                guard !Task.isCancelled else { return [:] }
                 guard
                     let itemInfo = itemInfos[windowID],
                     let itemFrame = itemFrames[windowID]
@@ -190,6 +195,7 @@ final class MenuBarItemImageCache: ObservableObject {
 
                 guard
                     let itemImage = await ScreenCapture.captureWindow(windowID, option: option),
+                    !Task.isCancelled,
                     let croppedImage = itemImage.cropping(to: frame)
                 else {
                     continue
@@ -199,12 +205,13 @@ final class MenuBarItemImageCache: ObservableObject {
             }
         }
 
-        return images
+        return Task.isCancelled ? [:] : images
     }
 
     /// Updates the cache for the given sections, without checking whether caching is necessary.
     func updateCacheWithoutChecks(sections: [MenuBarSection.Name]) async {
         guard
+            !Task.isCancelled,
             !isUpdating,
             let appState,
             let screen = NSScreen.main
@@ -217,6 +224,7 @@ final class MenuBarItemImageCache: ObservableObject {
         var newImages = [MenuBarItemInfo: CGImage]()
 
         for section in sections {
+            guard !Task.isCancelled else { return }
             guard !appState.itemManager.itemCache[section].isEmpty else {
                 continue
             }
@@ -228,7 +236,8 @@ final class MenuBarItemImageCache: ObservableObject {
             newImages.merge(sectionImages) { (_, new) in new }
         }
 
-        guard NSScreen.main == screen else { return }
+        // 取消后丢弃局部结果，避免已关闭的 UI 请求重新持有图片。
+        guard !Task.isCancelled, NSScreen.main == screen else { return }
         // 状态项重建后身份会改变；移除已消失的项，避免图片缓存随运行时间不断增长。
         let liveInfos = Set(appState.itemManager.itemCache.allItems.map(\.info))
         images = screen == self.screen ? images.filter { liveInfos.contains($0.key) } : [:]

@@ -42,7 +42,8 @@ final class ScreenCaptureExecutor: @unchecked Sendable {
                         self.end()
                         return
                     }
-                    let value = operation()
+                    // 每次同步截图及时释放临时 Objective-C 对象，避免串行后台队列延后回收。
+                    let value = autoreleasepool { operation() }
                     self.end()
                     result.finish(value)
                 }

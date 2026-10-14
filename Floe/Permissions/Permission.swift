@@ -33,8 +33,10 @@ class Permission: ObservableObject, Identifiable {
 
     /// Observer that runs on a timer to check permissions.
     private var timerCancellable: AnyCancellable?
-    /// Observer that observes the ``hasPermission`` property.
-    private var hasPermissionCancellable: AnyCancellable?
+    /// 所有等待者共享检测结果，使用独立标识支持取消。
+    private var waiters = [UUID: CheckedContinuation<Void, Error>]()
+    /// 返回应用时重新读取真实授权状态，覆盖停止轮询后的权限变更。
+    private var activationCancellable: AnyCancellable?
 
     /// Creates a permission.
     ///
@@ -61,29 +63,27 @@ class Permission: ObservableObject, Identifiable {
         self.request = request
         self.hasPermission = check()
         configureCancellables()
+        activationCancellable = NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)
+            .sink { [weak self] _ in
+                self?.refreshPermission()
+            }
     }
 
     /// Sets up the internal observers for the permission.
     private func configureCancellables() {
+        guard timerCancellable == nil else { return }
         // ponytail: no Just(.now) — init already did one sync check(); an immediate
         // second scan (a TCC lookup plus a window-server walk for Screen Recording)
         // doubles boot cost. The timer itself is cancelled for required
         // permissions once they are granted; optional ones keep polling at this
         // rate, with each check rate limited inside ScreenCapture.
-        timerCancellable = Timer.publish(every: 1, on: .main, in: .default)
+        timerCancellable = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self else {
                     return
                 }
-                // Only assign on an actual change: @Published fires
-                // objectWillChange on every set, and these timers keep running
-                // for optional permissions, so unconditional assignment
-                // invalidated SwiftUI once a second.
-                let isGranted = check()
-                if isGranted != hasPermission {
-                    hasPermission = isGranted
-                }
+                refreshPermission()
             }
     }
 
@@ -95,24 +95,47 @@ class Permission: ObservableObject, Identifiable {
         }
     }
 
-    /// Asynchronously waits for the app to be granted this permission.
-    func waitForPermission() async {
-        configureCancellables()
-        guard !hasPermission else {
-            return
+    /// 只在实际变化时发布；撤权后恢复共享轮询，获准时唤醒全部等待者。
+    private func refreshPermission() {
+        let isGranted = check()
+        if isGranted != hasPermission {
+            hasPermission = isGranted
         }
-        return await withCheckedContinuation { continuation in
-            hasPermissionCancellable = $hasPermission.sink { [weak self] hasPermission in
-                guard let self else {
-                    continuation.resume()
-                    return
-                }
-                if hasPermission {
-                    hasPermissionCancellable?.cancel()
-                    continuation.resume()
+        if isGranted {
+            let pending = waiters.values
+            waiters.removeAll()
+            for continuation in pending {
+                continuation.resume()
+            }
+        } else {
+            configureCancellables()
+        }
+    }
+
+    /// 多个调用共享检测，不为每个调用建立轮询；取消只移除当前等待者。
+    func waitForPermission() async throws {
+        try Task.checkCancellation()
+        if waiters.isEmpty {
+            refreshPermission()
+        }
+        guard !hasPermission else { return }
+        let id = UUID()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                // 取消可能先于注册发生，必须在登记时再次检查。
+                if Task.isCancelled {
+                    continuation.resume(throwing: CancellationError())
+                } else {
+                    waiters[id] = continuation
                 }
             }
+        } onCancel: {
+            Task { @MainActor [weak self] in
+                self?.waiters.removeValue(forKey: id)?.resume(throwing: CancellationError())
+            }
         }
+        // 授权与取消同时发生时，取消的调用不能继续打开窗口。
+        try Task.checkCancellation()
     }
 
     /// Stops the periodic permission check, keeping one-shot observers alive.

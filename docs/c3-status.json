@@ -1,0 +1,41 @@
+{
+  "reviewed_at": "2026-10-14",
+  "scope_count": 3,
+  "fully_fixed_count": 0,
+  "retained_count": 3,
+  "records": [
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 770,
+      "url": "https://github.com/jordanbaird/Ice/issues/770",
+      "title": "[Bug]: App gets stuck when installed",
+      "upstream_state": "open",
+      "local_status": "已有防护 · 禁用 Sparkle 首启询问；原场景待验收",
+      "fully_fixed": false,
+      "remaining": "评论定位在 Auto Update 屏幕；Floe 的 UpdatesManager 已关闭该询问且未配置自身源前不启动 updater。需原报告 Tahoe/M5 环境安装验收。",
+      "comment_count": 2
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 834,
+      "url": "https://github.com/jordanbaird/Ice/issues/834",
+      "title": "[Bug]:",
+      "upstream_state": "open",
+      "local_status": "相关代码已修复 · 授权等待与返回应用刷新",
+      "fully_fixed": false,
+      "remaining": "权限 UI 等待重入与取消缺陷已修复；每日重启后反复对话框仍需真实 TCC、签名及系统弹窗来源证据，不能将任务回归视为此报告已解决。",
+      "comment_count": 1
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 934,
+      "url": "https://github.com/jordanbaird/Ice/issues/934",
+      "title": "[Bug]: Nothing happens when I try to run Ice",
+      "upstream_state": "open",
+      "local_status": "已核对 · 外接屏线索；根因未确认",
+      "fully_fixed": false,
+      "remaining": "评论显示外接 27 英寸屏后出现应用，仍有布局异常；与显示空间、菜单栏容量及发现链路相关，缺少证明为授权阻塞的证据。需 Tahoe 26.4.1 内置/外接屏对照。",
+      "comment_count": 1
+    }
+  ]
+}

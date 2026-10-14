@@ -32372,6 +32372,29 @@
       "reviewed_count": 45,
       "status_document": "c2-status.json",
       "note": "All 45 original reports/comments reviewed; shared code defects fixed with production regressions; no full original-environment reproduction or blanket issue archival."
+    },
+    "c3_review": {
+      "reviewed_at": "2026-10-14",
+      "audit_document": "c3-issue-audit.md",
+      "status_document": "c3-status.json",
+      "fully_fixed_count": 0,
+      "retained_count": 3,
+      "retained_status": {
+        "jordanbaird/Ice#770": "已有防护 · 禁用 Sparkle 首启询问；原场景待验收",
+        "jordanbaird/Ice#834": "相关代码已修复 · 授权等待与返回应用刷新",
+        "jordanbaird/Ice#934": "已核对 · 外接屏线索；根因未确认"
+      }
+    },
+    "c4_review": {
+      "reviewed_at": "2026-10-14",
+      "audit_document": "c4-issue-audit.md",
+      "status_document": "c4-status.json",
+      "fully_fixed_count": 0,
+      "retained_count": 2,
+      "retained_status": {
+        "jordanbaird/Ice#530": "部分修复 · 截图取消收尾/临时对象释放；长时验收待补",
+        "jordanbaird/Ice#819": "部分修复 · 截图取消收尾/临时对象释放；长时验收待补"
+      }
     }
   }
 }

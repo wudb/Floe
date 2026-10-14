@@ -9,6 +9,8 @@ struct PermissionsView: View {
     @EnvironmentObject var permissionsManager: PermissionsManager
     @Environment(\.openWindow) private var openWindow
 
+    @State private var requestTasks = [String: Task<Void, Never>]()
+
     private var continueButtonText: LocalizedStringKey {
         switch permissionsManager.permissionsState {
         case .hasAllPermissions:
@@ -42,6 +44,13 @@ struct PermissionsView: View {
         }
         .padding(.horizontal)
         .fixedSize()
+        .onDisappear {
+            // 关闭或跳过授权窗口后，不允许旧等待重新打开窗口。
+            for task in requestTasks.values {
+                task.cancel()
+            }
+            requestTasks.removeAll()
+        }
         .readWindow { window in
             guard let window else {
                 return
@@ -174,8 +183,14 @@ struct PermissionsView: View {
                         return
                     }
                     permission.performRequest()
-                    Task {
-                        await permission.waitForPermission()
+                    requestTasks[permission.title]?.cancel()
+                    requestTasks[permission.title] = Task {
+                        do {
+                            try await permission.waitForPermission()
+                            try Task.checkCancellation()
+                        } catch {
+                            return
+                        }
                         appState.activate(withPolicy: .regular)
                         openWindow(id: Constants.permissionsWindowID)
                     }

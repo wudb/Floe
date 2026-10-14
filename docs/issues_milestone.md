@@ -104,6 +104,10 @@
 
 2026-10-14 C2 首批见 [C2 核对与修复](c2-issue-audit.md)：全部 45 条已刷新并逐条审计；修复缓存 fallback、CGS/AX 合并、每宿主 AX 预算、扫描生命周期及页面持续刷新。原场景尚未全部验收，逐条条件见审计。C2 45 条与总清单数量不变。
 
+2026-10-14 C3 核对见 [C3 核对与修复](c3-issue-audit.md)：三条状态/评论已刷新；修复授权等待重入、窗口关闭后的任务遗留及应用重新激活时的权限状态刷新；等待者共享检测，撤权后恢复轮询。原报告验收条件尚未满足，C3 3 条与总清单数量不变。
+
+2026-10-14 C4 核对见 [C4 核对与优化](c4-issue-audit.md)：两条状态/评论已刷新；修复图片批次取消后继续截图/发布，后台截图增加显式临时对象回收。36 小时对照尚未完成，C4 2 条与总清单数量不变。
+
 范围：系统级异常调查、崩溃/冻结、权限阻塞、布局空白/持续加载及长时内存增长。
 
 | 工作包 | 内容 | 条目数 | 排期考虑 |
@@ -278,11 +282,11 @@
 | M1 | C2 | [jordanbaird/Ice #1003](https://github.com/jordanbaird/Ice/issues/1003) | [Bug]: [Bug]: Updated to MacOS 27.0.1 and cannot customize Menu Bar Layout on Ice | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描生命周期 · 完整报告保留 |
 | M1 | C2 | [jordanbaird/Ice #1009](https://github.com/jordanbaird/Ice/issues/1009) | [Bug]: | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描生命周期 · 完整报告保留 |
 | M1 | C2 | [jordanbaird/Ice #1010](https://github.com/jordanbaird/Ice/issues/1010) | [Bug]: always loading meum bar items | 布局页/发现链路不可用，阻塞图标管理；先确认缺失数据、权限和分隔符。 | 相关代码已修复 · 发现预算/扫描生命周期 · 完整报告保留 |
-| M1 | C3 | [jordanbaird/Ice #770](https://github.com/jordanbaird/Ice/issues/770) | [Bug]: App gets stuck when installed | 权限、启动或安装路径可能阻塞应用使用；先核实实际权限及签名状态。 | 待复现/验证 |
-| M1 | C3 | [jordanbaird/Ice #834](https://github.com/jordanbaird/Ice/issues/834) | [Bug]: | 已授权但仍出现权限/对话框异常，存在启动与使用阻塞。 | 待复现/验证 |
-| M1 | C3 | [jordanbaird/Ice #934](https://github.com/jordanbaird/Ice/issues/934) | [Bug]: Nothing happens when I try to run Ice | 权限、启动或安装路径可能阻塞应用使用；先核实实际权限及签名状态。 | 待复现/验证 |
-| M1 | C4 | [jordanbaird/Ice #530](https://github.com/jordanbaird/Ice/issues/530) | [Bug]: high memory usage | 报告持续内存增长或 WindowServer 泄漏，需要长时对照定位，不能仅凭短时回归排除。 | 部分修复 · 指针释放/缓存淘汰；长时结果待补 |
-| M1 | C4 | [jordanbaird/Ice #819](https://github.com/jordanbaird/Ice/issues/819) | [Bug]: memory leak in WindowServer caused by Ice? | 报告持续内存增长或 WindowServer 泄漏，需要长时对照定位，不能仅凭短时回归排除。 | 调查中 · 减少隐藏浮栏采样；WindowServer 因果未确认 |
+| M1 | C3 | [jordanbaird/Ice #770](https://github.com/jordanbaird/Ice/issues/770) | [Bug]: App gets stuck when installed | 权限、启动或安装路径可能阻塞应用使用；先核实实际权限及签名状态。 | 已有防护 · 禁用 Sparkle 首启询问；原场景待验收 |
+| M1 | C3 | [jordanbaird/Ice #834](https://github.com/jordanbaird/Ice/issues/834) | [Bug]: | 已授权但仍出现权限/对话框异常，存在启动与使用阻塞。 | 相关代码已修复 · 授权等待与返回应用刷新 |
+| M1 | C3 | [jordanbaird/Ice #934](https://github.com/jordanbaird/Ice/issues/934) | [Bug]: Nothing happens when I try to run Ice | 权限、启动或安装路径可能阻塞应用使用；先核实实际权限及签名状态。 | 已核对 · 外接屏线索；根因未确认 |
+| M1 | C4 | [jordanbaird/Ice #530](https://github.com/jordanbaird/Ice/issues/530) | [Bug]: high memory usage | 报告持续内存增长或 WindowServer 泄漏，需要长时对照定位，不能仅凭短时回归排除。 | 部分修复 · 截图取消收尾/临时对象释放；长时验收待补 |
+| M1 | C4 | [jordanbaird/Ice #819](https://github.com/jordanbaird/Ice/issues/819) | [Bug]: memory leak in WindowServer caused by Ice? | 报告持续内存增长或 WindowServer 泄漏，需要长时对照定位，不能仅凭短时回归排除。 | 部分修复 · 截图取消收尾/临时对象释放；长时验收待补 |
 | M2 | I1 | [cavaldos/Ice #24](https://github.com/cavaldos/Ice/issues/24) | [Bug]: Dropping icons to hide has no effect | 当前直接上游：拖拽后回弹，UI 与实际隐藏状态不一致。 | 待复现/验证 |
 | M2 | I1 | [jordanbaird/Ice #233](https://github.com/jordanbaird/Ice/issues/233) | [Bug]:  Re-arranging/dragging  items  in the "Hidden" settings pane makes them disappear  | 实际分区或顺序与用户选择不一致，需验证拖拽结果和重启后的状态。 | 待复现/验证 |
 | M2 | I1 | [jordanbaird/Ice #344](https://github.com/jordanbaird/Ice/issues/344) | [Bug]: Menu bar items move to hidden or always hidden section | 实际分区或顺序与用户选择不一致，需验证拖拽结果和重启后的状态。 | 待复现/验证 |

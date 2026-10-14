@@ -1,0 +1,30 @@
+{
+  "reviewed_at": "2026-10-14",
+  "scope_count": 2,
+  "fully_fixed_count": 0,
+  "retained_count": 2,
+  "records": [
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 530,
+      "url": "https://github.com/jordanbaird/Ice/issues/530",
+      "title": "[Bug]: high memory usage",
+      "upstream_state": "open",
+      "local_status": "部分修复 · 截图取消收尾/临时对象释放；长时验收待补",
+      "fully_fixed": false,
+      "remaining": "需要至少 36 小时同环境对照；Floe 自身与 WindowServer 分开测量，尚未确认原报告根因。",
+      "comment_count": 19
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 819,
+      "url": "https://github.com/jordanbaird/Ice/issues/819",
+      "title": "[Bug]: memory leak in WindowServer caused by Ice?",
+      "upstream_state": "open",
+      "local_status": "部分修复 · 截图取消收尾/临时对象释放；长时验收待补",
+      "fully_fixed": false,
+      "remaining": "需要至少 36 小时同环境对照；Floe 自身与 WindowServer 分开测量，尚未确认原报告根因。",
+      "comment_count": 10
+    }
+  ]
+}
