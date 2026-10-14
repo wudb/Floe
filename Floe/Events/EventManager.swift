@@ -138,6 +138,13 @@ final class EventManager {
         var c = Set<AnyCancellable>()
 
         if let appState {
+            appState.settingsManager.generalSettingsManager.$showOnHover
+                .removeDuplicates()
+                .sink { [weak self] enabled in
+                    self?.updateMouseMovedMonitor(showOnHover: enabled)
+                }
+                .store(in: &c)
+
             if let hiddenSection = appState.menuBarManager.section(withName: .hidden) {
                 // In fullscreen mode, the menu bar slides down from the top on hover. Observe
                 // the frame of the hidden section's control item, which we know will always be
@@ -193,8 +200,22 @@ final class EventManager {
     /// Starts all monitors.
     func startAll() {
         isMonitoring = true
-        for monitor in allMonitors {
+        for monitor in allMonitors where monitor !== mouseMovedMonitor {
             monitor.start()
+        }
+        updateMouseMovedMonitor(showOnHover: appState?.settingsManager.generalSettingsManager.showOnHover ?? false)
+    }
+
+    /// 悬停关闭时注销高频 mouseMoved 监听，而不是每个事件进来后再返回。
+    /// 点击、滚动、拖动监视独立保留；停止管理器后设置变化不能重新启动监听。
+    private func updateMouseMovedMonitor(showOnHover: Bool) {
+        if isMonitoring && showOnHover {
+            mouseMovedMonitor.start()
+        } else {
+            mouseMovedMonitor.stop()
+            hoverTask?.cancel()
+            hoverTask = nil
+            hoverIntent = nil
         }
     }
 

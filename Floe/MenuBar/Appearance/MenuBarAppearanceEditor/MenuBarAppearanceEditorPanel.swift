@@ -83,6 +83,8 @@ private final class MenuBarAppearanceEditorPopover: NSPopover {
     private weak var appState: AppState?
 
     private(set) lazy var mouseDownMonitor = GlobalEventMonitor(mask: .leftMouseDown) { [weak self] _ in
+        // 吸管会在其他应用中取色；颜色面板打开时保留编辑会话。
+        guard !NSColorPanel.shared.isVisible else { return }
         self?.performClose(self)
     }
 

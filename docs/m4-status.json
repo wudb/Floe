@@ -1,0 +1,410 @@
+{
+  "date": "2026-10-14",
+  "total": 40,
+  "work_packages": {
+    "V1": 36,
+    "V2": 4
+  },
+  "items": [
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 58,
+      "url": "https://github.com/jordanbaird/Ice/issues/58",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "macOS 14.4.1 的多种 Space 切换录像及闪烁对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 194,
+      "url": "https://github.com/jordanbaird/Ice/issues/194",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "移出屏幕的图标拖动后透明度恢复；真实菜单布局截图"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 212,
+      "url": "https://github.com/jordanbaird/Ice/issues/212",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "跨桌面拖动后立即关闭/重开浮栏，验证 M3 颜色代次的实际视觉表现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 239,
+      "url": "https://github.com/jordanbaird/Ice/issues/239",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "刘海屏长菜单、全屏及 Mission Control 三种裁切场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 397,
+      "url": "https://github.com/jordanbaird/Ice/issues/397",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "启用 always-hidden 后展开隐藏区，核实实际 Dock 图标及激活策略"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 409,
+      "url": "https://github.com/jordanbaird/Ice/issues/409",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "登录启动时系统菜单栏晚出现的边框恢复；需重启登录验证"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 435,
+      "url": "https://github.com/jordanbaird/Ice/issues/435",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "Cmd+Option+D 显隐 Dock 的录像对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 472,
+      "url": "https://github.com/jordanbaird/Ice/issues/472",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "应用退出等待有界超时并传播取消；保留已有 currentHost defaults 命令",
+      "remaining_acceptance": "真实偏好写入、应用重启或重新登录后的系统间距；本次只证明等待不挂起"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 510,
+      "url": "https://github.com/jordanbaird/Ice/issues/510",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "无刘海屏顶端 1–2 像素间隙的真实截图和样式约定"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 514,
+      "url": "https://github.com/jordanbaird/Ice/issues/514",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "单窗口/多窗口 App Exposé 的阴影动画"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 525,
+      "url": "https://github.com/jordanbaird/Ice/issues/525",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "macOS 15.3.2 外观图层实际效果"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 541,
+      "url": "https://github.com/jordanbaird/Ice/issues/541",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "多屏扩展时关闭设置窗口后的 split 外观；M3 生命周期已改进但尚无视觉验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 608,
+      "url": "https://github.com/jordanbaird/Ice/issues/608",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "HDMI/USB-C 外屏右段空白的像素范围和状态区测量"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 625,
+      "url": "https://github.com/jordanbaird/Ice/issues/625",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "隐藏浮栏仅少量图标时的实际宽度"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 627,
+      "url": "https://github.com/jordanbaird/Ice/issues/627",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "原机器所有 shape 都无外观的复现与图层检查"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 645,
+      "url": "https://github.com/jordanbaird/Ice/issues/645",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "持续运行 30–45 分钟以上的闪烁录像及采样"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 649,
+      "url": "https://github.com/jordanbaird/Ice/issues/649",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "点击壁纸显示桌面时 split 蒙版/阴影动画"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 651,
+      "url": "https://github.com/jordanbaird/Ice/issues/651",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "布局/浮栏 tint 改为 background 内的叠层，避免覆盖内容前景",
+      "remaining_acceptance": "实际原生菜单栏背景/图标分层、透明度和 Mission Control；本次仅修正浮栏/布局视图的 tint"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 659,
+      "url": "https://github.com/jordanbaird/Ice/issues/659",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "Tahoe 26 顶端阴影像素对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 676,
+      "url": "https://github.com/jordanbaird/Ice/issues/676",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "Tahoe split 右段左侧空白的 AX 几何核对"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 728,
+      "url": "https://github.com/jordanbaird/Ice/issues/728",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "Chevron 与竖线分隔符显隐规则及实际拖动对照"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 733,
+      "url": "https://github.com/jordanbaird/Ice/issues/733",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "macOS 14.4.1 悬停展开时随机像素化录像"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 763,
+      "url": "https://github.com/jordanbaird/Ice/issues/763",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "改用 NSColorWell target/action，刷新 Binding、支持连续操作及销毁清理；颜色面板打开期间外部点击不关闭编辑器",
+      "remaining_acceptance": "macOS 26.0.1 色轮、连续滑块、吸管实际交互及 Reduce Transparency 场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 793,
+      "url": "https://github.com/jordanbaird/Ice/issues/793",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "macOS 26.1 布局图标截图的亮暗对比；背景 tint 改进不能代替图标对比度修复"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 943,
+      "url": "https://github.com/jordanbaird/Ice/issues/943",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "reviewed_pending_reproduction",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "macOS 26.4 blur/tint 与系统主题亮度截图"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 334,
+      "url": "https://github.com/jordanbaird/Ice/issues/334",
+      "work_package": "V2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "关闭悬停时注销 mouseMoved；按设置动态启停并保留点击/滚动/拖动",
+      "remaining_acceptance": "同环境悬停启停、高轮询率鼠标移动的 CPU/能耗和线程采样"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 479,
+      "url": "https://github.com/jordanbaird/Ice/issues/479",
+      "work_package": "V2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "隐藏/透明/已移除面板跳过周期绘制和 AX 边界工作；只有 split 扫描状态区",
+      "remaining_acceptance": "同环境常态 CPU/能耗对照；不能由减少 AX 工作推断电池收益"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 578,
+      "url": "https://github.com/jordanbaird/Ice/issues/578",
+      "work_package": "V2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "同 #479 的周期工作门禁，及 #334 的鼠标订阅启停",
+      "remaining_acceptance": "动态流量图标/应用菜单变化的 CPU 对照和线程采样"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 830,
+      "url": "https://github.com/jordanbaird/Ice/issues/830",
+      "work_package": "V2",
+      "upstream_state": "open",
+      "status": "code_improved_pending_original_scenario",
+      "note": "减少闲置外观工作及关闭悬停后的高频鼠标订阅；不推断温度根因",
+      "remaining_acceptance": "macOS 15.7.3 温度/CPU 原始复现，不能将笼统报告视为全部修复"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 186,
+      "url": "https://github.com/jordanbaird/Ice/issues/186",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "GIF 状态项动画能力未实现，需限定帧率和后台成本"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 245,
+      "url": "https://github.com/jordanbaird/Ice/issues/245",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "自定义展开/收起 SF Symbol 名称未实现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 273,
+      "url": "https://github.com/jordanbaird/Ice/issues/273",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "用户可配置图像刷新率未实现；需定义速率和能耗约束"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 368,
+      "url": "https://github.com/jordanbaird/Ice/issues/368",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "隐藏/始终隐藏区独立样式未实现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 380,
+      "url": "https://github.com/jordanbaird/Ice/issues/380",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "阴影与其他窗口标题栏的层级及实际截图"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 468,
+      "url": "https://github.com/jordanbaird/Ice/issues/468",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "M3 默认全屏隐藏外观已实现；独立全屏样式配置未实现，需视觉验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 482,
+      "url": "https://github.com/jordanbaird/Ice/issues/482",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "顶角/负空间/屏幕底角的新样式能力未实现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 533,
+      "url": "https://github.com/jordanbaird/Ice/issues/533",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "可配置顶部浮动间隙未实现，与 #510 的贴顶诉求需并存"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 538,
+      "url": "https://github.com/jordanbaird/Ice/issues/538",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "系统点击高亮圆角由系统绘制，尚无可靠兼容实现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 705,
+      "url": "https://github.com/jordanbaird/Ice/issues/705",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "彻底清除系统菜单栏灰色背景的 clear shape 未实现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 754,
+      "url": "https://github.com/jordanbaird/Ice/issues/754",
+      "work_package": "V1",
+      "upstream_state": "open",
+      "status": "capability_pending",
+      "note": "已刷新原文和分页评论；未声明本次已解决",
+      "remaining_acceptance": "macOS 暗色应用图标资源和系统兼容范围尚未实现"
+    }
+  ]
+}

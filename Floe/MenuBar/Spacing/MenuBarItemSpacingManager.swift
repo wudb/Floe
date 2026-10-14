@@ -4,7 +4,6 @@
 //
 
 import Cocoa
-import Combine
 
 /// Manager for menu bar item spacing.
 @MainActor
@@ -111,31 +110,27 @@ final class MenuBarItemSpacingManager {
             Logger.spacing.debug("Signaling application \"\(logString(for: app))\" to quit")
         }
 
+        try Task.checkCancellation()
         app.terminate()
 
-        var cancellable: AnyCancellable?
-        return try await withCheckedThrowingContinuation { continuation in
-            let timeoutTask = Task {
-                try await Task.sleep(for: .seconds(forceTerminateDelay))
-                if !app.isTerminated {
-                    Logger.spacing.debug("Application \"\(logString(for: app))\" did not terminate within \(forceTerminateDelay) seconds, attempting to force terminate")
-                    app.forceTerminate()
-                }
+        // KVO 可能永远不报告退出；拒绝退出的应用不能让整个间距任务永久挂起。
+        // 有界等待也让取消直接传播，不遗留观察者或未恢复的 continuation。
+        let clock = ContinuousClock()
+        let forceDeadline = clock.now.advanced(by: .seconds(forceTerminateDelay))
+        let finalDeadline = forceDeadline.advanced(by: .seconds(2))
+        var didForceTerminate = false
+        while !app.isTerminated {
+            try Task.checkCancellation()
+            if clock.now >= finalDeadline {
+                throw GroupedRelaunchError(failedApps: [logString(for: app)])
             }
-
-            cancellable = app.publisher(for: \.isTerminated).sink { [weak self] isTerminated in
-                guard
-                    let self,
-                    isTerminated
-                else {
-                    return
-                }
-                timeoutTask.cancel()
-                cancellable?.cancel()
-                Logger.spacing.debug("Application \"\(logString(for: app))\" terminated successfully")
-                continuation.resume()
+            if !didForceTerminate, clock.now >= forceDeadline {
+                didForceTerminate = true
+                app.forceTerminate()
             }
+            try await Task.sleep(for: .milliseconds(50))
         }
+        Logger.spacing.debug("Application \"\(logString(for: app))\" terminated successfully")
     }
 
     /// Asynchronously launches the app at the given URL.
@@ -185,6 +180,7 @@ final class MenuBarItemSpacingManager {
     ///   user must log out for the changes to take effect. On earlier versions
     ///   this restarts all apps with a menu bar item.
     func applyOffset() async throws {
+        try Task.checkCancellation()
         if offset == 0 {
             try await removeValue(forKey: .spacing)
             try await removeValue(forKey: .padding)
@@ -199,7 +195,7 @@ final class MenuBarItemSpacingManager {
             return
         }
 
-        try? await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(for: .milliseconds(100))
 
         let items = MenuBarItem.getMenuBarItems(onScreenOnly: false, activeSpaceOnly: true)
         let pids = Set(items.map { $0.ownerPID })
@@ -249,7 +245,7 @@ final class MenuBarItemSpacingManager {
 
         var failedApps = failedFromRelaunch
 
-        try? await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(for: .milliseconds(100))
 
         if let app = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.controlcenter").first {
             do {

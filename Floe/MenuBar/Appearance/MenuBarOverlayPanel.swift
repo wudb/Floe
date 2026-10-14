@@ -795,7 +795,8 @@ final class MenuBarOverlayPanelContentView: NSView {
         Timer.publish(every: 2, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                self?.needsDisplay = true
+                guard let self, shouldRefreshVisibleChrome else { return }
+                needsDisplay = true
             }
             .store(in: &c)
 
@@ -1164,9 +1165,21 @@ final class MenuBarOverlayPanelContentView: NSView {
         return current
     }
 
+    /// 隐藏面板不执行周期绘制；完整形状也不需要状态区 AX 边界扫描。
+    private var shouldRefreshVisibleChrome: Bool {
+        guard let panel = overlayPanel, panel.isVisible, panel.alphaValue > 0 else {
+            return false
+        }
+        return true
+    }
+
+    private var shouldScanTrailingEdge: Bool {
+        shouldRefreshVisibleChrome && fullConfiguration.shapeKind == .split
+    }
+
     /// Starts the 60Hz collapse driver, unless already running.
     private func startTrailingEaseIfNeeded() {
-        guard trailingEaseTimer == nil else {
+        guard shouldScanTrailingEdge, trailingEaseTimer == nil else {
             return
         }
         let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
@@ -1178,7 +1191,7 @@ final class MenuBarOverlayPanelContentView: NSView {
 
     /// Advances the collapse animation one frame toward its target.
     private func stepTrailingEase() {
-        guard let panel = overlayPanel else {
+        guard shouldScanTrailingEdge, let panel = overlayPanel else {
             trailingEaseTimer?.invalidate()
             trailingEaseTimer = nil
             return
@@ -1612,6 +1625,7 @@ final class MenuBarOverlayPanelContentView: NSView {
     /// state costs ~50 cheap AX probes/s instead of a full sweep every TTL.
     private func checkTrailingEdge() {
         guard
+            shouldScanTrailingEdge,
             let panel = overlayPanel,
             let appState = panel.appState,
             !appState.isPreview,

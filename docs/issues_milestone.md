@@ -155,6 +155,8 @@
 
 ### M4：外观与常态性能
 
+2026-10-14 优化见 [M4 审计](m4-issue-audit.md) 和 [逐条状态](m4-status.json)：40 条上游原文/分页评论已刷新；修正颜色选择器反馈、吸管外部点击中断、背景 tint、鼠标订阅启停、隐藏外观周期工作及间距退出超时。原系统视觉和真实能耗对照未完成，40 条与总清单数量不变。
+
 范围：样式、色彩、透明度、阴影、边界、颜色选择器以及常态 CPU/能耗。
 
 | 工作包 | 内容 | 条目数 | 排期考虑 |
@@ -464,7 +466,7 @@
 | M4 | V1 | [jordanbaird/Ice #397](https://github.com/jordanbaird/Ice/issues/397) | [Bug]: Dock icon appears when using Always hidden feature. | 展开 always-hidden 时 Dock 图标显现，属于激活策略/界面体验问题。 | 待复现/验证 |
 | M4 | V1 | [jordanbaird/Ice #409](https://github.com/jordanbaird/Ice/issues/409) | [Bug]: macOS Sequoia requires a restart of Ice to render the menubar border | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
 | M4 | V1 | [jordanbaird/Ice #435](https://github.com/jordanbaird/Ice/issues/435) | [Bug]: Glitch when toggle dock | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
-| M4 | V1 | [jordanbaird/Ice #472](https://github.com/jordanbaird/Ice/issues/472) | [Bug]: Menu bar item spacing not applying correctly | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
+| M4 | V1 | [jordanbaird/Ice #472](https://github.com/jordanbaird/Ice/issues/472) | [Bug]: Menu bar item spacing not applying correctly | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 代码改进 · 待原场景验收 |
 | M4 | V1 | [jordanbaird/Ice #510](https://github.com/jordanbaird/Ice/issues/510) | [Bug]: Split bar doesn't reach top of scren | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
 | M4 | V1 | [jordanbaird/Ice #514](https://github.com/jordanbaird/Ice/issues/514) | [Bug]: Menu bar shadow issue with single application window | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
 | M4 | V1 | [jordanbaird/Ice #525](https://github.com/jordanbaird/Ice/issues/525) | [Bug]: split menu bar and related effects seemingly disabled in macOS 15.3.2 | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
@@ -474,18 +476,18 @@
 | M4 | V1 | [jordanbaird/Ice #627](https://github.com/jordanbaird/Ice/issues/627) | [Bug]: Menu bar appearance not being displayed | 所有样式不显示，但未报告核心图标访问失效，先核查外观路径。 | 待复现/验证 |
 | M4 | V1 | [jordanbaird/Ice #645](https://github.com/jordanbaird/Ice/issues/645) | [Bug]: menubar periodical glitch every 'x' minutes | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
 | M4 | V1 | [jordanbaird/Ice #649](https://github.com/jordanbaird/Ice/issues/649) | [Bug]: split menu bar weird behavior when showing the desktop | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
-| M4 | V1 | [jordanbaird/Ice #651](https://github.com/jordanbaird/Ice/issues/651) | [Feature Request]: Allow the tint option to affect the menubar background only and add transparency slider to colour swatch(es) | 透明度已有部分实现；剩余背景/文字对比和 Mission Control 要求需逐项确认。 | 候选需求待评估 |
+| M4 | V1 | [jordanbaird/Ice #651](https://github.com/jordanbaird/Ice/issues/651) | [Feature Request]: Allow the tint option to affect the menubar background only and add transparency slider to colour swatch(es) | 透明度已有部分实现；剩余背景/文字对比和 Mission Control 要求需逐项确认。 | 代码改进 · 待原场景验收 |
 | M4 | V1 | [jordanbaird/Ice #659](https://github.com/jordanbaird/Ice/issues/659) | [Bug]: <MacOS Tahoe> the bar appearance shows a slight shadow on top on the screen | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
 | M4 | V1 | [jordanbaird/Ice #676](https://github.com/jordanbaird/Ice/issues/676) | [Bug]: Empty space on the left side of the right menu bar when split, MacOS Tahoe | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
 | M4 | V1 | [jordanbaird/Ice #728](https://github.com/jordanbaird/Ice/issues/728) | [Bug]: Chevron separator is always shown | 分隔符图标显示时机与样式耦合，属于视觉/显示策略问题。 | 待复现/验证 |
 | M4 | V1 | [jordanbaird/Ice #733](https://github.com/jordanbaird/Ice/issues/733) | [Bug]: Strange rendering issue | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
-| M4 | V1 | [jordanbaird/Ice #763](https://github.com/jordanbaird/Ice/issues/763) | [Bug]: Color Picker is broken for Menu Bar | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
+| M4 | V1 | [jordanbaird/Ice #763](https://github.com/jordanbaird/Ice/issues/763) | [Bug]: Color Picker is broken for Menu Bar | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 代码改进 · 待原场景验收 |
 | M4 | V1 | [jordanbaird/Ice #793](https://github.com/jordanbaird/Ice/issues/793) | [Bug]: White icons on white background | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
 | M4 | V1 | [jordanbaird/Ice #943](https://github.com/jordanbaird/Ice/issues/943) | [Bug]: Ligthing error when enabeling split shape in menu bar appearance | 主要是样式/渲染一致性问题，先确认不遮挡真实图标或阻塞点击。 | 待复现/验证 |
-| M4 | V2 | [jordanbaird/Ice #334](https://github.com/jordanbaird/Ice/issues/334) | [Bug]: Ice has noticeable energy impact during mouse movement | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 待复现/验证 |
-| M4 | V2 | [jordanbaird/Ice #479](https://github.com/jordanbaird/Ice/issues/479) | [Bug]: Energy impact | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 待复现/验证 |
-| M4 | V2 | [jordanbaird/Ice #578](https://github.com/jordanbaird/Ice/issues/578) | [Bug]: High CPU usage | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 待复现/验证 |
-| M4 | V2 | [jordanbaird/Ice #830](https://github.com/jordanbaird/Ice/issues/830) | [Bug]: So many bugs | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 待复现/验证 |
+| M4 | V2 | [jordanbaird/Ice #334](https://github.com/jordanbaird/Ice/issues/334) | [Bug]: Ice has noticeable energy impact during mouse movement | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 代码改进 · 待原场景验收 |
+| M4 | V2 | [jordanbaird/Ice #479](https://github.com/jordanbaird/Ice/issues/479) | [Bug]: Energy impact | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 代码改进 · 待原场景验收 |
+| M4 | V2 | [jordanbaird/Ice #578](https://github.com/jordanbaird/Ice/issues/578) | [Bug]: High CPU usage | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 代码改进 · 待原场景验收 |
+| M4 | V2 | [jordanbaird/Ice #830](https://github.com/jordanbaird/Ice/issues/830) | [Bug]: So many bugs | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 代码改进 · 待原场景验收 |
 | M5 | F1 | [jordanbaird/Ice #6](https://github.com/jordanbaird/Ice/issues/6) | [Feature Request] Change the location where new menu bar icons come up. | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 候选需求待评估 |
 | M5 | F1 | [jordanbaird/Ice #326](https://github.com/jordanbaird/Ice/issues/326) | [Feature Request]: Custom configuration path / export settings | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 候选需求待评估 |
 | M5 | F1 | [jordanbaird/Ice #378](https://github.com/jordanbaird/Ice/issues/378) | [Feature Request]: Show all menu bar items as default | 请求默认全部可见，先明确默认分区与新项目规则。 | 候选需求待评估 |
