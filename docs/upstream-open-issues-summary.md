@@ -2,7 +2,7 @@
 
 原始采集时间：2026-10-13T14:04:27+08:00（Asia/Shanghai）。本地代码审计时间：2026-10-13T15:17:39+08:00。
 
-原始采集范围为两个上游仓库的全部 open issues（排除 pull requests）。原始共 402 条；现已排除 Floe 中已修复或需求已满足的 23 条，保留 **379** 条。此文件是本项目的待处理清单，不再等同于上游实时 open issues 总数。
+原始采集范围为两个上游仓库的全部 open issues（排除 pull requests）。原始共 402 条；现已排除 Floe 中已修复或需求已满足的 35 条，保留 **367** 条。此文件是本项目的待处理清单，不再等同于上游实时 open issues 总数。
 
 删除依据与验证边界见 [修复核对记录](upstream-issue-fix-audit.md)。仅清理本地文档，未关闭或修改 GitHub 上的 issue。
 
@@ -14,12 +14,20 @@
 
 2026-10-14 C0 更新见 [专项记录](c0-issue-audit.md)：3 条均已实施相关防护，P0 和待处理数量保持不变；系统级因果未确认。
 
+2026-10-14 C1 更新见 [专项记录](c1-issue-audit.md)：#563 缺失隐藏分隔符后空数组取首项的崩溃已修复并归档；当前保留 **378**，C1 **28**。
+
+2026-10-14 C1 第六批：7 条精确匹配窗口 ID 溢出签名的原报告确认已继承修复并归档，当前 C1 **21**、M1 **74**、总清单 **371**。验证入口见 [专项记录](c1-issue-audit.md)。
+
+2026-10-14 C1 第七批：#796/#905 原始附件精确匹配窗口 ID 溢出，已继承修复并归档；#777 系统截图阻塞继续保留。当前 C1 **19**、M1 **72**、总清单 **369**。
+
+2026-10-14 C1 第八批：#603 作者 dev.1 附件及 #742 原文精确匹配窗口 ID 溢出，已继承修复并归档。当前 C1 **17**、M1 **70**、总清单 **367**。
+
 ## 总览
 
 | 仓库 | 故障报告 | 功能请求 | 其他反馈 | 当前保留 |
 | --- | ---: | ---: | ---: | ---: |
 | [cavaldos/Ice](https://github.com/cavaldos/Ice) | 4 | 0 | 0 | 4 |
-| [jordanbaird/Ice](https://github.com/jordanbaird/Ice) | 270 | 99 | 6 | 375 |
+| [jordanbaird/Ice](https://github.com/jordanbaird/Ice) | 258 | 99 | 6 | 363 |
 
 类型依据原始标题与 GitHub 标签整理；主分类是本地分析，不是上游官方标签。每条只分配一个主分类，跨领域问题仍可能需要多个维度验证。保留表示尚未确认已完整修复，不能直接理解为已在 Floe 复现。
 
@@ -35,7 +43,7 @@
 | 触发、点击与自动隐藏 | 1 | 56 | 57 |
 | Ice Bar 功能与交互 | 0 | 23 | 23 |
 | 菜单栏外观与渲染 | 0 | 39 | 39 |
-| 崩溃、冻结与资源消耗 | 0 | 36 | 36 |
+| 崩溃、冻结与资源消耗 | 0 | 24 | 24 |
 | 权限、更新、安装与分发 | 0 | 7 | 7 |
 | 第三方应用与系统项目兼容 | 0 | 40 | 40 |
 | 快捷键、自动化与配置能力 | 0 | 9 | 9 |
@@ -69,7 +77,7 @@
 
 ## 全量分类索引
 
-以下列出保留的全部 **379** 条；已排除本次删除条目。
+以下列出保留的全部 **367** 条；已排除本次删除条目。
 
 ### 布局编辑、图标发现与搜索
 
@@ -373,35 +381,23 @@
 | [jordanbaird/Ice #334](https://github.com/jordanbaird/Ice/issues/334) | 故障报告 | [Bug]: Ice has noticeable energy impact during mouse movement |
 | [jordanbaird/Ice #479](https://github.com/jordanbaird/Ice/issues/479) | 故障报告 | [Bug]: Energy impact |
 | [jordanbaird/Ice #530](https://github.com/jordanbaird/Ice/issues/530) | 故障报告 | [Bug]: high memory usage |
-| [jordanbaird/Ice #563](https://github.com/jordanbaird/Ice/issues/563) | 故障报告 | [Bug]: Ice occasionally crashes. |
 | [jordanbaird/Ice #578](https://github.com/jordanbaird/Ice/issues/578) | 故障报告 | [Bug]: High CPU usage |
-| [jordanbaird/Ice #603](https://github.com/jordanbaird/Ice/issues/603) | 故障报告 | [Bug]: App launches, then immediately crashes, on macOS Tahoe Beta 3 |
 | [jordanbaird/Ice #647](https://github.com/jordanbaird/Ice/issues/647) | 故障报告 | [Bug]: <MacOS Tahoe app craches> |
-| [jordanbaird/Ice #669](https://github.com/jordanbaird/Ice/issues/669) | 故障报告 | [Bug]: <crashes on MACOS  26 tahoe 26> |
 | [jordanbaird/Ice #671](https://github.com/jordanbaird/Ice/issues/671) | 故障报告 | [Bug]: unexpected closure |
 | [jordanbaird/Ice #721](https://github.com/jordanbaird/Ice/issues/721) | 故障报告 | [Bug]: Latest Tahoe Beta update gives Ice error, Ice freezes |
 | [jordanbaird/Ice #740](https://github.com/jordanbaird/Ice/issues/740) | 故障报告 | [Bug]: Crashes every time I use it |
-| [jordanbaird/Ice #742](https://github.com/jordanbaird/Ice/issues/742) | 故障报告 | [Bug]: I just installed Tahoe in my Mac and ICE is not working as it used to.  I am attaching the log report sent back form IOS.  Since the principal functionality that stopped work is to have the menu in a separate bar below the menu bar. |
 | [jordanbaird/Ice #746](https://github.com/jordanbaird/Ice/issues/746) | 故障报告 | [Bug]: Event operation timed out |
 | [jordanbaird/Ice #777](https://github.com/jordanbaird/Ice/issues/777) | 故障报告 | [Bug]:  Ice App Freezes During Screen Capture Operations |
-| [jordanbaird/Ice #779](https://github.com/jordanbaird/Ice/issues/779) | 故障报告 | [Bug]: 点击图标自动就退出了.系统崩溃 |
 | [jordanbaird/Ice #786](https://github.com/jordanbaird/Ice/issues/786) | 故障报告 | [Bug]:Selecting 'Ice Bar' in settings and then tapping on the Ice icon causes Ice to crash |
 | [jordanbaird/Ice #790](https://github.com/jordanbaird/Ice/issues/790) | 故障报告 | [Bug]: Multiple monitors freeze |
-| [jordanbaird/Ice #796](https://github.com/jordanbaird/Ice/issues/796) | 故障报告 | [Bug]: App crashes when opening the sub menu |
 | [jordanbaird/Ice #807](https://github.com/jordanbaird/Ice/issues/807) | 故障报告 | [Bug]: [Macbook Pro, M4 Pro] Not responding |
-| [jordanbaird/Ice #810](https://github.com/jordanbaird/Ice/issues/810) | 故障报告 | [Bug]: Crash on M1 Pro |
 | [jordanbaird/Ice #819](https://github.com/jordanbaird/Ice/issues/819) | 故障报告 | [Bug]: memory leak in WindowServer caused by Ice? |
-| [jordanbaird/Ice #821](https://github.com/jordanbaird/Ice/issues/821) | 故障报告 | [Bug]: ICE crashes every time on clicking the ICE icon in menubar. iMac, macOS 26.2 (issue identical on 26.1). |
 | [jordanbaird/Ice #830](https://github.com/jordanbaird/Ice/issues/830) | 故障报告 | [Bug]: So many bugs |
 | [jordanbaird/Ice #838](https://github.com/jordanbaird/Ice/issues/838) | 故障报告 | [Bug]: it seems to be frozen. I have to quit it and re-launch it to get it to function properly. |
 | [jordanbaird/Ice #840](https://github.com/jordanbaird/Ice/issues/840) | 其他反馈 | Crash when enabling Ice Bar: EXC_BREAKPOINT in window handling |
 | [jordanbaird/Ice #855](https://github.com/jordanbaird/Ice/issues/855) | 故障报告 | [Bug]: Ice keeps crashing after updating to OS26.2 |
-| [jordanbaird/Ice #867](https://github.com/jordanbaird/Ice/issues/867) | 故障报告 | [Bug]: Ice crash on macOS 26.2 (25C56) |
-| [jordanbaird/Ice #880](https://github.com/jordanbaird/Ice/issues/880) | 故障报告 | [Bug]: not be able to use it on imac today |
-| [jordanbaird/Ice #905](https://github.com/jordanbaird/Ice/issues/905) | 故障报告 | [Bug]: |
 | [jordanbaird/Ice #908](https://github.com/jordanbaird/Ice/issues/908) | 故障报告 | [Bug]: Ice appears to have caused system-wide freeze & kernel panic after ~33 hours of uptime |
 | [jordanbaird/Ice #915](https://github.com/jordanbaird/Ice/issues/915) | 故障报告 | [Bug]: Unsplash client crashes shortly after being hidden by ICE |
-| [jordanbaird/Ice #947](https://github.com/jordanbaird/Ice/issues/947) | 故障报告 | [Bug]: app crash after click in menubar |
 | [jordanbaird/Ice #968](https://github.com/jordanbaird/Ice/issues/968) | 其他反馈 | macOS 26.5.2: Ice stuck / menu bar stays hidden after form dropdown hang (Dock auto-hide also stuck) |
 | [jordanbaird/Ice #974](https://github.com/jordanbaird/Ice/issues/974) | 故障报告 | [Bug]: Orphaned application menu-bar windows stuck at CGWindow layer 101, invisible to accessibility (macOS 26.6.1, 0.11.13-dev.2) |
 | [jordanbaird/Ice #977](https://github.com/jordanbaird/Ice/issues/977) | 故障报告 | [Bug]: crashes whenever I use the trigger button in the menu bar |

@@ -133,6 +133,9 @@ final class MenuBarItemManager: ObservableObject {
     /// items is being moved.
     private var itemMoveCount = 0
 
+    /// 自动恢复跨 await 时可能再次触发；同一批恢复只能由一个任务处理。
+    private var isRehidingTempShownItems = false
+
     /// A Boolean value that indicates whether a mouse button is down.
     private var isMouseButtonDown = false
 
@@ -218,9 +221,8 @@ final class MenuBarItemManager: ObservableObject {
             }
             .store(in: &c)
 
-        // NOTE: Do not observe these events in the eventTracking mode (see
-        // RunLoopLocalEventMonitor). Draining and reposting the event queue
-        // from inside modal tracking loops breaks button and resize tracking
+        // NOTE: Do not drain and repost events in the eventTracking mode.
+        // Reposting from inside modal tracking loops breaks button and resize tracking
         // on macOS 27 (traffic lights and window edges stop responding).
         // The default-mode monitor below still sees 99% of events; the guards
         // that read isMouseButtonDown degrade gracefully during modal loops.
@@ -536,7 +538,12 @@ extension MenuBarItemManager {
         } else {
             Task(operation: operation)
         }
-        try await task.value
+        // 顶层 Task 不会继承调用者后续取消，显式传递才能停止等待并释放超时任务组。
+        try await withTaskCancellationHandler {
+            try await task.value
+        } onCancel: {
+            task.cancel()
+        }
     }
 
     /// Waits asynchronously for all menu bar items to stop moving.
@@ -582,26 +589,13 @@ extension MenuBarItemManager {
     /// - Parameter timeout: Amount of time to wait before throwing an error.
     func waitForNoModifiersPressed(timeout: Duration? = nil) async throws {
         try await waitWithTask(timeout: timeout) {
-            // Return early if no flags are pressed.
-            if NSEvent.modifierFlags.isEmpty {
-                return
+            // 不依赖下一条 flagsChanged：事件丢失或任务取消时 continuation 无法结束，
+            // 还会让结构化超时任务组一直等子任务退出。短间隔检查同时支持取消和超时。
+            while await MainActor.run(body: { !NSEvent.modifierFlags.isEmpty }) {
+                try Task.checkCancellation()
+                try await Task.sleep(for: .milliseconds(10))
             }
-
-            var cancellable: AnyCancellable?
-
-            await withCheckedContinuation { continuation in
-                cancellable = Publishers.Merge(
-                    UniversalEventMonitor.publisher(for: .flagsChanged),
-                    RunLoopLocalEventMonitor.publisher(for: .flagsChanged, mode: .eventTracking)
-                )
-                .removeDuplicates()
-                .sink { _ in
-                    if NSEvent.modifierFlags.isEmpty {
-                        cancellable?.cancel()
-                        continuation.resume()
-                    }
-                }
-            }
+            try Task.checkCancellation()
         }
     }
 }
@@ -938,22 +932,21 @@ extension MenuBarItemManager {
     private func waitForFrameChange(of item: MenuBarItem, initialFrame: CGRect, timeout: Duration) async throws {
         struct FrameCheckCancellationError: Error { }
 
-        let frameCheckTask = Task(timeout: timeout) {
-            while true {
-                try Task.checkCancellation()
-                guard let currentFrame = await self.getCurrentFrame(for: item) else {
-                    throw FrameCheckCancellationError()
-                }
-                if currentFrame != initialFrame {
-                    Logger.itemManager.debug("Menu bar item frame for \(item.logString) has changed to \(NSStringFromRect(currentFrame))")
-                    return
-                }
-                // ponytail: 1ms pause cuts WindowServer IPC from thousands to ~50 per move; +1ms detect delay is negligible vs 50ms timeout.
-                try await Task.sleep(for: .milliseconds(1))
-            }
-        }
         do {
-            try await frameCheckTask.value
+            try await waitWithTask(timeout: timeout) {
+                while true {
+                    try Task.checkCancellation()
+                    guard let currentFrame = await self.getCurrentFrame(for: item) else {
+                        throw FrameCheckCancellationError()
+                    }
+                    if currentFrame != initialFrame {
+                        Logger.itemManager.debug("Menu bar item frame for \(item.logString) has changed to \(NSStringFromRect(currentFrame))")
+                        return
+                    }
+                    // ponytail: 1ms pause cuts WindowServer IPC from thousands to ~50 per move; +1ms detect delay is negligible vs 50ms timeout.
+                    try await Task.sleep(for: .milliseconds(1))
+                }
+            }
         } catch is FrameCheckCancellationError {
             Logger.itemManager.warning("Menu bar item frame check for \(item.logString) was cancelled, so using fixed delay")
             // This will be slow, but subsequent events will have a better chance of succeeding.
@@ -1195,16 +1188,17 @@ extension MenuBarItemManager {
             itemMoveCount -= 1
         }
         try await move(item: item, to: destination)
-        let waitTask = Task(timeout: timeout) {
-            while true {
-                try Task.checkCancellation()
-                if try await self.itemHasCorrectPosition(item: item, for: destination) {
-                    return
+        do {
+            try await waitWithTask(timeout: timeout) {
+                while true {
+                    try Task.checkCancellation()
+                    if try await self.itemHasCorrectPosition(item: item, for: destination) {
+                        return
+                    }
+                    // 尚未到位时让出执行器，限制反复坐标查询对主线程和 WindowServer 的压力。
+                    try await Task.sleep(for: .milliseconds(10))
                 }
             }
-        }
-        do {
-            try await waitTask.value
         } catch is TaskTimeoutError {
             throw EventError(code: .otherTimeout, item: item)
         }
@@ -1334,6 +1328,14 @@ extension MenuBarItemManager {
         }
     }
 
+    /// 发现快照可能缺少分隔符；先确认边界，避免 trimPrefix 清空数组后 removeFirst 崩溃。
+    private func itemsAfterHiddenControlItem(in items: [MenuBarItem]) -> [MenuBarItem]? {
+        guard let index = items.firstIndex(where: { $0.info == .hiddenControlItem }) else {
+            return nil
+        }
+        return Array(items.dropFirst(index + 1))
+    }
+
     /// Temporarily shows the given item.
     ///
     /// The item is cached alongside a destination that it will be automatically returned
@@ -1380,10 +1382,12 @@ extension MenuBarItemManager {
             return
         }
 
-        // Remove all items up to the hidden control item.
-        items.trimPrefix { $0.info != .hiddenControlItem }
-        // Remove the hidden control item.
-        items.removeFirst()
+        // CGS/分区重建时可能暂时缺少隐藏分隔符；不能把整个列表清空后继续取首项。
+        guard let candidates = itemsAfterHiddenControlItem(in: items) else {
+            Logger.itemManager.warning("No hidden control item, so not showing \(item.logString)")
+            return
+        }
+        items = candidates
         // Remove all offscreen items.
         items.trimPrefix { !$0.isOnScreen }
 
@@ -1447,8 +1451,13 @@ extension MenuBarItemManager {
     /// If an item is currently showing its interface, this method waits for the
     /// interface to close before hiding the items.
     func rehideTempShownItems() async {
+        guard !isRehidingTempShownItems else {
+            return
+        }
+        isRehidingTempShownItems = true
         itemMoveCount += 1
         defer {
+            isRehidingTempShownItems = false
             itemMoveCount -= 1
         }
 
@@ -1469,9 +1478,18 @@ extension MenuBarItemManager {
 
         Logger.itemManager.info("Rehiding temporarily shown items")
 
-        var failedContexts = [TempShownItemContext]()
-
         let items = MenuBarItem.getMenuBarItems(onScreenOnly: false, activeSpaceOnly: true)
+        // WindowServer/权限/分区切换可暂时返回空快照；不能将它当作所有项目都已退出。
+        guard !items.isEmpty else {
+            Logger.itemManager.warning("No menu bar items discovered, so deferring temporary item restore")
+            runTempShownItemTimer(for: 3)
+            return
+        }
+
+        // 只处理进入本轮时的记录，避免立即隐藏新显示项目或丢失其恢复记录。
+        var pendingContexts = tempShownItemContexts
+        tempShownItemContexts.removeAll()
+        var failedContexts = [TempShownItemContext]()
 
         MouseCursor.hide()
 
@@ -1479,7 +1497,7 @@ extension MenuBarItemManager {
             MouseCursor.show()
         }
 
-        while let context = tempShownItemContexts.popLast() {
+        while let context = pendingContexts.popLast() {
             guard let item = items.first(where: { $0.info == context.info }) else {
                 continue
             }
@@ -1491,13 +1509,14 @@ extension MenuBarItemManager {
             }
         }
 
-        if failedContexts.isEmpty {
-            tempShownItemsTimer?.invalidate()
-            tempShownItemsTimer = nil
-        } else {
-            tempShownItemContexts = failedContexts
+        if !failedContexts.isEmpty {
+            // await 期间可能新增记录，不能用失败快照覆盖当前列表。
+            tempShownItemContexts.append(contentsOf: failedContexts)
             Logger.itemManager.warning("Some items failed to rehide")
             runTempShownItemTimer(for: 3)
+        } else if tempShownItemContexts.isEmpty {
+            tempShownItemsTimer?.invalidate()
+            tempShownItemsTimer = nil
         }
     }
 

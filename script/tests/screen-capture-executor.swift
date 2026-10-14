@@ -14,6 +14,8 @@ defer { try? FileManager.default.removeItem(at: directory) }
 let fixture = #"""
 import Foundation
 
+func waitForGate(_ gate: DispatchSemaphore) { gate.wait() }
+
 @main struct Checks {
     static func main() async {
         let executor = ScreenCaptureExecutor()
@@ -51,6 +53,42 @@ import Foundation
         precondition(recovered == 7)
         print("PASS: late completion does not resume twice, and a finished worker accepts new captures")
 
+        let cancelGate = DispatchSemaphore(value: 0)
+        let entered = DispatchSemaphore(value: 0)
+        let cancelled = Task {
+            await executor.run(timeout: 4) {
+                entered.signal()
+                cancelGate.wait()
+                return 123
+            }
+        }
+        await Task.detached { waitForGate(entered) }.value
+        let cancelStart = Date()
+        cancelled.cancel()
+        let cancelledValue = await cancelled.value
+        precondition(cancelledValue == nil && Date().timeIntervalSince(cancelStart) < 1)
+        let busyAfterCancel: Int? = await executor.run {
+            preconditionFailure("Cancellation must not release a blocked system worker")
+        }
+        precondition(busyAfterCancel == nil)
+        cancelGate.signal()
+        var afterCancel: Int?
+        for _ in 0..<100 {
+            afterCancel = await executor.run { 8 }
+            if afterCancel != nil { break }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        precondition(afterCancel == 8)
+        print("PASS: cancellation returns promptly while blocked worker stays occupied until actual completion")
+        let preCancelled = Task {
+            withUnsafeCurrentTask { $0?.cancel() }
+            return await executor.run { () -> Int? in
+                preconditionFailure("Pre-cancelled capture must not start")
+            }
+        }
+        let preCancelledValue = await preCancelled.value
+        precondition(preCancelledValue == nil)
+
         for _ in 0..<100 {
             let value: Int? = await executor.run(timeout: 0.001) {
                 Thread.sleep(forTimeInterval: 0.001)
@@ -60,6 +98,20 @@ import Foundation
             try? await Task.sleep(for: .milliseconds(2))
         }
         print("PASS: completion/timeout races do not double-resume continuations")
+        for _ in 0..<100 {
+            let request = Task {
+                await executor.run(timeout: 0.001) {
+                    Thread.sleep(forTimeInterval: 0.001)
+                    return 5
+                }
+            }
+            await Task.yield()
+            request.cancel()
+            let value = await request.value
+            precondition(value == nil || value == 5)
+            try? await Task.sleep(for: .milliseconds(3))
+        }
+        print("PASS: registration/cancellation/completion/timeout races resume once")
     }
 }
 """#

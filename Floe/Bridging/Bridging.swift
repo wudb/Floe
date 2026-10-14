@@ -71,8 +71,9 @@ extension Bridging {
     private static func getWindowCount() -> Int {
         var count: Int32 = 0
         let result = CGSGetWindowCount(CGSMainConnectionID(), 0, &count)
-        if result != .success {
-            Logger.bridging.error("CGSGetWindowCount failed with error \(result.logString)")
+        guard result == .success, count >= 0 else {
+            Logger.bridging.error("CGSGetWindowCount returned invalid count \(count), error \(result.logString)")
+            return 0
         }
         return Int(count)
     }
@@ -80,14 +81,19 @@ extension Bridging {
     private static func getOnScreenWindowCount() -> Int {
         var count: Int32 = 0
         let result = CGSGetOnScreenWindowCount(CGSMainConnectionID(), 0, &count)
-        if result != .success {
-            Logger.bridging.error("CGSGetOnScreenWindowCount failed with error \(result.logString)")
+        guard result == .success, count >= 0 else {
+            Logger.bridging.error("CGSGetOnScreenWindowCount returned invalid count \(count), error \(result.logString)")
+            return 0
         }
         return Int(count)
     }
 
     private static func getWindowList() -> [CGWindowID] {
         let windowCount = getWindowCount()
+        // 数量查询失败或没有窗口时不向私有 API 传入空缓冲区。
+        guard windowCount > 0 else {
+            return []
+        }
         var list = [CGWindowID](repeating: 0, count: windowCount)
         var realCount: Int32 = 0
         let result = CGSGetWindowList(
@@ -101,11 +107,20 @@ extension Bridging {
             Logger.bridging.error("CGSGetWindowList failed with error \(result.logString)")
             return []
         }
-        return [CGWindowID](list[..<Int(realCount)])
+        // 查询数量与填充列表不是原子快照，窗口增减或异常输出不能直接用于数组切片。
+        guard realCount >= 0, Int(realCount) <= list.count else {
+            Logger.bridging.error("Window list count \(realCount) exceeds buffer bounds \(list.count)")
+            return []
+        }
+        return [CGWindowID](list.prefix(Int(realCount)))
     }
 
     private static func getOnScreenWindowList() -> [CGWindowID] {
         let windowCount = getOnScreenWindowCount()
+        // 数量查询失败或没有窗口时不向私有 API 传入空缓冲区。
+        guard windowCount > 0 else {
+            return []
+        }
         var list = [CGWindowID](repeating: 0, count: windowCount)
         var realCount: Int32 = 0
         let result = CGSGetOnScreenWindowList(
@@ -119,11 +134,20 @@ extension Bridging {
             Logger.bridging.error("CGSGetOnScreenWindowList failed with error \(result.logString)")
             return []
         }
-        return [CGWindowID](list[..<Int(realCount)])
+        // 查询数量与填充列表不是原子快照，窗口增减或异常输出不能直接用于数组切片。
+        guard realCount >= 0, Int(realCount) <= list.count else {
+            Logger.bridging.error("Window list count \(realCount) exceeds buffer bounds \(list.count)")
+            return []
+        }
+        return [CGWindowID](list.prefix(Int(realCount)))
     }
 
     private static func getMenuBarWindowList() -> [CGWindowID] {
         let windowCount = getWindowCount()
+        // 数量查询失败或没有窗口时不向私有 API 传入空缓冲区。
+        guard windowCount > 0 else {
+            return []
+        }
         var list = [CGWindowID](repeating: 0, count: windowCount)
         var realCount: Int32 = 0
         let result = CGSGetProcessMenuBarWindowList(
@@ -137,7 +161,12 @@ extension Bridging {
             Logger.bridging.error("CGSGetProcessMenuBarWindowList failed with error \(result.logString)")
             return []
         }
-        return [CGWindowID](list[..<Int(realCount)])
+        // 查询数量与填充列表不是原子快照，窗口增减或异常输出不能直接用于数组切片。
+        guard realCount >= 0, Int(realCount) <= list.count else {
+            Logger.bridging.error("Window list count \(realCount) exceeds buffer bounds \(list.count)")
+            return []
+        }
+        return [CGWindowID](list.prefix(Int(realCount)))
     }
 
     private static func getOnScreenMenuBarWindowList() -> [CGWindowID] {

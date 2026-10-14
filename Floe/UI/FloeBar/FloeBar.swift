@@ -19,6 +19,9 @@ final class FloeBarPanel: NSPanel {
 
     private var axActivationTask: Task<Void, Never>?
 
+    /// 同一分区也可能连续请求不同屏幕；异步返回只能发布最新一次显示请求。
+    private var presentationGeneration: UUID?
+
     /// Automatic rehide must not collapse originals while their menu is in use.
     private(set) var isActivatingAXItem = false
 
@@ -250,6 +253,8 @@ final class FloeBarPanel: NSPanel {
         }
 
         // Important that we set the navigation state and current section before updating the cache.
+        let generation = UUID()
+        presentationGeneration = generation
         appState.navigationState.isFloeBarPresented = true
         currentSection = section
 
@@ -259,9 +264,12 @@ final class FloeBarPanel: NSPanel {
             await appState.imageCache.updateCache()
         }
 
-        // A newer show() may have claimed the panel while waiting for the cache —
-        // bail out without closing (the panel now belongs to that show).
-        guard currentSection == section else {
+        // 分区名相同不代表同一次请求；关闭、重新打开和换屏都会淘汰旧请求。
+        guard presentationGeneration == generation else {
+            return
+        }
+        guard !Task.isCancelled else {
+            close()
             return
         }
 
@@ -278,6 +286,7 @@ final class FloeBarPanel: NSPanel {
     }
 
     override func close() {
+        presentationGeneration = nil
         super.close()
         contentView = nil
         currentSection = nil

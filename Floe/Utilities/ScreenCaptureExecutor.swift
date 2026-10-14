@@ -29,16 +29,27 @@ final class ScreenCaptureExecutor: @unchecked Sendable {
     /// 忙时直接返回 nil；不能通过超时释放运行标记，否则卡住的截图会持续占用线程。
     func run<Value: Sendable>(timeout: TimeInterval = 2, operation: @escaping @Sendable () -> Value?) async -> Value? {
         guard !Task.isCancelled, begin() else { return nil }
-        return await withCheckedContinuation { continuation in
-            let result = CaptureResult(continuation)
-            DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + timeout) {
-                result.finish(nil)
+        let result = CaptureResult<Value>()
+        return await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                result.install(continuation)
+                DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + timeout) {
+                    result.finish(nil)
+                }
+                queue.async {
+                    // 取消/超时早于队列执行时无需再调用系统 API；占用标记由队列负责释放。
+                    guard !result.isFinished else {
+                        self.end()
+                        return
+                    }
+                    let value = operation()
+                    self.end()
+                    result.finish(value)
+                }
             }
-            queue.async {
-                let value = operation()
-                self.end()
-                result.finish(value)
-            }
+        } onCancel: {
+            // 只能结束调用者等待，不能提前释放正在执行且无法取消的系统截图。
+            result.finish(nil)
         }
     }
 }
@@ -48,12 +59,33 @@ private final class CaptureResult<Value: Sendable>: @unchecked Sendable {
     private let lock = NSLock()
     private var continuation: CheckedContinuation<Value?, Never>?
 
-    init(_ continuation: CheckedContinuation<Value?, Never>) {
-        self.continuation = continuation
+    private var finished = false
+
+    var isFinished: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return finished
+    }
+
+    /// 取消可能早于 continuation 注册；记住完成状态，注册后立即恢复而不是漏掉取消。
+    func install(_ continuation: CheckedContinuation<Value?, Never>) {
+        lock.lock()
+        if finished {
+            lock.unlock()
+            continuation.resume(returning: nil)
+        } else {
+            self.continuation = continuation
+            lock.unlock()
+        }
     }
 
     func finish(_ value: Value?) {
         lock.lock()
+        guard !finished else {
+            lock.unlock()
+            return
+        }
+        finished = true
         let pending = continuation
         continuation = nil
         lock.unlock()

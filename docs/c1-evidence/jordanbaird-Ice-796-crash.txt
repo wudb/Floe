@@ -1,0 +1,357 @@
+-------------------------------------
+Translated Report (Full Report Below)
+-------------------------------------
+Process:             Ice [31177]
+Path:                /Applications/Ice.app/Contents/MacOS/Ice
+Identifier:          com.jordanbaird.Ice
+Version:             0.11.12 (1117)
+Code Type:           ARM-64 (Native)
+Role:                Background
+Parent Process:      launchd [1]
+Coalition:           com.jordanbaird.Ice [24219]
+User ID:             501
+
+Date/Time:           2025-11-25 13:29:20.6127 -0500
+Launch Time:         2025-11-25 13:24:37.7746 -0500
+Hardware Model:      Mac15,7
+OS Version:          macOS 26.1 (25B78)
+Release Type:        User
+
+Crash Reporter Key:  7F16E0BA-C2ED-F964-B653-FE86F0E7A7DD
+Incident Identifier: F7196C46-7B95-4017-A0C9-D262237BB227
+
+Sleep/Wake UUID:       067C580D-6CD9-48C8-8E8C-2D2EFCF6B8D7
+
+Time Awake Since Boot: 650000 seconds
+Time Since Wake:       1340 seconds
+
+System Integrity Protection: enabled
+
+Triggered by Thread: 0, Dispatch Queue: com.apple.main-thread
+
+Exception Type:    EXC_BREAKPOINT (SIGTRAP)
+Exception Codes:   0x0000000000000001, 0x00000001044d8934
+
+Termination Reason:  Namespace SIGNAL, Code 5, Trace/BPT trap: 5
+Terminating Process: exc handler [31177]
+
+
+Thread 0 Crashed::  Dispatch queue: com.apple.main-thread
+0   Ice                           	       0x1044d8934 0x1044cc000 + 51508
+1   Ice                           	       0x10458eb18 0x1044cc000 + 797464
+2   Ice                           	       0x10458d5e0 0x1044cc000 + 792032
+3   Ice                           	       0x10454c7e1 0x1044cc000 + 526305
+4   Ice                           	       0x1044ec151 0x1044cc000 + 131409
+5   Ice                           	       0x1044effb9 0x1044cc000 + 147385
+6   Ice                           	       0x1044de319 0x1044cc000 + 74521
+7   libswift_Concurrency.dylib    	       0x2873ea7c1 completeTaskWithClosure(swift::AsyncContext*, swift::SwiftError*) + 1
+
+Thread 1:
+
+Thread 2:: com.apple.NSEventThread
+0   libsystem_kernel.dylib        	       0x18cf02c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18cf15028 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x18cf0b98c mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x18cf02fb4 mach_msg + 24
+4   CoreFoundation                	       0x18cfe4b90 __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x18cfe34e8 __CFRunLoopRun + 1188
+6   CoreFoundation                	       0x18d09d35c _CFRunLoopRunSpecificWithOptions + 532
+7   AppKit                        	       0x19147dcb4 _NSEventThread + 184
+8   libsystem_pthread.dylib       	       0x18cf45c08 _pthread_start + 136
+9   libsystem_pthread.dylib       	       0x18cf40ba8 thread_start + 8
+
+Thread 3:
+
+Thread 4:
+
+Thread 5:
+
+
+Thread 0 crashed with ARM Thread State (64-bit):
+    x0: 0x00000008e3fd0280   x1: 0x1c000001f99632ef   x2: 0x00000001f99632e8   x3: 0x0000000000000001
+    x4: 0x0000001000000003   x5: 0x0000000000000007   x6: 0x0000001000000003   x7: 0x0000000000000007
+    x8: 0x0000000000000001   x9: 0x00000002086abe46  x10: 0x0000000b122a8cae  x11: 0x00000000000003ff
+   x12: 0x000000000000033a  x13: 0x00000008e3d63390  x14: 0x1c000001f99632ef  x15: 0x00000001f99632e8
+   x16: 0x1c000001f99632ef  x17: 0x0000000000000036  x18: 0x0000000000000000  x19: 0x0000000100000000
+   x20: 0x00000008e3fd0280  x21: 0x00000008e5444b40  x22: 0x00000008e5dbda80  x23: 0x0000000000000002
+   x24: 0x0000000104675000  x25: 0x00000008e558b000  x26: 0x00000008e5b65d70  x27: 0x00000008e4857d60
+   x28: 0xffffffff76ffffff   fp: 0x000000016b930fc0   lr: 0x00000001044d8928
+    sp: 0x000000016b930fa0   pc: 0x00000001044d8934 cpsr: 0x60001000
+   far: 0x0000000000000000  esr: 0xf2000001 (Breakpoint) brk 1
+
+Binary Images:
+       0x1044cc000 -        0x10465bfff com.jordanbaird.Ice (0.11.12) <438423db-718a-3fc0-9935-2a5721737382> /Applications/Ice.app/Contents/MacOS/Ice
+       0x1047b4000 -        0x1047f7fff org.sparkle-project.Sparkle (2.6.4) <0e273e3e-459c-3fa6-9a86-4754c5cc30ff> /Applications/Ice.app/Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle
+       0x10d3d0000 -        0x10d3dbfff libobjc-trampolines.dylib (*) <f8bd9069-8c4f-37ea-af9a-2b1060f54e4f> /usr/lib/libobjc-trampolines.dylib
+       0x118d70000 -        0x119593fff com.apple.AGXMetalG15X-M1 (341.11) <246ba1b8-59e8-391b-946d-5058a249a800> /System/Library/Extensions/AGXMetalG15X_M1.bundle/Contents/MacOS/AGXMetalG15X_M1
+       0x28737d000 -        0x287406bdf libswift_Concurrency.dylib (*) <1a4607f2-13d0-3c00-8cce-f3298da11e60> /usr/lib/swift/libswift_Concurrency.dylib
+               0x0 - 0xffffffffffffffff ??? (*) <00000000-0000-0000-0000-000000000000> ???
+       0x18cf02000 -        0x18cf3e49f libsystem_kernel.dylib (*) <9fe7c84d-0c2b-363f-bee5-6fd76d67a227> /usr/lib/system/libsystem_kernel.dylib
+       0x18cf85000 -        0x18d4cbabf com.apple.CoreFoundation (6.9) <3c4a3add-9e48-33da-82ee-80520e6cbe3b> /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+       0x1913ce000 -        0x192afab9f com.apple.AppKit (6.9) <3c0949bb-e361-369a-80b7-17440eb09e98> /System/Library/Frameworks/AppKit.framework/Versions/C/AppKit
+       0x18cf3f000 -        0x18cf4babb libsystem_pthread.dylib (*) <e95973b8-824c-361e-adf4-390747c40897> /usr/lib/system/libsystem_pthread.dylib
+
+External Modification Summary:
+  Calls made by other processes targeting this process:
+    task_for_pid: 0
+    thread_create: 0
+    thread_set_state: 0
+  Calls made by this process:
+    task_for_pid: 0
+    thread_create: 0
+    thread_set_state: 0
+  Calls made by all processes on this machine:
+    task_for_pid: 0
+    thread_create: 0
+    thread_set_state: 0
+
+VM Region Summary:
+ReadOnly portion of Libraries: Total=1.8G resident=0K(0%) swapped_out_or_unallocated=1.8G(100%)
+Writable regions: Total=162.5M written=625K(0%) resident=625K(0%) swapped_out=0K(0%) unallocated=161.9M(100%)
+
+                                VIRTUAL   REGION 
+REGION TYPE                        SIZE    COUNT (non-coalesced) 
+===========                     =======  ======= 
+Accelerate framework               256K        2 
+Activity Tracing                   256K        1 
+AttributeGraph Data               1024K        1 
+CG image                            96K        4 
+ColorSync                           16K        1 
+CoreAnimation                     12.7M       68 
+CoreGraphics                        32K        2 
+CoreUI image data                 3184K       25 
+Foundation                          16K        1 
+Kernel Alloc Once                 8960K        2 
+MALLOC                           141.5M       30 
+MALLOC guard page                 3776K        4 
+SQLite page cache                  128K        1 
+STACK GUARD                       56.1M        6 
+Stack                             10.6M        6 
+VM_ALLOCATE                       3536K       16 
+__AUTH                            5813K      645 
+__AUTH_CONST                      88.5M     1026 
+__CTF                               824        1 
+__DATA                            30.0M      978 
+__DATA_CONST                      32.8M     1035 
+__DATA_DIRTY                      8775K      887 
+__FONT_DATA                        2352        1 
+__INFO_FILTER                         8        1 
+__LINKEDIT                       594.2M        5 
+__OBJC_RO                         78.3M        1 
+__OBJC_RW                         2567K        1 
+__TEXT                             1.2G     1057 
+__TPRO_CONST                       128K        2 
+mapped file                      289.0M       48 
+page table in kernel               625K        1 
+shared memory                     2416K       15 
+===========                     =======  ======= 
+TOTAL                              2.5G     5874 
+
+
+-----------
+Full Report
+-----------
+
+{"app_name":"Ice","timestamp":"2025-11-25 13:29:23.00 -0500","app_version":"0.11.12","slice_uuid":"438423db-718a-3fc0-9935-2a5721737382","build_version":"1117","platform":1,"bundleID":"com.jordanbaird.Ice","share_with_app_devs":0,"is_first_party":0,"bug_type":"309","os_version":"macOS 26.1 (25B78)","roots_installed":0,"name":"Ice","incident_id":"F7196C46-7B95-4017-A0C9-D262237BB227"}
+{
+  "uptime" : 650000,
+  "procRole" : "Background",
+  "version" : 2,
+  "userID" : 501,
+  "deployVersion" : 210,
+  "modelCode" : "Mac15,7",
+  "coalitionID" : 24219,
+  "osVersion" : {
+    "train" : "macOS 26.1",
+    "build" : "25B78",
+    "releaseType" : "User"
+  },
+  "captureTime" : "2025-11-25 13:29:20.6127 -0500",
+  "codeSigningMonitor" : 2,
+  "incident" : "F7196C46-7B95-4017-A0C9-D262237BB227",
+  "pid" : 31177,
+  "translated" : false,
+  "cpuType" : "ARM-64",
+  "roots_installed" : 0,
+  "bug_type" : "309",
+  "procLaunch" : "2025-11-25 13:24:37.7746 -0500",
+  "procStartAbsTime" : 15691294394208,
+  "procExitAbsTime" : 15698080995613,
+  "procName" : "Ice",
+  "procPath" : "\/Applications\/Ice.app\/Contents\/MacOS\/Ice",
+  "bundleInfo" : {"CFBundleShortVersionString":"0.11.12","CFBundleVersion":"1117","CFBundleIdentifier":"com.jordanbaird.Ice"},
+  "storeInfo" : {"deviceIdentifierForVendor":"2BAFCBC9-5B53-5F89-8115-021251C33DD1","thirdParty":true},
+  "parentProc" : "launchd",
+  "parentPid" : 1,
+  "coalitionName" : "com.jordanbaird.Ice",
+  "crashReporterKey" : "7F16E0BA-C2ED-F964-B653-FE86F0E7A7DD",
+  "appleIntelligenceStatus" : {"state":"unavailable","reasons":["unableToFetchAvailability"]},
+  "developerMode" : 1,
+  "codeSigningID" : "com.jordanbaird.Ice",
+  "codeSigningTeamID" : "K2ATHQPJDP",
+  "codeSigningFlags" : 570503953,
+  "codeSigningValidationCategory" : 6,
+  "codeSigningTrustLevel" : 4294967295,
+  "codeSigningAuxiliaryInfo" : 0,
+  "instructionByteStream" : {"beforePC":"6AwAsAGpQPngAxSqvucElPMDAKrgAxSqxOcElLMB+Ldo\/mDTiAAAtA==","atPC":"IAAg1BMAgNIoAIBS6DMAOQgdABJgggiq\/XtCqfRPQan\/wwCRwANf1g=="},
+  "bootSessionUUID" : "7D73DE90-971B-4612-AEB1-E830859FC735",
+  "wakeTime" : 1340,
+  "sleepWakeUUID" : "067C580D-6CD9-48C8-8E8C-2D2EFCF6B8D7",
+  "sip" : "enabled",
+  "exception" : {"codes":"0x0000000000000001, 0x00000001044d8934","rawCodes":[1,4367157556],"type":"EXC_BREAKPOINT","signal":"SIGTRAP"},
+  "termination" : {"flags":0,"code":5,"namespace":"SIGNAL","indicator":"Trace\/BPT trap: 5","byProc":"exc handler","byPid":31177},
+  "os_fault" : {"process":"Ice"},
+  "extMods" : {"caller":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"system":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"targeted":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"warnings":0},
+  "faultingThread" : 0,
+  "threads" : [{"triggered":true,"id":15356133,"threadState":{"x":[{"value":38184747648},{"value":2017612641544319727,"symbolLocation":2017612633061982215,"symbol":"OBJC_CLASS_$_NSStatusBarWindow"},{"value":8482337512,"symbolLocation":0,"symbol":"OBJC_CLASS_$_NSStatusBarWindow"},{"value":1},{"value":68719476739},{"value":7},{"value":68719476739},{"value":7},{"value":1},{"value":8731147846,"objc-selector":"windowNumber"},{"value":47549418670},{"value":1023},{"value":826},{"value":38182204304},{"value":2017612641544319727,"symbolLocation":2017612633061982215,"symbol":"OBJC_CLASS_$_NSStatusBarWindow"},{"value":8482337512,"symbolLocation":0,"symbol":"OBJC_CLASS_$_NSStatusBarWindow"},{"value":2017612641544319727,"symbolLocation":2017612633061982215,"symbol":"OBJC_CLASS_$_NSStatusBarWindow"},{"value":54},{"value":0},{"value":4294967296},{"value":38184747648},{"value":38206196544},{"value":38216129152},{"value":2},{"value":4368846848},{"value":38207533056},{"value":38213672304},{"value":38193692000},{"value":18446744071411073023}],"flavor":"ARM_THREAD_STATE64","lr":{"value":4367157544},"cpsr":{"value":1610616832},"fp":{"value":6099767232},"sp":{"value":6099767200},"esr":{"value":4060086273,"description":"(Breakpoint) brk 1"},"pc":{"value":4367157556,"matchesCrashFrame":1},"far":{"value":0}},"queue":"com.apple.main-thread","frames":[{"imageOffset":51508,"imageIndex":0},{"imageOffset":797464,"imageIndex":0},{"imageOffset":792032,"imageIndex":0},{"imageOffset":526305,"imageIndex":0},{"imageOffset":131409,"imageIndex":0},{"imageOffset":147385,"imageIndex":0},{"imageOffset":74521,"imageIndex":0},{"imageOffset":448449,"symbol":"completeTaskWithClosure(swift::AsyncContext*, swift::SwiftError*)","symbolLocation":1,"imageIndex":4}]},{"id":15356149,"frames":[],"threadState":{"x":[{"value":6101479424},{"value":20227},{"value":6100942848},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":4096},"fp":{"value":0},"sp":{"value":6101479424},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6659771284},"far":{"value":0}}},{"id":15356150,"name":"com.apple.NSEventThread","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":135252815118336},{"value":0},{"value":135252815118336},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":31491},{"value":0},{"value":18446744073709551569},{"value":8505055984},{"value":0},{"value":4294967295},{"value":2},{"value":135252815118336},{"value":0},{"value":135252815118336},{"value":6102048904},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6659592232},"cpsr":{"value":4096},"fp":{"value":6102048752},"sp":{"value":6102048672},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6659517492},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":6},{"imageOffset":77864,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":6},{"imageOffset":39308,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":6},{"imageOffset":4020,"symbol":"mach_msg","symbolLocation":24,"imageIndex":6},{"imageOffset":392080,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":7},{"imageOffset":386280,"symbol":"__CFRunLoopRun","symbolLocation":1188,"imageIndex":7},{"imageOffset":1147740,"symbol":"_CFRunLoopRunSpecificWithOptions","symbolLocation":532,"imageIndex":7},{"imageOffset":720052,"symbol":"_NSEventThread","symbolLocation":184,"imageIndex":8},{"imageOffset":27656,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":9},{"imageOffset":7080,"symbol":"thread_start","symbolLocation":8,"imageIndex":9}]},{"id":15364026,"frames":[],"threadState":{"x":[{"value":6100905984},{"value":48491},{"value":6100369408},{"value":0},{"value":409603},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":4096},"fp":{"value":0},"sp":{"value":6100905984},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6659771284},"far":{"value":0}}},{"id":15365928,"frames":[],"threadState":{"x":[{"value":6100332544},{"value":69135},{"value":6099795968},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":4096},"fp":{"value":0},"sp":{"value":6100332544},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6659771284},"far":{"value":0}}},{"id":15366493,"frames":[],"threadState":{"x":[{"value":6102626304},{"value":0},{"value":6102089728},{"value":0},{"value":278532},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":4096},"fp":{"value":0},"sp":{"value":6102626304},"esr":{"value":0},"pc":{"value":6659771284},"far":{"value":0}}}],
+  "usedImages" : [
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4367106048,
+    "CFBundleShortVersionString" : "0.11.12",
+    "CFBundleIdentifier" : "com.jordanbaird.Ice",
+    "size" : 1638400,
+    "uuid" : "438423db-718a-3fc0-9935-2a5721737382",
+    "path" : "\/Applications\/Ice.app\/Contents\/MacOS\/Ice",
+    "name" : "Ice",
+    "CFBundleVersion" : "1117"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4370153472,
+    "CFBundleShortVersionString" : "2.6.4",
+    "CFBundleIdentifier" : "org.sparkle-project.Sparkle",
+    "size" : 278528,
+    "uuid" : "0e273e3e-459c-3fa6-9a86-4754c5cc30ff",
+    "path" : "\/Applications\/Ice.app\/Contents\/Frameworks\/Sparkle.framework\/Versions\/B\/Sparkle",
+    "name" : "Sparkle",
+    "CFBundleVersion" : "2039.1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4517068800,
+    "size" : 49152,
+    "uuid" : "f8bd9069-8c4f-37ea-af9a-2b1060f54e4f",
+    "path" : "\/usr\/lib\/libobjc-trampolines.dylib",
+    "name" : "libobjc-trampolines.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4711710720,
+    "CFBundleShortVersionString" : "341.11",
+    "CFBundleIdentifier" : "com.apple.AGXMetalG15X-M1",
+    "size" : 8536064,
+    "uuid" : "246ba1b8-59e8-391b-946d-5058a249a800",
+    "path" : "\/System\/Library\/Extensions\/AGXMetalG15X_M1.bundle\/Contents\/MacOS\/AGXMetalG15X_M1",
+    "name" : "AGXMetalG15X_M1",
+    "CFBundleVersion" : "341.11"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 10858516480,
+    "size" : 564192,
+    "uuid" : "1a4607f2-13d0-3c00-8cce-f3298da11e60",
+    "path" : "\/usr\/lib\/swift\/libswift_Concurrency.dylib",
+    "name" : "libswift_Concurrency.dylib"
+  },
+  {
+    "size" : 0,
+    "source" : "A",
+    "base" : 0,
+    "uuid" : "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6659514368,
+    "size" : 246944,
+    "uuid" : "9fe7c84d-0c2b-363f-bee5-6fd76d67a227",
+    "path" : "\/usr\/lib\/system\/libsystem_kernel.dylib",
+    "name" : "libsystem_kernel.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6660050944,
+    "CFBundleShortVersionString" : "6.9",
+    "CFBundleIdentifier" : "com.apple.CoreFoundation",
+    "size" : 5532352,
+    "uuid" : "3c4a3add-9e48-33da-82ee-80520e6cbe3b",
+    "path" : "\/System\/Library\/Frameworks\/CoreFoundation.framework\/Versions\/A\/CoreFoundation",
+    "name" : "CoreFoundation",
+    "CFBundleVersion" : "4109.1.401"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6731653120,
+    "CFBundleShortVersionString" : "6.9",
+    "CFBundleIdentifier" : "com.apple.AppKit",
+    "size" : 24300448,
+    "uuid" : "3c0949bb-e361-369a-80b7-17440eb09e98",
+    "path" : "\/System\/Library\/Frameworks\/AppKit.framework\/Versions\/C\/AppKit",
+    "name" : "AppKit",
+    "CFBundleVersion" : "2685.20.119"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6659764224,
+    "size" : 51900,
+    "uuid" : "e95973b8-824c-361e-adf4-390747c40897",
+    "path" : "\/usr\/lib\/system\/libsystem_pthread.dylib",
+    "name" : "libsystem_pthread.dylib"
+  }
+],
+  "sharedCache" : {
+  "base" : 6654705664,
+  "size" : 5609635840,
+  "uuid" : "b69ff43c-dbfd-3fb1-b4fe-a8fe32ea1062"
+},
+  "vmSummary" : "ReadOnly portion of Libraries: Total=1.8G resident=0K(0%) swapped_out_or_unallocated=1.8G(100%)\nWritable regions: Total=162.5M written=625K(0%) resident=625K(0%) swapped_out=0K(0%) unallocated=161.9M(100%)\n\n                                VIRTUAL   REGION \nREGION TYPE                        SIZE    COUNT (non-coalesced) \n===========                     =======  ======= \nAccelerate framework               256K        2 \nActivity Tracing                   256K        1 \nAttributeGraph Data               1024K        1 \nCG image                            96K        4 \nColorSync                           16K        1 \nCoreAnimation                     12.7M       68 \nCoreGraphics                        32K        2 \nCoreUI image data                 3184K       25 \nFoundation                          16K        1 \nKernel Alloc Once                 8960K        2 \nMALLOC                           141.5M       30 \nMALLOC guard page                 3776K        4 \nSQLite page cache                  128K        1 \nSTACK GUARD                       56.1M        6 \nStack                             10.6M        6 \nVM_ALLOCATE                       3536K       16 \n__AUTH                            5813K      645 \n__AUTH_CONST                      88.5M     1026 \n__CTF                               824        1 \n__DATA                            30.0M      978 \n__DATA_CONST                      32.8M     1035 \n__DATA_DIRTY                      8775K      887 \n__FONT_DATA                        2352        1 \n__INFO_FILTER                         8        1 \n__LINKEDIT                       594.2M        5 \n__OBJC_RO                         78.3M        1 \n__OBJC_RW                         2567K        1 \n__TEXT                             1.2G     1057 \n__TPRO_CONST                       128K        2 \nmapped file                      289.0M       48 \npage table in kernel               625K        1 \nshared memory                     2416K       15 \n===========                     =======  ======= \nTOTAL                              2.5G     5874 \n",
+  "legacyInfo" : {
+  "threadTriggered" : {
+    "queue" : "com.apple.main-thread"
+  }
+},
+  "logWritingSignature" : "13a0b23943821e62e0b6bbb7550f3dcef4550619",
+  "trialInfo" : {
+  "rollouts" : [
+    {
+      "rolloutId" : "63f9578e238e7b23a1f3030a",
+      "factorPackIds" : [
+
+      ],
+      "deploymentId" : 240000005
+    },
+    {
+      "rolloutId" : "6813dc6e1e50e5344eb573e9",
+      "factorPackIds" : [
+
+      ],
+      "deploymentId" : 240000009
+    }
+  ],
+  "experiments" : [
+
+  ]
+}
+}
+
+Model: Mac15,7, BootROM 13822.41.1, proc 12:6:6 processors, 36 GB, SMC 
+Graphics: Apple M3 Pro, Apple M3 Pro, Built-In
+Display: Color LCD, 3456 x 2234 Retina, Main, MirrorOff, Online
+Memory Module: LPDDR5, Hynix
+AirPort: spairport_wireless_card_type_wifi (0x14E4, 0x4388), wl0: Oct  3 2025 00:48:21 version 23.41.7.0.41.51.200 FWID 01-0473880e
+IO80211_driverkit-1530.16 "IO80211_driverkit-1530.16" Oct 10 2025 22:56:35
+AirPort: 
+Bluetooth: Version (null), 0 services, 0 devices, 0 incoming serial ports
+Network Service: Wi-Fi, AirPort, en0
+Thunderbolt Bus: MacBook Pro, Apple Inc.
+Thunderbolt Bus: MacBook Pro, Apple Inc.
+Thunderbolt Bus: MacBook Pro, Apple Inc.

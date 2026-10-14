@@ -11,8 +11,8 @@
 | 仓库 | 审计前 | 已修复/已满足并删除 | 当前保留 |
 | --- | ---: | ---: | ---: |
 | cavaldos/Ice | 5 | 1 | 4 |
-| jordanbaird/Ice | 397 | 22 | 375 |
-| 合计 | 402 | 23 | 379 |
+| jordanbaird/Ice | 397 | 34 | 363 |
+| 合计 | 402 | 35 | 367 |
 
 删除仅作用于 `docs` 的本地待处理清单、分类总结和 JSON 数据，不更改 GitHub 状态。22 条删除候选已通过主机 GitHub API 再次核对，当前仍全部是 `open`，标题和正文与原始采集一致。它们是在 Floe 中有对应修复或已满足需求，不能据此宣称上游 Ice 已修复。
 
@@ -23,6 +23,22 @@
 ## M1 补充归档（2026-10-14）
 
 [jordanbaird/Ice#925](https://github.com/jordanbaird/Ice/issues/925) 的 [符号化根因评论](https://github.com/jordanbaird/Ice/issues/925#issuecomment-5325109637) 明确定位 `ControlItem.windowID` 将 4294967296 转为 UInt32 的溢出 trap，而不是已确认的并发 race。当前 `ControlItem.swift:98` 已采用 `CGWindowID(exactly:)`，浮栏另一转换点也采用 failable initializer；Dynamic/图标定位在 nil ID 时走已有 frame fallback。新增 `script/tests/window-id.swift` 编译生产 getter，验证缺失/负值/UInt32.max+1/Int.max/正常值；现有 `floe-bar-position.swift` 验证 nil ID 定位。代码层确认该特定根因已解决，从本地清单删除；未执行 macOS 26 实机验收，不推广为 #840/#905 或全部启动崩溃已修复。累计删除 23、保留 379；完整 M1 记录见 [M1 审计](m1-issue-audit.md)。
+
+## C1 补充归档（2026-10-14）
+
+[jordanbaird/Ice#563](https://github.com/jordanbaird/Ice/issues/563) 已通过匹配的 0.11.12 发布产物 UUID、470828 偏移指令与标签源码确认空数组 `removeFirst()` 根因；缺失隐藏分隔符时临时显示列表会被 trimPrefix 清空。Floe 修复为先确认分隔符边界，缺失则安全结束，正常排序保留。生产方法回归通过。详细 [C1 审计](c1-issue-audit.md) 与 [静态证据](c1-evidence/jordanbaird-Ice-563-static-audit.md) 保存原文入口、UUID、哈希和验证边界；未运行上游应用或完成 macOS 26/27 实机验收。累计本地删除 **24**、当前保留 **378**，GitHub 状态不修改。
+
+## C1 窗口 ID 溢出补充归档（2026-10-14）
+
+[jordanbaird/Ice#669](https://github.com/jordanbaird/Ice/issues/669)、[jordanbaird/Ice#779](https://github.com/jordanbaird/Ice/issues/779)、[jordanbaird/Ice#810](https://github.com/jordanbaird/Ice/issues/810)、[jordanbaird/Ice#821](https://github.com/jordanbaird/Ice/issues/821)、[jordanbaird/Ice#867](https://github.com/jordanbaird/Ice/issues/867)、[jordanbaird/Ice#880](https://github.com/jordanbaird/Ice/issues/880)、[jordanbaird/Ice#947](https://github.com/jordanbaird/Ice/issues/947) 的原报告正文各自包含匹配官方 0.11.12 的 arm64 UUID、51508/0xC934 崩溃偏移、x19=4294967296。匹配指令明确在读取 windowNumber 后因高 32 位非零而 trap，根因为 Int→UInt32 非安全转换。Floe 两个转换点已继承 `CGWindowID(exactly:)`；新增针对原始报告值的生产 getter 与浮栏 observer 表达式回归均通过，nil-ID 定位 fallback 通过。不是新增 7 个补丁，而是确认已有修复完整覆盖这 7 条具体崩溃签名。逐条原文/评论保留在 C1 核对快照，[静态证据](c1-evidence/window-id-static-audit.md) 与 [机器签名](c1-evidence/window-id-crash-signatures.json) 可复核。未运行上游应用或宣称 macOS 26/27 全系统验收。当前累计删除 **31**、保留 **371**；其余 C1 **21** 仍独立调查。
+
+## C1 附件核对补充归档（2026-10-14）
+
+[jordanbaird/Ice#796](https://github.com/jordanbaird/Ice/issues/796) 与 [jordanbaird/Ice#905](https://github.com/jordanbaird/Ice/issues/905) 的原始崩溃附件均匹配官方 binary UUID、0xC934 与 x19=4294967296。两个生产窗口 ID 转换点的原值回归及 nil-ID 定位通过，按相同代码层口径确认已继承修复并归档。#905 的并发 race 推断不由原始指令支持；本次明确记录实际整数溢出根因。证据保留于 [C1 审计](c1-issue-audit.md) 和附件/机器签名。当前累计本地删除 **33**、保留 **369**，C1 **19**。未更改上游状态或完成 macOS 26/27 全场景验收。
+
+## C1 启动/浮栏溢出补充归档（2026-10-14）
+
+[jordanbaird/Ice#603](https://github.com/jordanbaird/Ice/issues/603) 作者提供的 dev.1 原始附件与官方产物 UUID 3781D582-B6AF-366C-B5A0-266BF26B7919 匹配；744444/0xB5BFC 首帧由 windowNumber 高 32 位非零检查触发，x0=8589934592。[#742](https://github.com/jordanbaird/Ice/issues/742) 原报告则精确匹配 0.11.12 的 0xC934/x19=4294967296。两个生产转换点和 nil-ID 定位回归通过，确认已继承修复并归档。详细 [静态证据](c1-evidence/jordanbaird-Ice-603-static-audit.md) 和 [C1 审计](c1-issue-audit.md) 保存版本区别，不混用地址。当前累计删除 **35**、保留 **367**，C1 **17**；没有新增生产补丁或 macOS 26/27 全场景验收结论。
 
 ## 删除依据
 

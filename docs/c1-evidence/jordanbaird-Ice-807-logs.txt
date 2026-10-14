@@ -1,0 +1,318 @@
+Filtering the log data using "process == "Ice""
+Timestamp               Ty Process[PID:TID]
+2025-12-04 16:54:37.677 A  Ice[39676:11dab3] (libsystem_info.dylib) Retrieve User by ID
+2025-12-04 16:54:37.678 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0x105132390] activating connection: mach=true listener=false peer=false name=com.apple.cfprefsd.daemon
+2025-12-04 16:54:37.678 Df Ice[39676:11dabb] [com.apple.xpc:connection] [0x105135100] activating connection: mach=true listener=false peer=false name=com.apple.cfprefsd.agent
+2025-12-04 16:54:37.680 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc72810000] activating connection: mach=true listener=false peer=false name=com.apple.coreservices.launchservicesd
+2025-12-04 16:54:37.681 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc72810140] activating connection: mach=true listener=false peer=false name=com.apple.pasteboard.1
+2025-12-04 16:54:37.681 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc72810280] activating connection: mach=true listener=false peer=false name=com.apple.distributed_notifications@Uv3
+2025-12-04 16:54:37.683 Df Ice[39676:11dab3] [com.apple.AppKit:AutomaticTermination] void _NSDisableAutomaticTerminationAndLog(NSString *) No windows open yet
+2025-12-04 16:54:37.683 A  Ice[39676:11dab3] (TCC) TCCAccessRequest() IPC
+2025-12-04 16:54:37.683 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728103c0] activating connection: mach=true listener=false peer=false name=com.apple.tccd.system
+2025-12-04 16:54:37.699 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728103c0] invalidated after the last release of the connection object
+2025-12-04 16:54:37.699 Df Ice[39676:11dab3] [com.apple.SkyLight:default] server port 0x0000330b, session port 0x0000330b
+2025-12-04 16:54:37.711 Df Ice[39676:11dab3] [com.apple.SkyLight:default] New connection 0x1b16f7 main
+2025-12-04 16:54:37.714 Df Ice[39676:11dab3] [com.apple.processmanager:front-35286506] CHECKIN: pid=39676
+2025-12-04 16:54:37.717 Df Ice[39676:11dab3] [com.apple.processmanager:front-35286506] CHECKEDIN: pid=39676 asn=0x0-0x416416 foreground=0
+2025-12-04 16:54:37.718 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728103c0] activating connection: mach=false listener=true peer=false name=(anonymous)
+2025-12-04 16:54:37.718 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728103c0] Connection returned listener port: 0x5203
+2025-12-04 16:54:37.718 Df Ice[39676:11dabb] [com.apple.xpc:connection] [0xc7347c900] activating connection: mach=false listener=false peer=true name=com.apple.xpc.anonymous.0xc728103c0.peer[555].0xc7347c900
+2025-12-04 16:54:37.719 Df Ice[39676:11dab3] [com.apple.processmanager:front-35286506] FRONTLOGGING: version 1
+2025-12-04 16:54:37.719 Df Ice[39676:11dab3] [com.apple.processmanager:front-35286506] Registered, pid=39676 ASN=0x0,0x416416
+2025-12-04 16:54:37.719 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc72810500] activating connection: mach=true listener=false peer=false name=com.apple.analyticsd
+2025-12-04 16:54:37.719 Df Ice[39676:11dabc] [com.apple.xpc:connection] [0xc72810640] activating connection: mach=true listener=false peer=false name=com.apple.lsd.mapdb
+2025-12-04 16:54:37.719 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728103c0] Connection returned listener port: 0x5203
+2025-12-04 16:54:37.720 Df Ice[39676:11dab3] [com.apple.processmanager:front-35286506] BringForward: pid=39676 asn=0x0-0x416416 bringForward=0 foreground=0 uiElement=1 launchedByLS=1 modifiersCount=1 allDisabled=0
+2025-12-04 16:54:37.720 Df Ice[39676:11dab3] [com.apple.processmanager:front-35286506] BringFrontModifier: pid=39676 asn=0x0-0x416416 Modifier 0 hideAfter=0 hideOthers=0 dontMakeFrontmost=0 mouseDown=0/0 seed=0/0
+2025-12-04 16:54:37.720 Df Ice[39676:11dab3] [com.apple.AppKit:Appearance] Current system appearance, (HLTB: 2), (SLS: 1)
+2025-12-04 16:54:37.721 Df Ice[39676:11dab3] (libMobileGestalt.dylib) No persisted cache on this platform.
+2025-12-04 16:54:37.722 Df Ice[39676:11dab3] [com.apple.AppKit:Appearance] Current system appearance, (HLTB: 2), (SLS: 1)
+2025-12-04 16:54:37.723 Df Ice[39676:11dabb] [com.apple.CoreAnalytics:client] Received configuration update from daemon (initial)
+2025-12-04 16:54:37.723 Df Ice[39676:11dab3] [com.apple.AppKit:Appearance] Post-registration system appearance: (HLTB: 2)
+2025-12-04 16:54:37.724 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] FBSWorkspace: endpoint monitoring is disabled.
+2025-12-04 16:54:37.724 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] FBSWorkspace: default shell endpoint is disabled.
+2025-12-04 16:54:37.724 Df Ice[39676:11dab3] [com.apple.runningboard:connection] Initializing connection
+2025-12-04 16:54:37.724 Df Ice[39676:11dab3] [com.apple.runningboard:process] Removing all cached process handles
+2025-12-04 16:54:37.724 Df Ice[39676:11dabb] [com.apple.runningboard:connection] Sending handshake request attempt #1 to server
+2025-12-04 16:54:37.724 Df Ice[39676:11dabb] [com.apple.runningboard:connection] Creating connection to com.apple.runningboard
+2025-12-04 16:54:37.724 Df Ice[39676:11dabb] [com.apple.xpc:connection] [0xc72810780] activating connection: mach=true listener=false peer=false name=com.apple.runningboard
+2025-12-04 16:54:37.724 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728103c0] Connection returned listener port: 0x5203
+2025-12-04 16:54:37.724 A  Ice[39676:11dabc] (RunningBoardServices) didChangeInheritances
+2025-12-04 16:54:37.724 Df Ice[39676:11dabb] [com.apple.runningboard:connection] Handshake succeeded
+2025-12-04 16:54:37.724 Df Ice[39676:11dabb] [com.apple.runningboard:connection] Identity resolved as app<application.com.jordanbaird.Ice.46999493.46999504(503)>
+2025-12-04 16:54:37.726 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728103c0] Connection returned listener port: 0x5203
+2025-12-04 16:54:37.728 Df Ice[39676:11dabc] [com.apple.appintents:Connection] Created a new Process Instance Registry XPC connection (inactive)
+2025-12-04 16:54:37.728 Df Ice[39676:11dabc] [com.apple.xpc:connection] [0xc72810b40] activating connection: mach=true listener=false peer=false name=com.apple.linkd.autoShortcut
+2025-12-04 16:54:37.728 Df Ice[39676:11dabc] [com.apple.appintents:Connection] Activated connection to com.apple.linkd.autoShortcut (ApplicationService)
+2025-12-04 16:54:37.728 Df Ice[39676:11dabc] [com.apple.xpc:connection] [0xc72810c80] activating connection: mach=false listener=true peer=false name=(anonymous)
+2025-12-04 16:54:37.728 Df Ice[39676:11dabc] [com.apple.xpc:connection] [0xc72810c80] Connection returned listener port: 0x6303
+2025-12-04 16:54:37.728 Df Ice[39676:11dabc] [com.apple.appintents:Connection] Registered process with identifier 39676-95282
+2025-12-04 16:54:37.729 A  Ice[39676:11dab3] (TCC) TCCAccessRequest() IPC
+2025-12-04 16:54:37.729 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc72810dc0] activating connection: mach=true listener=false peer=false name=com.apple.tccd.system
+2025-12-04 16:54:37.733 A  Ice[39676:11dabc] (RunningBoardServices) didChangeInheritances
+2025-12-04 16:54:37.739 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc72810dc0] invalidated after the last release of the connection object
+2025-12-04 16:54:37.757 A  Ice[39676:11dab3] (CoreFoundation) Loading Preferences From User CFPrefsD
+2025-12-04 16:54:37.757 A  Ice[39676:11dab3] (CoreFoundation) Loading Preferences From User CFPrefsD
+2025-12-04 16:54:37.760 Df Ice[39676:11dab3] [com.apple.BoardServices:XPCErrors] [C:1] Alloc <private>
+2025-12-04 16:54:37.760 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc72810f00] activating connection: mach=false listener=false peer=false name=(anonymous)
+2025-12-04 16:54:37.765 A  Ice[39676:11dab3] (libsystem_info.dylib) Membership API: translate identifier
+2025-12-04 16:54:37.768 Df Ice[39676:11dab3] [com.apple.AppKit:Appearance] NSApp cache appearance:
+-NSRequiresAquaSystemAppearance: 0
+-appearance: (null)
+-effectiveAppearance: <NSCompositeAppearance: 0xc7280c780
+ (
+    "<NSDarkAquaAppearance: 0xc7280c6e0>",
+    "<NSSystemAppearance: 0xc7280c8c0>"
+)>
+2025-12-04 16:54:37.769 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc72811400] activating connection: mach=true listener=false peer=false name=com.apple.fonts
+2025-12-04 16:54:37.769 Df Ice[39676:11dabc] [com.apple.xpc:connection] [0xc72811680] activating connection: mach=true listener=false peer=false name=com.apple.dock.fullscreen
+2025-12-04 16:54:37.771 Df Ice[39676:11dabc] [com.apple.corespotlight:index] (<private>) deleteSearchableItemsWithDomainIdentifiers, protectionClass:(null), domainIdentifiers number:1
+2025-12-04 16:54:37.771 A  Ice[39676:11dabc] (CoreSpotlight) delete-domains
+2025-12-04 16:54:37.771 Df Ice[39676:11dabc] (CoreSpotlight) sConnectionName: com.apple.spotlight.IndexAgent
+2025-12-04 16:54:37.771 Df Ice[39676:11dabc] (CoreSpotlight) Start service name com.apple.spotlight.IndexAgent
+2025-12-04 16:54:37.771 Df Ice[39676:11dabc] [com.apple.xpc:connection] [0xc72811540] activating connection: mach=true listener=false peer=false name=com.apple.spotlight.IndexAgent
+2025-12-04 16:54:37.785 A  Ice[39676:11dab3] (CoreFoundation) Loading Preferences From User CFPrefsD
+2025-12-04 16:54:37.791 A  Ice[39676:11dabb] (CoreFoundation) Loading Preferences From User CFPrefsD
+2025-12-04 16:54:37.792 Df Ice[39676:11dab3] [com.apple.dt.xctest:Default] Registering for test daemon availability notify post.
+2025-12-04 16:54:37.792 Df Ice[39676:11dab3] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2025-12-04 16:54:37.792 Df Ice[39676:11dab3] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2025-12-04 16:54:37.792 Df Ice[39676:11dab3] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2025-12-04 16:54:37.806 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728126c0] activating connection: mach=true listener=false peer=false name=com.apple.iconservices
+2025-12-04 16:54:37.806 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc72812800] activating connection: mach=true listener=false peer=false name=com.apple.iconservices.store
+2025-12-04 16:54:37.832 Df Ice[39676:11dab3] [com.apple.AppKit:AutomaticTermination] void _NSEnableAutomaticTerminationAndLog(NSString *) No windows open yet
+2025-12-04 16:54:37.832 Df Ice[39676:11dabc] [com.apple.UIIntelligenceSupport:xpc] establishing connection to agent
+2025-12-04 16:54:37.832 Df Ice[39676:11dabc] [com.apple.xpc:session] [0xc739fddb0] Session created.
+2025-12-04 16:54:37.832 Df Ice[39676:11dabc] [com.apple.xpc:session] [0xc739fddb0] Session created from connection [0xc72812bc0]
+2025-12-04 16:54:37.832 Df Ice[39676:11dabc] [com.apple.xpc:connection] [0xc72812bc0] activating connection: mach=true listener=false peer=false name=com.apple.uiintelligencesupport.agent
+2025-12-04 16:54:37.832 Df Ice[39676:11dabc] [com.apple.xpc:session] [0xc739fddb0] Session activated
+2025-12-04 16:54:37.832 Df Ice[39676:11dabb] [com.apple.UIIntelligenceSupport:xpc] Connection established with agent PID: 39262
+2025-12-04 16:54:37.836 A  Ice[39676:11dab3] (AppKit) performClick:
+2025-12-04 16:54:37.836 A  Ice[39676:11dab3] (AppKit) sendActionFrom:
+2025-12-04 16:54:37.836 A  Ice[39676:11dab3] (AppKit) sendAction:
+2025-12-04 16:54:37.838 Df Ice[39676:11dabc] [com.apple.xpc:connection] [0xc72812bc0] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2025-12-04 16:54:37.838 Df Ice[39676:11dabc] [com.apple.xpc:session] [0xc739fddb0] Session canceled.
+2025-12-04 16:54:37.838 Df Ice[39676:11dabb] [com.apple.UIIntelligenceSupport:xpc] agent connection cancelled (details: Session manually canceled)
+2025-12-04 16:54:37.838 Df Ice[39676:11dabb] [com.apple.xpc:session] [0xc739fddb0] Disposing of session
+2025-12-04 16:54:37.875 Df Ice[39676:11dab3] [com.apple.libxpc.SMAppService:all] Service <private> status: 1
+2025-12-04 16:54:37.903 Df Ice[39676:11dac1] [com.apple.UIIntelligenceSupport:xpc] establishing connection to agent
+2025-12-04 16:54:37.903 Df Ice[39676:11dac1] [com.apple.xpc:session] [0xc74017a70] Session created.
+2025-12-04 16:54:37.903 Df Ice[39676:11dac1] [com.apple.xpc:session] [0xc74017a70] Session created from connection [0xc723d0780]
+2025-12-04 16:54:37.903 Df Ice[39676:11dac1] [com.apple.xpc:connection] [0xc723d0780] activating connection: mach=true listener=false peer=false name=com.apple.uiintelligencesupport.agent
+2025-12-04 16:54:37.903 Df Ice[39676:11dac1] [com.apple.xpc:session] [0xc74017a70] Session activated
+2025-12-04 16:54:37.903 Df Ice[39676:11dac1] [com.apple.UIIntelligenceSupport:xpc] Connection established with agent PID: 39262
+2025-12-04 16:54:37.907 A  Ice[39676:11dab3] (AppKit) performClick:
+2025-12-04 16:54:37.907 A  Ice[39676:11dab3] (AppKit) sendActionFrom:
+2025-12-04 16:54:37.907 A  Ice[39676:11dab3] (AppKit) sendAction:
+2025-12-04 16:54:37.912 Df Ice[39676:11dac1] [com.apple.xpc:connection] [0xc723d0780] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2025-12-04 16:54:37.912 Df Ice[39676:11dac1] [com.apple.xpc:session] [0xc74017a70] Session canceled.
+2025-12-04 16:54:37.912 Df Ice[39676:11dabb] [com.apple.UIIntelligenceSupport:xpc] agent connection cancelled (details: Session manually canceled)
+2025-12-04 16:54:37.912 Df Ice[39676:11dabb] [com.apple.xpc:session] [0xc74017a70] Disposing of session
+2025-12-04 16:54:37.918 Df Ice[39676:11dab3] [com.apple.GenerativeModels:availability] registering darwin observer for name: com.apple.gms.availability.notification
+2025-12-04 16:54:37.918 Df Ice[39676:11dab3] [com.apple.GenerativeModels:availability] registering darwin observer for name: com.apple.os-eligibility-domain.change.greymatter
+2025-12-04 16:54:37.918 Df Ice[39676:11dab3] [com.apple.GenerativeModels:availability] registering darwin observer for name: com.apple.language.changed
+2025-12-04 16:54:37.918 Df Ice[39676:11dab3] [com.apple.WritingTools:Default] isAvailable value changed: isMDMAllowed = false, gmAvailable (current) = false
+2025-12-04 16:54:37.919 A  Ice[39676:11dab3] (CoreFoundation) Loading Preferences From User CFPrefsD
+2025-12-04 16:54:37.920 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc723d0780] activating connection: mach=true listener=false peer=false name=com.apple.coreservices.appleevents
+2025-12-04 16:54:37.921 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728103c0] Connection returned listener port: 0x5203
+2025-12-04 16:54:37.921 Df Ice[39676:11dab3] [com.apple.processmanager:front-35286506] SignalReady: pid=39676 asn=0x0-0x416416
+2025-12-04 16:54:37.921 Df Ice[39676:11dab3] [com.apple.processmanager:front-35286506] SIGNAL: pid=39676 asn=0x0x-0x416416
+2025-12-04 16:54:37.922 A  Ice[39676:11dab3] (CoreFoundation) Loading Preferences From System CFPrefsD
+2025-12-04 16:54:37.926 Df Ice[39676:11dab3] [com.apple.AppKit:AutomaticTermination] void _NSDisableAutomaticTerminationAndLog(NSString *) Restoring windows
+2025-12-04 16:54:37.926 Df Ice[39676:11dab3] [com.apple.AppKit:StateRestoration] -[NSApplication _reopenWindowsAsNecessaryIncludingRestorableState:withFullFidelity:completionHandler:] shouldRestoreState=1 hasPersistentStateToRestore=0 shouldStillRestoreStateAfterPrompting=0
+2025-12-04 16:54:37.926 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc723d0b40] activating connection: mach=true listener=false peer=false name=com.apple.window_proxies
+2025-12-04 16:54:37.926 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc723d0b40] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2025-12-04 16:54:37.927 Df Ice[39676:11dab3] [com.apple.AppKit:AutomaticTermination] void _NSEnableAutomaticTerminationAndLog(NSString *) Restoring windows
+2025-12-04 16:54:37.997 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728103c0] Connection returned listener port: 0x5203
+2025-12-04 16:54:38.031 A  Ice[39676:11dacb] (RunningBoardServices) didChangeInheritances
+2025-12-04 16:54:38.036 A  Ice[39676:11dab3] (CoreFoundation) Updating Key-Value Observers Of Preferences
+2025-12-04 16:54:38.054 Df Ice[39676:11dab3] [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.controlcenter.statusitems
+2025-12-04 16:54:38.054 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc71689e00] activating connection: mach=false listener=false peer=false name=(anonymous)
+2025-12-04 16:54:38.054 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] FBSWorkspace registering source: <private>
+2025-12-04 16:54:38.055 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] FBSWorkspace connected to endpoint : <private>
+2025-12-04 16:54:38.055 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> attempting immediate handshake from activate
+2025-12-04 16:54:38.055 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> sent handshake
+2025-12-04 16:54:38.055 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSStatusItemSceneHostSettings__ on FBSSceneSettings
+2025-12-04 16:54:38.055 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSStatusItemSceneClientSettings__ on FBSSceneClientSettings
+2025-12-04 16:54:38.055 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneExtension] Realizing settings extension FBSSceneSettingsCore on FBSSceneSettings
+2025-12-04 16:54:38.055 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneExtension] Realizing settings extension FBSSceneClientSettingsCore on FBSSceneClientSettings
+2025-12-04 16:54:38.056 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0xc71c5c500; com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52> from com.apple.controlcenter.statusitems
+2025-12-04 16:54:38.056 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5c500; com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52> complete!
+2025-12-04 16:54:38.056 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneExtension] Realizing settings extension FBSSceneTransitionContextCore on FBSSceneTransitionContext
+2025-12-04 16:54:38.056 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSHostedViewSceneSettings__ on FBSSceneSettings
+2025-12-04 16:54:38.056 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSClientHostedViewSceneSettings__ on FBSSceneClientSettings
+2025-12-04 16:54:38.056 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSStatusItemAuxiliaryViewSceneSettings__ on FBSSceneSettings
+2025-12-04 16:54:38.056 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSClientStatusItemAuxiliaryViewSceneSettings__ on FBSSceneClientSettings
+2025-12-04 16:54:38.057 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0xc71c5c640; com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView> from com.apple.controlcenter.statusitems
+2025-12-04 16:54:38.057 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5c640; com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.057 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.057 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.058 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.058 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.059 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0xc71c5ca00; com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95> from com.apple.controlcenter.statusitems
+2025-12-04 16:54:38.059 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5ca00; com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95> complete!
+2025-12-04 16:54:38.059 A  Ice[39676:11dacb] (RunningBoardServices) didChangeInheritances
+2025-12-04 16:54:38.059 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0xc71c5cb40; com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView> from com.apple.controlcenter.statusitems
+2025-12-04 16:54:38.059 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5cb40; com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.059 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.059 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.060 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.060 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.060 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0xc71c5ce60; com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3> from com.apple.controlcenter.statusitems
+2025-12-04 16:54:38.060 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5ce60; com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3> complete!
+2025-12-04 16:54:38.061 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0xc71c5cfa0; com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView> from com.apple.controlcenter.statusitems
+2025-12-04 16:54:38.061 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5cfa0; com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.061 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.061 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.061 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.061 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.061 Df Ice[39676:11daca] [com.apple.xpc:session] [0xc745e4af0] Session created.
+2025-12-04 16:54:38.061 Df Ice[39676:11daca] [com.apple.xpc:session] [0xc745e4af0] Session created with XPC Service: <private>
+2025-12-04 16:54:38.062 Df Ice[39676:11daca] [com.apple.xpc:connection] [0xc7168a440] activating connection: mach=false listener=false peer=false name=com.jordanbaird.Ice.MenuBarItemService
+2025-12-04 16:54:38.063 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.063 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.063 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.063 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.063 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5c500; com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52> complete!
+2025-12-04 16:54:38.063 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.063 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.064 Df Ice[39676:11dabb] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5c640; com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.065 Df Ice[39676:11dabb] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> Reconnecting scene com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52
+2025-12-04 16:54:38.065 Df Ice[39676:11dabb] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> Reconnecting scene com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView
+2025-12-04 16:54:38.068 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5ca00; com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95> complete!
+2025-12-04 16:54:38.069 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> Reconnecting scene com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95
+2025-12-04 16:54:38.069 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5cb40; com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.069 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> Reconnecting scene com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView
+2025-12-04 16:54:38.070 Df Ice[39676:11daca] [com.apple.xpc:session] [0xc745e4af0] Session activated
+2025-12-04 16:54:38.070 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5ce60; com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3> complete!
+2025-12-04 16:54:38.071 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> Reconnecting scene com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3
+2025-12-04 16:54:38.071 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5cfa0; com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.071 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> Reconnecting scene com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView
+2025-12-04 16:54:38.162 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.162 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.162 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.162 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.163 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.164 A  Ice[39676:11dab3] (TCC) TCCAccessRequest() IPC
+2025-12-04 16:54:38.164 Df Ice[39676:11dab3] [com.apple.SkyLight:default] server port 0x00010a1b, session port 0x0000330b
+2025-12-04 16:54:38.164 Df Ice[39676:11dab3] [com.apple.SkyLight:default] New connection 0x175dbb secondary
+2025-12-04 16:54:38.168 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.170 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.172 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.173 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.173 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0xc71c5e8a0; com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView> from com.apple.controlcenter.statusitems
+2025-12-04 16:54:38.173 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5e8a0; com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.173 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.173 Df Ice[39676:11daca] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.174 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.174 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.175 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.175 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.175 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.175 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.175 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.175 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.176 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.176 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.176 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.177 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.177 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.178 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Received action(s) in scene-update: NSSceneFenceAction
+2025-12-04 16:54:38.179 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.183 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.184 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.184 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.185 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.185 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.186 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0xc71c5fc00; com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView> from com.apple.controlcenter.statusitems
+2025-12-04 16:54:38.186 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5fc00; com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.186 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.186 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.187 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.187 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.187 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.187 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.187 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Received action(s) in scene-update: NSSceneFenceAction
+2025-12-04 16:54:38.188 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.188 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.188 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.191 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.193 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.193 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.194 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.194 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.194 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0xc71a715e0; com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView> from com.apple.controlcenter.statusitems
+2025-12-04 16:54:38.194 Df Ice[39676:11dab3] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71a715e0; com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.195 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.195 Df Ice[39676:11daca] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.195 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.195 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.196 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.196 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.196 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.196 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView] Dropping transition context because the scene is reconnecting
+2025-12-04 16:54:38.196 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Received action(s) in scene-update: NSSceneFenceAction
+2025-12-04 16:54:38.197 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.199 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.204 Df Ice[39676:11daca] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5e8a0; com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.205 Df Ice[39676:11daca] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> Reconnecting scene com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView
+2025-12-04 16:54:38.205 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView] Received action(s) in scene-update: NSSceneFenceAction
+2025-12-04 16:54:38.205 Df Ice[39676:11daca] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71c5fc00; com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.206 Df Ice[39676:11daca] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> Reconnecting scene com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView
+2025-12-04 16:54:38.206 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView] Received action(s) in scene-update: NSSceneFenceAction
+2025-12-04 16:54:38.206 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Received action(s) in scene-update: NSSceneFenceAction
+2025-12-04 16:54:38.206 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Received action(s) in scene-update: NSSceneFenceAction
+2025-12-04 16:54:38.206 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] Request for <FBSScene: 0xc71a715e0; com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView> complete!
+2025-12-04 16:54:38.207 Df Ice[39676:11dacb] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0xc71c5c320 <private>> Reconnecting scene com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView
+2025-12-04 16:54:38.207 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView] Received action(s) in scene-update: NSSceneFenceAction
+2025-12-04 16:54:38.208 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.208 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.209 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:38.219 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView] Received action(s) in scene-update: NSSceneFenceAction
+2025-12-04 16:54:38.271 A  Ice[39676:11dad6] (CoreSpotlight) end-index-batch
+2025-12-04 16:54:38.271 Df Ice[39676:11dad6] [com.apple.corespotlight:index] *warn* MailCS ======%%% _setMailMessageAttributes skip:1
+2025-12-04 16:54:38.272 Df Ice[39676:11dadc] (CoreSpotlight) Start service name com.apple.spotlightknowledged
+2025-12-04 16:54:38.273 Df Ice[39676:11dacb] [com.apple.corespotlight:default] [GMS] availability notification token 87
+2025-12-04 16:54:38.274 A  Ice[39676:11dad6] (CoreSpotlight) index-items
+2025-12-04 16:54:38.315 A  Ice[39676:11dad6] (RunningBoardServices) didChangeInheritances
+2025-12-04 16:54:40.325 A  Ice[39676:11dab3] (TCC) TCCAccessRequest() IPC
+2025-12-04 16:54:40.325 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc71688280] activating connection: mach=true listener=false peer=false name=com.apple.tccd.system
+2025-12-04 16:54:40.355 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc71688280] invalidated after the last release of the connection object
+2025-12-04 16:54:40.355 Df Ice[39676:11dab3] [com.apple.AppKit:AutomaticTermination] void _NSDisableAutomaticTerminationAndLog(NSString *) NSAccessibility Request Received
+2025-12-04 16:54:40.862 E  Ice[39676:11dab3] [com.jordanbaird.Ice:MenuBarItemManager] Missing control item for hidden section, clearing menu bar item cache
+2025-12-04 16:54:40.863 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc728103c0] Connection returned listener port: 0x5203
+2025-12-04 16:54:40.867 Df Ice[39676:11dab3] [com.apple.UserNotifications:Connections] [com.jordanbaird.Ice] Creating a user notification center
+2025-12-04 16:54:40.868 Df Ice[39676:11dacc] [com.apple.xpc:connection] [0xc71688280] activating connection: mach=true listener=false peer=false name=com.apple.usernotifications.listener
+2025-12-04 16:54:40.877 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc716888c0] activating connection: mach=true listener=false peer=false name=com.jordanbaird.Ice-spks
+2025-12-04 16:54:40.877 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc716888c0] failed to do a bootstrap look-up: xpc_error=[3: No such process]
+2025-12-04 16:54:40.877 Df Ice[39676:11dab3] [com.apple.xpc:connection] [0xc716888c0] invalidated after a failed init
+2025-12-04 16:54:40.907 Df Ice[39676:11dab3] [com.apple.UserNotifications:Connections] [com.jordanbaird.Ice] Requesting authorization with options 7
+2025-12-04 16:54:40.908 Df Ice[39676:11dade] [com.apple.UserNotifications:Connections] [com.jordanbaird.Ice] Requested authorization [ didGrant: 0 hasError: 1 hasCompletionHandler: 1 ]
+2025-12-04 16:54:40.909 E  Ice[39676:11dab3] Failed to request notification authorization: Error Domain=UNErrorDomain Code=1 UserInfo={NSLocalizedDescription=<private>}
+2025-12-04 16:54:42.768 Df Ice[39676:11dab3] [com.apple.AppKit:AutomaticTermination] void _updateToReflectAutomaticTerminationState(void) Setting _kLSApplicationWouldBeTerminatedByTALKey=1
+2025-12-04 16:54:48.123 Df Ice[39676:11dadb] [com.apple.launchservices:default] LSExceptions shared instance invalidated for timeout.
+2025-12-04 16:54:50.821 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.824 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.825 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.838 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.838 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.838 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.838 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.839 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.851 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.852 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.867 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:54:50.868 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.405 E  Ice[39676:11dab3] [com.apple.AppKit:WarnOnce] It's not legal to call -layoutSubtreeIfNeeded on a view which is already being laid out.  If you are implementing the view's -layout method, you can call -[super layout] instead.  Break on void _NSDetectedLayoutRecursion(void) to debug.  This will be logged only once.  This may break in the future.
+2025-12-04 16:55:43.405 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.409 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.409 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.412 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:D595D23C-E0CF-4FE1-9BE4-85AEF5A63D52] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.416 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.417 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.417 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.418 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.420 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.438 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3-Replicant[1]-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.439 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:0B3890DD-84E5-4783-AB53-5AD9E43AFE95] Sending action(s) in update: NSSceneFenceAction
+2025-12-04 16:55:43.439 Df Ice[39676:11dab3] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:1B013AB6-D638-4469-941D-BA116E6EB8C3] Sending action(s) in update: NSSceneFenceAction
+

@@ -89,6 +89,9 @@ final class EventTap {
     private var machPort: CFMachPort?
     private var source: CFRunLoopSource?
 
+    /// 区分每次有界等待；主动禁用或重新启用后，旧超时不得结束新操作。
+    private var timeoutGeneration: UUID?
+
     /// The label associated with the event tap.
     let label: String
 
@@ -226,19 +229,25 @@ final class EventTap {
     /// Enables the event tap with the given timeout.
     func enable(timeout: Duration, onTimeout: @escaping () -> Void) {
         enable()
+        let generation = UUID()
+        timeoutGeneration = generation
         Task { [weak self] in
             try? await Task.sleep(for: timeout)
             guard !Task.isCancelled else {
                 return
             }
-            if self?.isEnabled == true {
-                onTimeout()
+            // 系统禁用或创建失败也必须结束等待，不能用 isEnabled 判断操作是否完成。
+            guard let self, self.timeoutGeneration == generation else {
+                return
             }
+            self.timeoutGeneration = nil
+            onTimeout()
         }
     }
 
     /// Disables the event tap.
     func disable() {
+        timeoutGeneration = nil
         withUnwrappedComponents { runLoop, source, machPort in
             CFRunLoopRemoveSource(runLoop, source, mode)
             CGEvent.tapEnable(tap: machPort, enable: false)
