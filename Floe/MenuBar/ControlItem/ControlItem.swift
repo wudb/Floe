@@ -483,15 +483,15 @@ final class ControlItem {
         }
         switch event.type {
         case .leftMouseDown, .leftMouseUp:
-            if NSEvent.modifierFlags == .control {
+            if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .control {
                 statusItem.showMenu(createMenu(with: appState))
             } else if
-                NSEvent.modifierFlags == .option,
-                appState.settingsManager.advancedSettingsManager.canToggleAlwaysHiddenSection
+                event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .option,
+                appState.settingsManager.advancedSettingsManager.canToggleAlwaysHiddenSection,
+                let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden),
+                alwaysHiddenSection.isEnabled
             {
-                if let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden) {
-                    alwaysHiddenSection.toggle()
-                }
+                alwaysHiddenSection.toggle()
             } else if
                 identifier == .floeIcon,
                 let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden),
@@ -527,6 +527,14 @@ final class ControlItem {
         )
         settingsItem.keyEquivalentModifierMask = .command
         menu.addItem(settingsItem)
+
+        let searchItem = NSMenuItem(
+            title: L10n.string("Search menu bar items"),
+            action: #selector(showSearchPanel),
+            keyEquivalent: ""
+        )
+        searchItem.target = self
+        menu.addItem(searchItem)
 
         menu.addItem(.separator())
 
@@ -591,6 +599,10 @@ final class ControlItem {
         menu.addItem(quitItem)
 
         return menu
+    }
+
+    @objc private func showSearchPanel() {
+        appState?.menuBarManager.showSearchPanel()
     }
 
     /// Toggles the menu bar section associated with the given menu item.

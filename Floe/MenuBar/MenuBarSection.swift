@@ -59,6 +59,8 @@ final class MenuBarSection {
 
     /// A timer that manages rehiding the section.
     private var rehideTimer: Timer?
+    /// 尚未完成的浮栏请求可被后续隐藏取消，防止关闭后迟到重开。
+    private var presentationTask: Task<Void, Never>?
 
     /// Whether state changes currently represent a durable user choice.
     private var persistsStateChanges = true
@@ -203,6 +205,11 @@ final class MenuBarSection {
     /// - Parameter persistState: Whether this is an explicit visibility choice.
     ///   Automatic hover reveals must not change the next-launch preference.
     func show(persistState: Bool = true) {
+        if persistState {
+            appState?.eventManager.cancelDelayedInteractions()
+            appState?.preventShowOnHover()
+            stateRevision += 1
+        }
         guard
             let appState,
             isHidden
@@ -220,7 +227,9 @@ final class MenuBarSection {
             // The bar lists whatever AX sees (dividersMissing → show everything);
             // deeply parked items with no AX node can't be listed — an accepted
             // trade-off per the user's call (menu bar must not jut left).
-            Task {
+            presentationTask?.cancel()
+            presentationTask = Task {
+                guard !Task.isCancelled else { return }
                 if let screenForFloeBar {
                     await floeBarPanel?.show(section: .hidden, on: screenForFloeBar)
                 }
@@ -228,7 +237,9 @@ final class MenuBarSection {
         case .alwaysHidden where useFloeBar:
             // Same as above: clicking the Floe icon only shows the bar below,
             // the menu bar stays put.
-            Task {
+            presentationTask?.cancel()
+            presentationTask = Task {
+                guard !Task.isCancelled else { return }
                 if let screenForFloeBar {
                     await floeBarPanel?.show(section: .alwaysHidden, on: screenForFloeBar)
                 }
@@ -276,6 +287,15 @@ final class MenuBarSection {
     ///   user's stored choice. Automatic rehide is transient and must not
     ///   replace an explicit reveal from a later launch.
     func hide(persistState: Bool = true) {
+        if persistState {
+            appState?.eventManager.cancelDelayedInteractions()
+            stateRevision += 1
+        }
+        // hide 即使发生在 show Task 首次执行之前，也应取消该请求。
+        if persistState || !MenuInteractionGuard.isInteracting {
+            presentationTask?.cancel()
+            presentationTask = nil
+        }
         guard
             persistState || floeBarPanel?.isActivatingAXItem != true,
             // 自动 hover/计时/智能隐藏不能打断其他应用的菜单或原生表单弹窗。
@@ -356,7 +376,8 @@ final class MenuBarSection {
             else {
                 return event
             }
-            if NSEvent.mouseLocation.y < screen.visibleFrame.maxY {
+            if NSEvent.mouseLocation.y < screen.visibleFrame.maxY,
+               !appState.eventManager.isMouseInsideFloeBar {
                 if rehideTimer == nil {
                     rehideTimer = .scheduledTimer(
                         withTimeInterval: appState.settingsManager.generalSettingsManager.rehideInterval,
@@ -366,8 +387,12 @@ final class MenuBarSection {
                             guard let self, self.rehideTimer === timer else { return }
                             // 即使菜单保护拒绝隐藏，也必须清除已触发的 timer，允许后续重新调度。
                             self.rehideTimer = nil
-                            guard let screen = NSScreen.main else { return }
-                            if NSEvent.mouseLocation.y < screen.visibleFrame.maxY {
+                            guard let screen = NSScreen.main,
+                                  appState.settingsManager.generalSettingsManager.autoRehide,
+                                  case .timed = appState.settingsManager.generalSettingsManager.rehideStrategy
+                            else { return }
+                            if NSEvent.mouseLocation.y < screen.visibleFrame.maxY,
+                               !appState.eventManager.isMouseInsideFloeBar {
                                 self.hide(persistState: false)
                             } else {
                                 self.startRehideChecks()

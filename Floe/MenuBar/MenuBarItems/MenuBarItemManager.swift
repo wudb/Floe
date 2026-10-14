@@ -119,6 +119,16 @@ final class MenuBarItemManager: ObservableObject {
 
     /// Context values for the current temporarily shown items.
     private var tempShownItemContexts = [TempShownItemContext]()
+    private let layoutStore = MenuBarLayoutStore()
+    var isEditingLayout = false
+
+    var hasTemporarilyShownItems: Bool { !tempShownItemContexts.isEmpty }
+
+    /// 用户拖拽确认后记录最终布局；AX-only 环境不把空 CGS 快照写入偏好。
+    func recordLayoutChoice() {
+        guard !hasTemporarilyShownItems else { return }
+        layoutStore.record(itemCache)
+    }
 
     /// A timer that determines when to rehide the temporarily shown items.
     private var tempShownItemsTimer: Timer?
@@ -135,6 +145,10 @@ final class MenuBarItemManager: ObservableObject {
 
     /// 自动恢复跨 await 时可能再次触发；同一批恢复只能由一个任务处理。
     private var isRehidingTempShownItems = false
+    /// 自动归位本轮快照中的项目也能被手动拖拽取消。
+    private var cancelledTempReturns = Set<MenuBarItemInfo>()
+    private var isPreparingTempShow = false
+    private var tempChoiceRevisions = [MenuBarItemInfo: Int]()
 
     /// A Boolean value that indicates whether a mouse button is down.
     private var isMouseButtonDown = false
@@ -405,6 +419,7 @@ extension MenuBarItemManager {
                 otherItems: items
             )
             cachedItemWindowIDs = itemWindowIDs
+            Task { await layoutStore.restoreIfNeeded(manager: self) }
         } catch {
             Logger.itemManager.error("Error enforcing control item order: \(error)")
             Logger.itemManager.debug("Clearing menu bar item cache")
@@ -1145,11 +1160,8 @@ extension MenuBarItemManager {
             appState.eventManager.startAll()
         }
 
-        MouseCursor.hide()
-
         defer {
             MouseCursor.warp(to: cursorLocation)
-            MouseCursor.show()
         }
 
         // Item movement can occasionally fail. Retry up to a total of 5 attempts,
@@ -1259,11 +1271,8 @@ extension MenuBarItemManager {
             item: item
         )
 
-        MouseCursor.hide()
-
         defer {
             MouseCursor.warp(to: cursorLocation)
-            MouseCursor.show()
         }
 
         do {
@@ -1348,12 +1357,17 @@ extension MenuBarItemManager {
     ///     clicked once movement is finished.
     ///   - mouseButton: The mouse button of the click.
     func tempShowItem(_ item: MenuBarItem, clickWhenFinished: Bool, mouseButton: CGMouseButton) {
+        // 移动与点击共用鼠标；快速重复请求不能同时操纵不同图标。
+        guard !isPreparingTempShow, !isMovingItem, !MenuBarItemAXMover.isDragging else { return }
+        let choiceRevision = tempChoiceRevisions[item.info, default: 0]
         if
             let latest = MenuBarItem(windowID: item.windowID),
             latest.isOnScreen
         {
             if clickWhenFinished {
+                isPreparingTempShow = true
                 Task {
+                    defer { isPreparingTempShow = false }
                     do {
                         try await click(item: latest, with: mouseButton)
                     } catch {
@@ -1409,7 +1423,9 @@ extension MenuBarItemManager {
 
         let initialWindows = WindowInfo.getOnScreenWindows()
 
+        isPreparingTempShow = true
         Task {
+            defer { isPreparingTempShow = false }
             if clickWhenFinished {
                 do {
                     try await slowMove(item: item, to: .leftOfItem(targetItem))
@@ -1441,6 +1457,9 @@ extension MenuBarItemManager {
                 returnDestination: destination,
                 shownInterfaceWindow: shownInterfaceWindow
             )
+            // 请求执行期间的用户拖拽优先，旧请求不能补回已取消的归位记录。
+            guard tempChoiceRevisions[item.info, default: 0] == choiceRevision else { return }
+            tempShownItemContexts.removeAll { $0.info == item.info }
             tempShownItemContexts.append(context)
             runTempShownItemTimer(for: appState.settingsManager.advancedSettingsManager.tempShowInterval)
         }
@@ -1458,6 +1477,7 @@ extension MenuBarItemManager {
         itemMoveCount += 1
         defer {
             isRehidingTempShownItems = false
+            cancelledTempReturns.removeAll()
             itemMoveCount -= 1
         }
 
@@ -1465,12 +1485,13 @@ extension MenuBarItemManager {
             return
         }
 
-        guard !isMouseButtonDown else {
-            Logger.itemManager.debug("Mouse button is down, so waiting to rehide")
+        guard !isMouseButtonDown, !isPreparingTempShow else {
+            Logger.itemManager.debug("Mouse interaction is active, so waiting to rehide")
             runTempShownItemTimer(for: 3)
             return
         }
-        guard !tempShownItemContexts.contains(where: { $0.isShowingInterface }) else {
+        guard !MenuInteractionGuard.isInteracting,
+              !tempShownItemContexts.contains(where: { $0.isShowingInterface }) else {
             Logger.itemManager.debug("Menu bar item interface is shown, so waiting to rehide")
             runTempShownItemTimer(for: 3)
             return
@@ -1491,13 +1512,8 @@ extension MenuBarItemManager {
         tempShownItemContexts.removeAll()
         var failedContexts = [TempShownItemContext]()
 
-        MouseCursor.hide()
-
-        defer {
-            MouseCursor.show()
-        }
-
         while let context = pendingContexts.popLast() {
+            guard !cancelledTempReturns.contains(context.info) else { continue }
             guard let item = items.first(where: { $0.info == context.info }) else {
                 continue
             }
@@ -1505,7 +1521,9 @@ extension MenuBarItemManager {
                 try await move(item: item, to: context.returnDestination)
             } catch {
                 Logger.itemManager.error("Failed to rehide \(item.logString) (error: \(error))")
-                failedContexts.append(context)
+                if !cancelledTempReturns.contains(context.info) {
+                    failedContexts.append(context)
+                }
             }
         }
 
@@ -1524,6 +1542,9 @@ extension MenuBarItemManager {
     ///
     /// This ensures that the item will _not_ be returned to its previous location.
     func removeTempShownItemFromCache(with info: MenuBarItemInfo) {
+        layoutStore.cancelPendingRestore()
+        tempChoiceRevisions[info, default: 0] += 1
+        if isRehidingTempShownItems { cancelledTempReturns.insert(info) }
         tempShownItemContexts.removeAll { $0.info == info }
     }
 }

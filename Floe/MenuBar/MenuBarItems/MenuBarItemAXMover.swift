@@ -5,95 +5,85 @@
 
 import Cocoa
 
-/// Moves a menu bar item by simulating the user's Command-drag.
-///
-/// Floe's old move pipeline needed a CGS window (windowID, ownerPID, frame change),
-/// so it no longer works on macOS 27. This approach only needs the icon's
-/// on-screen position plus Accessibility permission — exactly what the user
-/// would do by hand, so the system still honors it.
-///
-/// Quartz coordinates (origin top-left, same system as `CGEvent.location`,
-/// `WindowInfo.frame`, and `AXUIElement` frames) — do NOT use Cocoa coordinates
-/// (origin bottom-left) here; mixing them up drops the item in the wrong spot
-/// and a rescan then shows the old position (looking like it "snapped back").
+/// 使用 Quartz 坐标执行 Command-drag；同一时刻只允许一项操作占用鼠标。
+@MainActor
 enum MenuBarItemAXMover {
-    /// Drags from `source` to `destination` while holding Command.
-    ///
-    /// Quartz coordinates (origin top-left). Runs in the background, takes well
-    /// under a second. The cursor stays visible and is returned to its original
-    /// spot; the Command key is always released (even if event creation fails
-    /// midway).
-    static func commandDrag(from source: CGPoint, to destination: CGPoint) async {
-        await Task.detached(priority: .userInitiated) {
-            guard let eventSource = CGEventSource(stateID: .hidSystemState) else {
-                return
-            }
+    private(set) static var isDragging = false
 
-            // Remember the old cursor position to restore after the drag. Don't hide
-            // the cursor: a disappearing cursor makes users think the app hung.
+    /// 取消、事件创建失败及正常结束都释放鼠标/Command，并恢复原指针位置。
+    @discardableResult
+    static func commandDrag(from source: CGPoint, to destination: CGPoint) async -> Bool {
+        guard !isDragging, !Task.isCancelled,
+              source.x.isFinite, source.y.isFinite,
+              destination.x.isFinite, destination.y.isFinite
+        else { return false }
+        isDragging = true
+        defer { isDragging = false }
+        let operation = Task.detached(priority: .userInitiated) { () -> Bool in
+            guard let eventSource = CGEventSource(stateID: .hidSystemState) else { return false }
             let originalLocation = CGEvent(source: nil)?.location
-            defer {
-                if let originalLocation {
-                    CGWarpMouseCursorPosition(originalLocation)
-                }
-            }
-
-            func post(_ type: CGEventType, at point: CGPoint, flags: CGEventFlags) {
-                guard
-                    let event = CGEvent(
+            var location = source
+            var didPressCommand = false
+            var didPressMouse = false
+            func post(_ type: CGEventType, at point: CGPoint, flags: CGEventFlags) -> Bool {
+                let event: CGEvent?
+                if type == .flagsChanged {
+                    event = CGEvent(keyboardEventSource: eventSource, virtualKey: 55, keyDown: flags.contains(.maskCommand))
+                    event?.type = .flagsChanged
+                } else {
+                    event = CGEvent(
                         mouseEventSource: eventSource,
                         mouseType: type,
                         mouseCursorPosition: point,
                         mouseButton: .left
                     )
-                else {
-                    return
                 }
+                guard let event else { return false }
                 event.flags = flags
+                event.location = point
                 event.post(tap: .cghidEventTap)
+                return true
             }
-
-            // Release Command on exit no matter what happens below.
-            var didPressCommand = false
             defer {
-                if didPressCommand {
-                    post(.flagsChanged, at: destination, flags: [])
+                if didPressMouse { _ = post(.leftMouseUp, at: location, flags: []) }
+                if didPressCommand { _ = post(.flagsChanged, at: location, flags: []) }
+                if let originalLocation { CGWarpMouseCursorPosition(originalLocation) }
+            }
+            do {
+                try Task.checkCancellation()
+                guard post(.mouseMoved, at: source, flags: []) else { return false }
+                try await Task.sleep(for: .milliseconds(120))
+                guard post(.flagsChanged, at: source, flags: .maskCommand) else { return false }
+                didPressCommand = true
+                try await Task.sleep(for: .milliseconds(80))
+                guard post(.leftMouseDown, at: source, flags: .maskCommand) else { return false }
+                didPressMouse = true
+                try await Task.sleep(for: .milliseconds(120))
+                for index in 1...15 {
+                    try Task.checkCancellation()
+                    let progress = CGFloat(index) / 15
+                    location = CGPoint(
+                        x: source.x + (destination.x - source.x) * progress,
+                        y: source.y + (destination.y - source.y) * progress
+                    )
+                    guard post(.leftMouseDragged, at: location, flags: .maskCommand) else { return false }
+                    try await Task.sleep(for: .milliseconds(15))
                 }
+                guard post(.leftMouseUp, at: destination, flags: .maskCommand) else { return false }
+                didPressMouse = false
+                try await Task.sleep(for: .milliseconds(150))
+                guard post(.flagsChanged, at: destination, flags: []) else { return false }
+                didPressCommand = false
+                try await Task.sleep(for: .milliseconds(350))
+                return true
+            } catch {
+                return false
             }
-
-            // Move the cursor onto the icon first so the system "sees" the start point.
-            post(.mouseMoved, at: source, flags: [])
-            try? await Task.sleep(for: .milliseconds(120))
-
-            // Press Command (flagsChanged) as if the user is holding the key.
-            post(.flagsChanged, at: source, flags: .maskCommand)
-            didPressCommand = true
-            try? await Task.sleep(for: .milliseconds(80))
-
-            post(.leftMouseDown, at: source, flags: .maskCommand)
-            try? await Task.sleep(for: .milliseconds(120))
-
-            // ponytail: 15 steps are enough for the system to register the drag;
-            // 30 steps as before only prolong the cursor freeze.
-            let steps = 15
-            for index in 1...steps {
-                let progress = CGFloat(index) / CGFloat(steps)
-                let point = CGPoint(
-                    x: source.x + (destination.x - source.x) * progress,
-                    y: source.y + (destination.y - source.y) * progress
-                )
-                post(.leftMouseDragged, at: point, flags: .maskCommand)
-                try? await Task.sleep(for: .milliseconds(15))
-            }
-
-            post(.leftMouseUp, at: destination, flags: .maskCommand)
-            try? await Task.sleep(for: .milliseconds(150))
-
-            // Release Command and wait for the system to commit the new position
-            // before restoring the cursor.
-            post(.flagsChanged, at: destination, flags: [])
-            didPressCommand = false
-            try? await Task.sleep(for: .milliseconds(350))
-        }.value
+        }
+        return await withTaskCancellationHandler {
+            await operation.value
+        } onCancel: {
+            operation.cancel()
+        }
     }
 }

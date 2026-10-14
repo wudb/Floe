@@ -97,6 +97,7 @@ final class MenuBarSection {
     var persistedWrites = 0
     var persistedState = ControlItem.HidingState.hideItems
     var onStateChange: (() -> Void)?
+    var presentationTask: Task<Void, Never>?
     var rehideTimer: TestTimer?
     var rehideMonitor: UniversalEventMonitor?
     // PRODUCTION_IS_HIDDEN
@@ -120,7 +121,10 @@ final class MenuBarManager {
     var floeBarPanel: FloeBarPanel!
     func section(withName name: MenuBarSection.Name) -> MenuBarSection? { sections.first { $0.name == name } }
 }
+final class EventStub { var isMouseInsideFloeBar = false; func cancelDelayedInteractions() {} }
 final class AppState {
+    let eventManager = EventStub()
+    func preventShowOnHover() {}
     let menuBarManager = MenuBarManager()
     let settingsManager = SettingsManager()
     let isShowOnHoverPrevented = false
@@ -129,6 +133,11 @@ final class AppState {
 struct ScrollEvent { let scrollingDeltaX: CGFloat; let scrollingDeltaY: CGFloat }
 @MainActor final class EventManager {
     var appState: AppState?
+    var hoverTask: Task<Void, Never>?
+    var hoverIntent: Bool?
+    var isMonitoring = true
+    func isMenuOpenGlobally() -> Bool { MenuInteractionGuard.isInteracting }
+    func cancelDelayedInteractions() { hoverTask?.cancel(); hoverTask = nil; hoverIntent = nil }
     var lastHoverCheck = Date.distantPast
     var lastScrollCheck = Date.distantPast
     static let hoverThrottleInterval: TimeInterval = 0.05

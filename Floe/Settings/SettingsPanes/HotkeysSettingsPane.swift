@@ -19,6 +19,7 @@ struct HotkeysSettingsPane: View {
                 hotkeyRecorder(forSection: .alwaysHidden)
             }
             FloeSection("Other") {
+                hotkeyRecorder(forAction: .searchMenuBarItems)
                 hotkeyRecorder(forAction: .enableFloeBar)
                 hotkeyRecorder(forAction: .showSectionDividers)
                 hotkeyRecorder(forAction: .toggleApplicationMenus)
@@ -35,6 +36,8 @@ struct HotkeysSettingsPane: View {
                     Text("Toggle the hidden section")
                 case .toggleAlwaysHiddenSection:
                     Text("Toggle the always-hidden section")
+                case .searchMenuBarItems:
+                    Text("Search menu bar items")
                 case .enableFloeBar:
                     Text("Enable the Floe Bar")
                 case .showSectionDividers:

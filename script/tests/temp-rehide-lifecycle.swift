@@ -33,6 +33,7 @@ struct TempShownItemContext {
     var invalidated = false
     func invalidate() { invalidated = true }
 }
+@MainActor enum MenuInteractionGuard { static var isInteracting = false }
 @MainActor enum MouseCursor {
     static var balance = 0
     static func hide() { balance += 1 }
@@ -46,9 +47,11 @@ struct Log {
 }
 enum Logger { static let itemManager = Log() }
 @MainActor final class Manager {
+    var cancelledTempReturns = Set<Int>()
     var isRehidingTempShownItems = false
     var itemMoveCount = 0
     var isMouseButtonDown = false
+    var isPreparingTempShow = false
     var tempShownItemContexts = [TempShownItemContext(info: 1)]
     var tempShownItemsTimer: TimerStub? = TimerStub()
     var scheduled: [Int] = []
@@ -78,6 +81,12 @@ enum Logger { static let itemManager = Log() }
         failed.pending!.resume(); await first.value
         precondition(Set(failed.tempShownItemContexts.map(\.info)) == [1, 2])
         precondition(failed.scheduled == [3] && failed.itemMoveCount == 0 && !failed.isRehidingTempShownItems)
+        let abandoned = Manager(); abandoned.fail = true
+        let abandonedTask = Task { await abandoned.rehideTempShownItems() }
+        await waitForMove(abandoned)
+        abandoned.cancelledTempReturns.insert(1)
+        abandoned.pending!.resume(); await abandonedTask.value
+        precondition(abandoned.tempShownItemContexts.isEmpty)
         let success = Manager()
         let request = Task { await success.rehideTempShownItems() }
         await waitForMove(success)
@@ -86,6 +95,11 @@ enum Logger { static let itemManager = Log() }
         success.pending!.resume(); await request.value
         precondition(success.moves == [1] && success.tempShownItemContexts.map(\.info) == [2])
         precondition(!newTimer.invalidated && success.tempShownItemsTimer === newTimer)
+        MenuInteractionGuard.isInteracting = true
+        let menu = Manager()
+        await menu.rehideTempShownItems()
+        precondition(menu.moves.isEmpty && menu.scheduled == [3])
+        MenuInteractionGuard.isInteracting = false
         let held = Manager(); held.isMouseButtonDown = true
         await held.rehideTempShownItems()
         precondition(held.moves.isEmpty && held.tempShownItemContexts.count == 1 && held.scheduled == [3])

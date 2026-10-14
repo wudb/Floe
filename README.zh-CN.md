@@ -93,6 +93,8 @@ Ice 的已有授权不会应用到 Floe。重新构建或签名后，如果旧�
 
 可通过 [Ko-fi](https://ko-fi.com/calvados)、[PayPal](https://www.paypal.com/paypalme/nnkhanh29) 支持上游维护者。
 
+可从 Floe 右键菜单或“设置 → 快捷键”中配置的快捷键搜索菜单栏项目。支持项目和应用名称，回车打开首个结果，Escape 关闭。对于支持 CGS 项目发现的系统，已确认的布局拖拽会保存可唯一识别项目的选择。
+
 ## 致谢
 
 Floe fork 自 [cavaldos/Ice](https://github.com/cavaldos/Ice)，后者 fork 自 [Jordan Baird](https://github.com/jordanbaird) 的 [jordanbaird/Ice](https://github.com/jordanbaird/Ice)。感谢两个上游项目的贡献。

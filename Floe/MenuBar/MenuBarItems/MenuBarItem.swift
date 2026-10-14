@@ -78,7 +78,9 @@ struct MenuBarItem {
             owningApplication.bundleIdentifier ??
             fallback
         }
-        guard let title else {
+        guard let title, !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              title.range(of: "^Item-[0-9]+$", options: .regularExpression) == nil
+        else {
             return bestName
         }
         // by default, use the application name, but handle a few special cases

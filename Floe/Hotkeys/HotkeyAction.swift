@@ -9,6 +9,7 @@ enum HotkeyAction: String, Codable, CaseIterable {
     case toggleAlwaysHiddenSection = "ToggleAlwaysHiddenSection"
 
     // Other
+    case searchMenuBarItems = "SearchMenuBarItems"
     case enableFloeBar = "EnableFloeBar"
     case showSectionDividers = "ShowSectionDividers"
     case toggleApplicationMenus = "ToggleApplicationMenus"
@@ -34,6 +35,8 @@ enum HotkeyAction: String, Codable, CaseIterable {
             if !section.isHidden {
                 appState.preventShowOnHover()
             }
+        case .searchMenuBarItems:
+            appState.menuBarManager.showSearchPanel()
         case .enableFloeBar:
             appState.settingsManager.generalSettingsManager.useFloeBar.toggle()
         case .showSectionDividers:

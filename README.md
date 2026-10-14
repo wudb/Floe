@@ -116,6 +116,8 @@ Maintain new visible strings in both `Floe/Resources/en.lproj/Localizable.string
     <img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/PP_logo_h_200x51.png" alt="Donate with PayPal" style="height: 36px !important;">
 </a>
 
+Search menu bar items from the Floe context menu or a shortcut configured in Settings → Hotkeys. Search accepts item and application names; press Return to open the first result or Escape to close. Confirmed layout drags are saved for uniquely identifiable items on systems with CGS item discovery.
+
 ## Acknowledgments
 
 Floe is forked from [cavaldos/Ice](https://github.com/cavaldos/Ice), which is forked from [jordanbaird/Ice](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird). Thanks to both upstream projects.

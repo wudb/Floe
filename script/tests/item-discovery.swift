@@ -55,7 +55,9 @@ struct Cache {
     var count = 0
     mutating func clear() { count = 0 }
 }
+@MainActor final class LayoutStoreStub { func restoreIfNeeded(manager: Manager) async {} }
 @MainActor final class Manager {
+    let layoutStore = LayoutStoreStub()
     var isCachingItems = false
     var needsForcedCache = false
     var waitDelay = false

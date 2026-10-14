@@ -55,6 +55,15 @@ final class MenuBarManager: ObservableObject {
         self.appState = appState
     }
 
+    private var searchPanel: MenuBarSearchPanel?
+
+    /// 菜单与快捷键共用独立搜索面板。
+    func showSearchPanel() {
+        guard let appState else { return }
+        if searchPanel == nil { searchPanel = MenuBarSearchPanel(appState: appState) }
+        searchPanel?.show()
+    }
+
     /// Performs the initial setup of the menu bar manager.
     func performSetup() {
         initializeSections()
@@ -98,7 +107,7 @@ final class MenuBarManager: ObservableObject {
             .store(in: &c)
 
         if
-            let hiddenSection = section(withName: .alwaysHidden),
+            let hiddenSection = section(withName: .hidden),
             let window = hiddenSection.controlItem.window
         {
             window.publisher(for: \.frame)
@@ -124,12 +133,20 @@ final class MenuBarManager: ObservableObject {
                 if
                     let self,
                     let appState,
+                    appState.settingsManager.generalSettingsManager.autoRehide,
                     case .focusedApp = appState.settingsManager.generalSettingsManager.rehideStrategy,
                     let hiddenSection = section(withName: .hidden),
                     !appState.eventManager.isMouseInsideMenuBar
                 {
+                    let revision = hiddenSection.stateRevision
                     Task {
-                        try? await Task.sleep(for: .seconds(0.1))
+                        do { try await Task.sleep(for: .seconds(0.1)) } catch { return }
+                        guard appState.settingsManager.generalSettingsManager.autoRehide,
+                              case .focusedApp = appState.settingsManager.generalSettingsManager.rehideStrategy,
+                              hiddenSection.stateRevision == revision,
+                              !appState.eventManager.isMouseInsideMenuBar,
+                              !appState.eventManager.isMouseInsideFloeBar
+                        else { return }
                         hiddenSection.hide(persistState: false)
                     }
                 }
@@ -150,8 +167,15 @@ final class MenuBarManager: ObservableObject {
             }
             .store(in: &c)
 
+        appState?.settingsManager.advancedSettingsManager.$hideApplicationMenus
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] enabled in
+                if !enabled { self?.showApplicationMenus() }
+            }
+            .store(in: &c)
+
         // Hide application menus when a section is shown (if applicable).
-        Publishers.MergeMany(sections.map { $0.controlItem.$state })
+        Publishers.MergeMany(sections.map { $0.controlItem.$state.mapToVoid() })
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard
@@ -175,7 +199,7 @@ final class MenuBarManager: ObservableObject {
                     return
                 }
 
-                if sections.contains(where: { $0.controlItem.state == .showItems }) {
+                if sections.contains(where: { $0.isEnabled && $0.controlItem.state == .showItems }) {
                     guard let screen = NSScreen.main else {
                         return
                     }
@@ -200,7 +224,7 @@ final class MenuBarManager: ObservableObject {
                                 items.trimPrefix { $0.frame.maxX <= alwaysHiddenControlItem.frame.minX }
                             }
                         }
-                    } else {
+                    } else if section(withName: .hidden)?.controlItem.state == .hideItems {
                         if let hiddenControlItem = items.firstIndex(matching: .hiddenControlItem).map({ items.remove(at: $0) }) {
                             items.trimPrefix { $0.frame.maxX <= hiddenControlItem.frame.minX }
                         }

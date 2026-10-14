@@ -229,3 +229,8 @@
 "press" = "press";
 "right click" = "right click";
 "•" = "•";
+
+// M2：项目检索和移动结果反馈。
+"Search menu bar items" = "Search menu bar items";
+"Could not move the menu bar item. Its actual position is shown; try again after closing menus." = "Could not move the menu bar item. Its actual position is shown; try again after closing menus.";
+"No matching menu bar items" = "No matching menu bar items";

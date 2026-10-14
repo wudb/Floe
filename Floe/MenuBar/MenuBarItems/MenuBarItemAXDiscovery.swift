@@ -40,7 +40,15 @@ enum MenuBarItemAXDiscovery {
 
         /// Most descriptive name for display.
         var displayName: String {
-            title ?? identifier ?? appName
+            // AX 的占位名不能遮住可读的宿主名称；空字符串也需要回退。
+            for candidate in [title, identifier] {
+                guard let name = candidate?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !name.isEmpty,
+                      name.range(of: "^Item-[0-9]+$", options: .regularExpression) == nil
+                else { continue }
+                return name
+            }
+            return appName
         }
     }
 

@@ -229,3 +229,8 @@
 "press" = "按下";
 "right click" = "右键点击";
 "•" = "•";
+
+// M2：项目检索和移动结果反馈。
+"Search menu bar items" = "搜索菜单栏项目";
+"Could not move the menu bar item. Its actual position is shown; try again after closing menus." = "无法移动菜单栏项目。已显示实际位置，请关闭菜单后重试。";
+"No matching menu bar items" = "没有匹配的菜单栏项目";

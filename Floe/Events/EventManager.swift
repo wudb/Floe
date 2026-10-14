@@ -16,6 +16,14 @@ final class EventManager {
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
+    /// 延迟交互只保留当前请求；停止监视后不能再改变分区。
+    private var clickTask: Task<Void, Never>?
+    private var smartRehideTask: Task<Void, Never>?
+    private var hoverTask: Task<Void, Never>?
+    private var hoverIntent: Bool?
+    private var isMonitoring = false
+    private var isUserDraggingItem = false
+
     /// Cached menu bar window frames per display.
     ///
     /// `isMouseInsideMenuBar` runs on every mouse-move/scroll event, and the
@@ -52,7 +60,13 @@ final class EventManager {
         }
         switch event.type {
         case .leftMouseDown:
-            handleShowOnClick()
+            if event.modifierFlags.contains(.command),
+               let point = MouseCursor.locationCoreGraphics,
+               let item = appState?.itemManager.itemCache.allItems.first(where: { $0.frame.contains(point) }) {
+                // 明确用户拖拽取消该项的自动归位，保留用户的新选择。
+                appState?.itemManager.removeTempShownItemFromCache(with: item.info)
+            }
+            handleShowOnClick(with: event)
             handleSmartRehide(with: event)
         case .rightMouseDown:
             handleShowRightClickMenu()
@@ -178,6 +192,7 @@ final class EventManager {
 
     /// Starts all monitors.
     func startAll() {
+        isMonitoring = true
         for monitor in allMonitors {
             monitor.start()
         }
@@ -185,9 +200,21 @@ final class EventManager {
 
     /// Stops all monitors.
     func stopAll() {
+        isMonitoring = false
+        cancelDelayedInteractions()
         for monitor in allMonitors {
             monitor.stop()
         }
+    }
+    /// 手动操作优先于悬停/智能隐藏，取消等待中的旧意图。
+    func cancelDelayedInteractions() {
+        clickTask?.cancel()
+        smartRehideTask?.cancel()
+        hoverTask?.cancel()
+        clickTask = nil
+        smartRehideTask = nil
+        hoverTask = nil
+        hoverIntent = nil
     }
 }
 
@@ -197,18 +224,24 @@ extension EventManager {
 
     // MARK: Handle Show On Click
 
-    private func handleShowOnClick() {
+    private func handleShowOnClick(with event: NSEvent) {
         guard
             let appState,
-            appState.settingsManager.generalSettingsManager.showOnClick,
+            isMonitoring,
+            appState.settingsManager.generalSettingsManager.showOnClick || event.modifierFlags.contains(.option),
             isMouseInsideEmptyMenuBarSpace
         else {
             return
         }
 
-        Task {
-            // Short delay helps the toggle action feel more natural.
-            try? await Task.sleep(for: .milliseconds(50))
+        cancelDelayedInteractions()
+        // 使用点击当时的修饰键；释放 Option 不应把同一次点击改为普通切换。
+        let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        clickTask = Task {
+            do { try await Task.sleep(for: .milliseconds(50)) } catch { return }
+            guard isMonitoring,
+                  appState.settingsManager.generalSettingsManager.showOnClick || modifiers.contains(.option)
+            else { return }
 
             // Re-verify at fire time: the click may have hit an icon whose AX
             // state lagged at mouse-down, or opened a menu since. Never toggle
@@ -217,15 +250,15 @@ extension EventManager {
                 return
             }
 
-            if NSEvent.modifierFlags == .control {
+            if modifiers == .control {
                 handleShowRightClickMenu()
             } else if
-                NSEvent.modifierFlags == .option,
-                appState.settingsManager.advancedSettingsManager.canToggleAlwaysHiddenSection
+                modifiers == .option,
+                appState.settingsManager.advancedSettingsManager.canToggleAlwaysHiddenSection,
+                let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden),
+                alwaysHiddenSection.isEnabled
             {
-                if let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden) {
-                    alwaysHiddenSection.toggle()
-                }
+                alwaysHiddenSection.toggle()
             } else {
                 if let hiddenSection = appState.menuBarManager.section(withName: .hidden) {
                     hiddenSection.toggle()
@@ -239,6 +272,7 @@ extension EventManager {
     private func handleSmartRehide(with event: NSEvent) {
         guard
             let appState,
+            isMonitoring,
             appState.settingsManager.generalSettingsManager.autoRehide,
             case .smart = appState.settingsManager.generalSettingsManager.rehideStrategy
         else {
@@ -266,11 +300,19 @@ extension EventManager {
             return
         }
 
-        Task {
-            let initialSpaceID = Bridging.activeSpaceID
-
-            // Sleep for a bit to give the window under the mouse a chance to focus.
-            try? await Task.sleep(for: .seconds(0.25))
+        smartRehideTask?.cancel()
+        let revisions = appState.menuBarManager.sections.map { $0.stateRevision }
+        let initialSpaceID = Bridging.activeSpaceID
+        smartRehideTask = Task {
+            do { try await Task.sleep(for: .seconds(0.25)) } catch { return }
+            // 延迟期间的新选择、菜单和设置优先于旧点击触发的收起。
+            guard isMonitoring,
+                  appState.settingsManager.generalSettingsManager.autoRehide,
+                  case .smart = appState.settingsManager.generalSettingsManager.rehideStrategy,
+                  revisions == appState.menuBarManager.sections.map({ $0.stateRevision }),
+                  !isMouseInsideMenuBar, !isMouseInsideFloeBar,
+                  !isMenuOpenGlobally()
+            else { return }
 
             // If clicking caused a space change, don't bother with the window check.
             if Bridging.activeSpaceID != initialSpaceID {
@@ -388,6 +430,14 @@ extension EventManager {
             return
         }
         appearanceManager.setIsDraggingMenuBarItem(false)
+        if isUserDraggingItem, let appState {
+            isUserDraggingItem = false
+            Task {
+                do { try await Task.sleep(for: .milliseconds(350)) } catch { return }
+                await appState.itemManager.cacheItemsIfNeeded(force: true)
+                appState.itemManager.recordLayoutChoice()
+            }
+        }
     }
 
     // MARK: Handle Left Mouse Dragged
@@ -396,12 +446,15 @@ extension EventManager {
         guard
             let appState,
             event.modifierFlags.contains(.command),
+            !MenuBarItemAXMover.isDragging,
             isMouseInsideMenuBar
         else {
             return
         }
 
         // Notify each overlay panel that a menu bar item is being dragged.
+        isUserDraggingItem = true
+        cancelDelayedInteractions()
         appState.appearanceManager.setIsDraggingMenuBarItem(true)
 
         // Don't continue if the setting to show the sections is disabled.
@@ -411,7 +464,7 @@ extension EventManager {
 
         // Show all items, including section dividers.
         for section in appState.menuBarManager.sections {
-            section.controlItem.state = .showItems
+            section.setState(.showItems, persist: false)
             guard
                 section.controlItem.isSectionDivider,
                 !section.controlItem.isVisible
@@ -425,58 +478,50 @@ extension EventManager {
     // MARK: Handle Show On Hover
 
     private func handleShowOnHover() {
-        guard let appState else {
-            return
-        }
-
-        // Make sure the "ShowOnHover" feature is enabled and not prevented.
-        guard
-            appState.settingsManager.generalSettingsManager.showOnHover,
-            !appState.isShowOnHoverPrevented
+        guard let appState, isMonitoring,
+              appState.settingsManager.generalSettingsManager.showOnHover,
+              !appState.isShowOnHoverPrevented,
+              let hiddenSection = appState.menuBarManager.section(withName: .hidden)
         else {
+            hoverTask?.cancel()
+            hoverTask = nil
+            hoverIntent = nil
             return
         }
-
-        // Only continue if we have a hidden section (we should).
-        guard let hiddenSection = appState.menuBarManager.section(withName: .hidden) else {
-            return
-        }
-
-        // ponytail: mouseMoved fires at 10s-100s/sec and the check below hits
-        // WindowServer/AX. Coalesce to ~20/s; well under showOnHoverDelay (0.2s).
-        guard Date().timeIntervalSince(lastHoverCheck) >= Self.hoverThrottleInterval else {
-            return
-        }
+        guard Date().timeIntervalSince(lastHoverCheck) >= Self.hoverThrottleInterval else { return }
         lastHoverCheck = Date()
 
+        let shouldShow = hiddenSection.isHidden
+        let eligible = shouldShow ? isMouseInsideEmptyMenuBarSpace : (!isMouseInsideMenuBar && !isMouseInsideFloeBar)
+        guard eligible else {
+            hoverTask?.cancel()
+            hoverTask = nil
+            hoverIntent = nil
+            return
+        }
+        // 同方向 mouseMoved 不重置倒计时，否则持续移动永远无法触发。
+        guard hoverIntent != shouldShow else { return }
+        hoverTask?.cancel()
+        hoverIntent = shouldShow
+        let revision = hiddenSection.stateRevision
         let delay = appState.settingsManager.advancedSettingsManager.showOnHoverDelay
-
-        Task {
-            if hiddenSection.isHidden {
-                guard self.isMouseInsideEmptyMenuBarSpace else {
-                    return
-                }
-                try? await Task.sleep(for: .seconds(delay))
-                // Make sure the mouse is still inside.
-                guard self.isMouseInsideEmptyMenuBarSpace else {
-                    return
-                }
+        hoverTask = Task {
+            do { try await Task.sleep(for: .seconds(max(0, delay))) } catch { return }
+            guard !Task.isCancelled else { return }
+            hoverTask = nil
+            hoverIntent = nil
+            guard isMonitoring,
+                  appState.settingsManager.generalSettingsManager.showOnHover,
+                  !appState.isShowOnHoverPrevented,
+                  hiddenSection.stateRevision == revision,
+                  hiddenSection.isHidden == shouldShow,
+                  !isMenuOpenGlobally()
+            else { return }
+            if shouldShow {
+                guard isMouseInsideEmptyMenuBarSpace else { return }
                 hiddenSection.show(persistState: false)
             } else {
-                guard
-                    !self.isMouseInsideMenuBar,
-                    !self.isMouseInsideFloeBar
-                else {
-                    return
-                }
-                try? await Task.sleep(for: .seconds(delay))
-                // Make sure the mouse is still outside.
-                guard
-                    !self.isMouseInsideMenuBar,
-                    !self.isMouseInsideFloeBar
-                else {
-                    return
-                }
+                guard !isMouseInsideMenuBar, !isMouseInsideFloeBar else { return }
                 hiddenSection.hide(persistState: false)
             }
         }
@@ -510,11 +555,14 @@ extension EventManager {
             return
         }
 
-        let averageDelta = (event.scrollingDeltaX + event.scrollingDeltaY) / 2
-
-        if averageDelta > 5 {
+        // 单轴滚轮不能被另一轴的零值减半；横纵方向相反也不能互相抵消。
+        let delta = abs(event.scrollingDeltaY) >= abs(event.scrollingDeltaX)
+            ? event.scrollingDeltaY : event.scrollingDeltaX
+        guard abs(delta) > 5 else { return }
+        cancelDelayedInteractions()
+        if delta > 5 {
             hiddenSection.show()
-        } else if averageDelta < -5 {
+        } else if delta < -5 {
             hiddenSection.hide()
         }
     }
@@ -720,7 +768,12 @@ extension EventManager {
         let panel = appState.menuBarManager.floeBarPanel
         // Pad the frame to be more forgiving if the user accidentally
         // moves their mouse outside of the Floe Bar.
-        let paddedFrame = panel.frame.insetBy(dx: -10, dy: -10)
+        guard panel.currentSection != nil else { return false }
+        var paddedFrame = panel.frame.insetBy(dx: -10, dy: -10)
+        // 菜单栏到浮栏之间的小间隙也属于访问通道，避免向下移动时立即收起。
+        if let screen = panel.screen {
+            paddedFrame.size.height = max(paddedFrame.height, screen.frame.maxY - paddedFrame.minY)
+        }
         return paddedFrame.contains(mouseLocation)
     }
 

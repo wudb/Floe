@@ -1,0 +1,645 @@
+{
+  "date": "2026-10-14",
+  "environment": "macOS 15.8.1",
+  "total": 63,
+  "resolved_original_scenarios": 0,
+  "items": [
+    {
+      "repository": "cavaldos/Ice",
+      "number": 24,
+      "url": "https://github.com/cavaldos/Ice/issues/24",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "拖拽互斥、取消清理、扫描代次失效、真实落点/顺序验证和失败反馈",
+      "remaining_acceptance": "真实 Command-drag、不可移动系统项及对应 macOS 版本"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 233,
+      "url": "https://github.com/jordanbaird/Ice/issues/233",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "拖拽互斥、取消清理、扫描代次失效、真实落点/顺序验证和失败反馈",
+      "remaining_acceptance": "真实 Command-drag、不可移动系统项及对应 macOS 版本"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 344,
+      "url": "https://github.com/jordanbaird/Ice/issues/344",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "保存明确拖拽选择；CGS 唯一身份窗口重建恢复；原生拖拽展开不写入下次启动偏好",
+      "remaining_acceptance": "退出/登录及宿主更新；AX-only 与多状态项身份仍受限制"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 512,
+      "url": "https://github.com/jordanbaird/Ice/issues/512",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "分区真值重扫；临时归位互斥及新选择优先；未将 UI 乐观位置当作真实结果",
+      "remaining_acceptance": "对应系统、多窗口切换和分区重建原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 513,
+      "url": "https://github.com/jordanbaird/Ice/issues/513",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "分区真值重扫；临时归位互斥及新选择优先；未将 UI 乐观位置当作真实结果",
+      "remaining_acceptance": "对应系统、多窗口切换和分区重建原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 661,
+      "url": "https://github.com/jordanbaird/Ice/issues/661",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "保存明确拖拽选择；CGS 唯一身份窗口重建恢复；原生拖拽展开不写入下次启动偏好",
+      "remaining_acceptance": "退出/登录及宿主更新；AX-only 与多状态项身份仍受限制"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 666,
+      "url": "https://github.com/jordanbaird/Ice/issues/666",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "保存明确拖拽选择；CGS 唯一身份窗口重建恢复；原生拖拽展开不写入下次启动偏好",
+      "remaining_acceptance": "退出/登录及宿主更新；AX-only 与多状态项身份仍受限制"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 675,
+      "url": "https://github.com/jordanbaird/Ice/issues/675",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "external_cause_candidate_pending_local_verification",
+      "change": "报告者后续说明为 macOS 状态项移除行为；保留为外部原因线索",
+      "remaining_acceptance": "确认 Floe 中是否仍可复现，不能以评论推论直接删单"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 702,
+      "url": "https://github.com/jordanbaird/Ice/issues/702",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "分区真值重扫；临时归位互斥及新选择优先；未将 UI 乐观位置当作真实结果",
+      "remaining_acceptance": "对应系统、多窗口切换和分区重建原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 723,
+      "url": "https://github.com/jordanbaird/Ice/issues/723",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "保存明确拖拽选择；CGS 唯一身份窗口重建恢复；原生拖拽展开不写入下次启动偏好",
+      "remaining_acceptance": "退出/登录及宿主更新；AX-only 与多状态项身份仍受限制"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 769,
+      "url": "https://github.com/jordanbaird/Ice/issues/769",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "保存明确拖拽选择；CGS 唯一身份窗口重建恢复；原生拖拽展开不写入下次启动偏好",
+      "remaining_acceptance": "退出/登录及宿主更新；AX-only 与多状态项身份仍受限制"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 771,
+      "url": "https://github.com/jordanbaird/Ice/issues/771",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "保存明确拖拽选择；CGS 唯一身份窗口重建恢复；原生拖拽展开不写入下次启动偏好",
+      "remaining_acceptance": "退出/登录及宿主更新；AX-only 与多状态项身份仍受限制"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 781,
+      "url": "https://github.com/jordanbaird/Ice/issues/781",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "已有显示图标开关与位置保留；补充再次打开应用进入设置的恢复入口",
+      "remaining_acceptance": "系统移除图标、显示开关及再次打开应用的真实验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 799,
+      "url": "https://github.com/jordanbaird/Ice/issues/799",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "延迟智能/悬停/聚焦收起重新核实设置、位置、状态代次；菜单保护和计时器策略复核",
+      "remaining_acceptance": "特定系统/自定义宿主菜单与崩溃导致无法收起的区别"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 861,
+      "url": "https://github.com/jordanbaird/Ice/issues/861",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "拖拽互斥、取消清理、扫描代次失效、真实落点/顺序验证和失败反馈",
+      "remaining_acceptance": "真实 Command-drag、不可移动系统项及对应 macOS 版本"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 946,
+      "url": "https://github.com/jordanbaird/Ice/issues/946",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "分区真值重扫；临时归位互斥及新选择优先；未将 UI 乐观位置当作真实结果",
+      "remaining_acceptance": "对应系统、多窗口切换和分区重建原场景"
+    },
+    {
+      "repository": "cavaldos/Ice",
+      "number": 12,
+      "url": "https://github.com/cavaldos/Ice/issues/12",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "浮栏请求取消与代次淘汰、发现链路已有 AX fallback、有界等待与截图保护",
+      "remaining_acceptance": "原系统的浮栏显示/切换 Space；macOS 26/27 不可在当前主机验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 403,
+      "url": "https://github.com/jordanbaird/Ice/issues/403",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "延迟智能/悬停/聚焦收起重新核实设置、位置、状态代次；菜单保护和计时器策略复核",
+      "remaining_acceptance": "特定系统/自定义宿主菜单与崩溃导致无法收起的区别"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 434,
+      "url": "https://github.com/jordanbaird/Ice/issues/434",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "修正关闭 always-hidden 后误过滤已显示 Hidden 项；关闭菜单避让设置时恢复宿主",
+      "remaining_acceptance": "对应硬件菜单空间不足与 Option 组合的真实菜单避让"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 452,
+      "url": "https://github.com/jordanbaird/Ice/issues/452",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "延迟智能/悬停/聚焦收起重新核实设置、位置、状态代次；菜单保护和计时器策略复核",
+      "remaining_acceptance": "特定系统/自定义宿主菜单与崩溃导致无法收起的区别"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 485,
+      "url": "https://github.com/jordanbaird/Ice/issues/485",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "浮栏请求取消与代次淘汰、发现链路已有 AX fallback、有界等待与截图保护",
+      "remaining_acceptance": "原系统的浮栏显示/切换 Space；macOS 26/27 不可在当前主机验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 545,
+      "url": "https://github.com/jordanbaird/Ice/issues/545",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "浮栏请求取消与代次淘汰、发现链路已有 AX fallback、有界等待与截图保护",
+      "remaining_acceptance": "原系统的浮栏显示/切换 Space；macOS 26/27 不可在当前主机验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 619,
+      "url": "https://github.com/jordanbaird/Ice/issues/619",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "已有显示图标开关与位置保留；补充再次打开应用进入设置的恢复入口",
+      "remaining_acceptance": "系统移除图标、显示开关及再次打开应用的真实验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 620,
+      "url": "https://github.com/jordanbaird/Ice/issues/620",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "修正关闭 always-hidden 后误过滤已显示 Hidden 项；关闭菜单避让设置时恢复宿主",
+      "remaining_acceptance": "对应硬件菜单空间不足与 Option 组合的真实菜单避让"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 694,
+      "url": "https://github.com/jordanbaird/Ice/issues/694",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "延迟智能/悬停/聚焦收起重新核实设置、位置、状态代次；菜单保护和计时器策略复核",
+      "remaining_acceptance": "特定系统/自定义宿主菜单与崩溃导致无法收起的区别"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 717,
+      "url": "https://github.com/jordanbaird/Ice/issues/717",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "滚轮使用主轴位移，避免单轴减半或双轴抵消",
+      "remaining_acceptance": "鼠标滚轮、触控板横纵滑动及惯性输入"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 759,
+      "url": "https://github.com/jordanbaird/Ice/issues/759",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "已有显示图标开关与位置保留；补充再次打开应用进入设置的恢复入口",
+      "remaining_acceptance": "系统移除图标、显示开关及再次打开应用的真实验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 813,
+      "url": "https://github.com/jordanbaird/Ice/issues/813",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "浮栏请求取消与代次淘汰、发现链路已有 AX fallback、有界等待与截图保护",
+      "remaining_acceptance": "原系统的浮栏显示/切换 Space；macOS 26/27 不可在当前主机验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 814,
+      "url": "https://github.com/jordanbaird/Ice/issues/814",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "浮栏请求取消与代次淘汰、发现链路已有 AX fallback、有界等待与截图保护",
+      "remaining_acceptance": "原系统的浮栏显示/切换 Space；macOS 26/27 不可在当前主机验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 865,
+      "url": "https://github.com/jordanbaird/Ice/issues/865",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "浮栏请求取消与代次淘汰、发现链路已有 AX fallback、有界等待与截图保护",
+      "remaining_acceptance": "原系统的浮栏显示/切换 Space；macOS 26/27 不可在当前主机验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 871,
+      "url": "https://github.com/jordanbaird/Ice/issues/871",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "悬停任务按意图合并/取消；浮栏通道保护；手动展开优先于旧悬停任务",
+      "remaining_acceptance": "真实指针跨越菜单栏/浮栏间隙、0 延迟和快速重复展开"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 879,
+      "url": "https://github.com/jordanbaird/Ice/issues/879",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "修正关闭 always-hidden 后误过滤已显示 Hidden 项；关闭菜单避让设置时恢复宿主",
+      "remaining_acceptance": "对应硬件菜单空间不足与 Option 组合的真实菜单避让"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 888,
+      "url": "https://github.com/jordanbaird/Ice/issues/888",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "浮栏请求取消与代次淘汰、发现链路已有 AX fallback、有界等待与截图保护",
+      "remaining_acceptance": "原系统的浮栏显示/切换 Space；macOS 26/27 不可在当前主机验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 890,
+      "url": "https://github.com/jordanbaird/Ice/issues/890",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "浮栏请求取消与代次淘汰、发现链路已有 AX fallback、有界等待与截图保护",
+      "remaining_acceptance": "原系统的浮栏显示/切换 Space；macOS 26/27 不可在当前主机验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 906,
+      "url": "https://github.com/jordanbaird/Ice/issues/906",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "再次打开仅显式请求设置；自动避让已有 accessory/无 Dock 激活保护；修正错误避让范围",
+      "remaining_acceptance": "登录启动、Finder 重开、自动避让与设置窗口激活分别验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 970,
+      "url": "https://github.com/jordanbaird/Ice/issues/970",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "延迟智能/悬停/聚焦收起重新核实设置、位置、状态代次；菜单保护和计时器策略复核",
+      "remaining_acceptance": "特定系统/自定义宿主菜单与崩溃导致无法收起的区别"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 996,
+      "url": "https://github.com/jordanbaird/Ice/issues/996",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "浮栏请求取消与代次淘汰、发现链路已有 AX fallback、有界等待与截图保护",
+      "remaining_acceptance": "原系统的浮栏显示/切换 Space；macOS 26/27 不可在当前主机验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 1008,
+      "url": "https://github.com/jordanbaird/Ice/issues/1008",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "浮栏请求取消与代次淘汰、发现链路已有 AX fallback、有界等待与截图保护",
+      "remaining_acceptance": "原系统的浮栏显示/切换 Space；macOS 26/27 不可在当前主机验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 316,
+      "url": "https://github.com/jordanbaird/Ice/issues/316",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "手动展开取消延迟自动操作；执行前复核菜单命中；临时点击互斥与菜单生命周期保护",
+      "remaining_acceptance": "原应用菜单、子菜单、自定义窗口及 AX/CGS 真实点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 567,
+      "url": "https://github.com/jordanbaird/Ice/issues/567",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "手动展开取消延迟自动操作；执行前复核菜单命中；临时点击互斥与菜单生命周期保护",
+      "remaining_acceptance": "原应用菜单、子菜单、自定义窗口及 AX/CGS 真实点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 584,
+      "url": "https://github.com/jordanbaird/Ice/issues/584",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "再次打开仅显式请求设置；自动避让已有 accessory/无 Dock 激活保护；修正错误避让范围",
+      "remaining_acceptance": "登录启动、Finder 重开、自动避让与设置窗口激活分别验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 621,
+      "url": "https://github.com/jordanbaird/Ice/issues/621",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "手动展开取消延迟自动操作；执行前复核菜单命中；临时点击互斥与菜单生命周期保护",
+      "remaining_acceptance": "原应用菜单、子菜单、自定义窗口及 AX/CGS 真实点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 640,
+      "url": "https://github.com/jordanbaird/Ice/issues/640",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "移除 CGS 移动/点击/归位期间的隐藏指针调用；AX 拖拽取消释放 Command/鼠标并恢复位置",
+      "remaining_acceptance": "Tahoe 指针尺寸/形状和系统光标状态原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 686,
+      "url": "https://github.com/jordanbaird/Ice/issues/686",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "悬停任务按意图合并/取消；浮栏通道保护；手动展开优先于旧悬停任务",
+      "remaining_acceptance": "真实指针跨越菜单栏/浮栏间隙、0 延迟和快速重复展开"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 751,
+      "url": "https://github.com/jordanbaird/Ice/issues/751",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "移除 CGS 移动/点击/归位期间的隐藏指针调用；AX 拖拽取消释放 Command/鼠标并恢复位置",
+      "remaining_acceptance": "Tahoe 指针尺寸/形状和系统光标状态原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 755,
+      "url": "https://github.com/jordanbaird/Ice/issues/755",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "手动展开取消延迟自动操作；执行前复核菜单命中；临时点击互斥与菜单生命周期保护",
+      "remaining_acceptance": "原应用菜单、子菜单、自定义窗口及 AX/CGS 真实点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 757,
+      "url": "https://github.com/jordanbaird/Ice/issues/757",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "移除 CGS 移动/点击/归位期间的隐藏指针调用；AX 拖拽取消释放 Command/鼠标并恢复位置",
+      "remaining_acceptance": "Tahoe 指针尺寸/形状和系统光标状态原场景"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 768,
+      "url": "https://github.com/jordanbaird/Ice/issues/768",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "再次打开仅显式请求设置；自动避让已有 accessory/无 Dock 激活保护；修正错误避让范围",
+      "remaining_acceptance": "登录启动、Finder 重开、自动避让与设置窗口激活分别验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 826,
+      "url": "https://github.com/jordanbaird/Ice/issues/826",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "手动展开取消延迟自动操作；执行前复核菜单命中；临时点击互斥与菜单生命周期保护",
+      "remaining_acceptance": "原应用菜单、子菜单、自定义窗口及 AX/CGS 真实点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 845,
+      "url": "https://github.com/jordanbaird/Ice/issues/845",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "手动展开取消延迟自动操作；执行前复核菜单命中；临时点击互斥与菜单生命周期保护",
+      "remaining_acceptance": "原应用菜单、子菜单、自定义窗口及 AX/CGS 真实点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 914,
+      "url": "https://github.com/jordanbaird/Ice/issues/914",
+      "work_package": "I3",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "悬停任务按意图合并/取消；浮栏通道保护；手动展开优先于旧悬停任务",
+      "remaining_acceptance": "真实指针跨越菜单栏/浮栏间隙、0 延迟和快速重复展开"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 808,
+      "url": "https://github.com/jordanbaird/Ice/issues/808",
+      "work_package": "I1",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "再次打开仅显式请求设置；自动避让已有 accessory/无 Dock 激活保护；修正错误避让范围",
+      "remaining_acceptance": "登录启动、Finder 重开、自动避让与设置窗口激活分别验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 144,
+      "url": "https://github.com/jordanbaird/Ice/issues/144",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "修正关闭 always-hidden 后误过滤已显示 Hidden 项；关闭菜单避让设置时恢复宿主",
+      "remaining_acceptance": "对应硬件菜单空间不足与 Option 组合的真实菜单避让"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 246,
+      "url": "https://github.com/jordanbaird/Ice/issues/246",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "已有显示图标开关与位置保留；补充再次打开应用进入设置的恢复入口",
+      "remaining_acceptance": "系统移除图标、显示开关及再次打开应用的真实验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 329,
+      "url": "https://github.com/jordanbaird/Ice/issues/329",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "已有显示图标开关与位置保留；补充再次打开应用进入设置的恢复入口",
+      "remaining_acceptance": "系统移除图标、显示开关及再次打开应用的真实验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 401,
+      "url": "https://github.com/jordanbaird/Ice/issues/401",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "悬停任务按意图合并/取消；浮栏通道保护；手动展开优先于旧悬停任务",
+      "remaining_acceptance": "真实指针跨越菜单栏/浮栏间隙、0 延迟和快速重复展开"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 595,
+      "url": "https://github.com/jordanbaird/Ice/issues/595",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "点击时修饰键快照；Option 不依赖 Show on Click；always-hidden 关闭时回退 Hidden",
+      "remaining_acceptance": "真实修饰键事件与快速组合点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 634,
+      "url": "https://github.com/jordanbaird/Ice/issues/634",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "点击时修饰键快照；Option 不依赖 Show on Click；always-hidden 关闭时回退 Hidden",
+      "remaining_acceptance": "真实修饰键事件与快速组合点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 644,
+      "url": "https://github.com/jordanbaird/Ice/issues/644",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "点击时修饰键快照；Option 不依赖 Show on Click；always-hidden 关闭时回退 Hidden",
+      "remaining_acceptance": "真实修饰键事件与快速组合点击"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 695,
+      "url": "https://github.com/jordanbaird/Ice/issues/695",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "再次打开仅显式请求设置；自动避让已有 accessory/无 Dock 激活保护；修正错误避让范围",
+      "remaining_acceptance": "登录启动、Finder 重开、自动避让与设置窗口激活分别验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 725,
+      "url": "https://github.com/jordanbaird/Ice/issues/725",
+      "work_package": "I2",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "再次打开仅显式请求设置；自动避让已有 accessory/无 Dock 激活保护；修正错误避让范围",
+      "remaining_acceptance": "登录启动、Finder 重开、自动避让与设置窗口激活分别验收"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 668,
+      "url": "https://github.com/jordanbaird/Ice/issues/668",
+      "work_package": "I4",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "恢复独立搜索菜单/快捷键入口；AX+CGS 合并、名称/宿主筛选、占位名回退、Return 激活和 Escape 关闭",
+      "remaining_acceptance": "真机键盘焦点、浅深色图标与 AX/CGS 项目激活"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 673,
+      "url": "https://github.com/jordanbaird/Ice/issues/673",
+      "work_package": "I4",
+      "upstream_state": "open",
+      "status": "implemented_or_existing_protection_pending_original_scenario",
+      "change": "恢复独立搜索菜单/快捷键入口；AX+CGS 合并、名称/宿主筛选、占位名回退、Return 激活和 Escape 关闭",
+      "remaining_acceptance": "真机键盘焦点、浅深色图标与 AX/CGS 项目激活"
+    }
+  ],
+  "validation": {
+    "swift_regressions": 27,
+    "debug_build": "passed",
+    "release_build": "passed",
+    "swiftlint_strict": "passed",
+    "live_original_scenarios": "not_completed"
+  }
+}
