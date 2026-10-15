@@ -168,6 +168,8 @@
 
 ### M5：产品能力扩展
 
+2026-10-15 第二批实现见 [浮栏增强状态](m5-b-status.json)：分区可独立选择原生/浮栏，增加名称列表、可配置网格、浮栏内拖拽读回及每屏相对固定位置。保留原生层级约束和旧全局开关；已渲染生产布局片段，完整系统交互仍待验收。M5 79 条数量不变。
+
 2026-10-15 第一批实现见 [M5 第一批状态](m5-a-status.json)：增加新项默认分区/首尾位置、应用始终显示规则、显式显示所有当前项、布局键盘及 VoiceOver 动作、搜索选中行导航、布局直达和图标恢复入口；中英文说明同步更新。自动放置仅覆盖可唯一识别且支持项目发现的场景，原场景验收仍保留；79 条数量不变。
 
 范围：默认图标规则、中文/其他本地化、VoiceOver、按屏幕策略、配置管理、Floe Bar 增强和自动化。
@@ -508,10 +510,10 @@
 | M5 | F2 | [jordanbaird/Ice #801](https://github.com/jordanbaird/Ice/issues/801) | [Feature Request]: 求中文 | 语言和阅读方向影响使用覆盖面；在核心交互稳定后提供可验收的首批语言支持。 | 候选需求待评估 |
 | M5 | F3 | [jordanbaird/Ice #291](https://github.com/jordanbaird/Ice/issues/291) | [Feature Request]: Hotkeys for individual menu bar items | 单个项目快捷键可减少鼠标操作，依赖稳定项目身份与暂时显示生命周期。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #227](https://github.com/jordanbaird/Ice/issues/227) | [Feature Request]: Use Ice Bar as overflow spot for otherwise-hidden menu items | 溢出项目应仍可访问，需要明确定义菜单栏与浮栏的分工。 | 候选需求待评估 |
-| M5 | F4 | [jordanbaird/Ice #495](https://github.com/jordanbaird/Ice/issues/495) | [Feature Request]: Organize hidden icons into multiple rows | 多行布局用于访问拥挤的隐藏图标，优先于纯动画装饰。 | 候选需求待评估 |
+| M5 | F4 | [jordanbaird/Ice #495](https://github.com/jordanbaird/Ice/issues/495) | [Feature Request]: Organize hidden icons into multiple rows | 多行布局用于访问拥挤的隐藏图标，优先于纯动画装饰。 | 第二批代码已实现 · 保留原场景验收 |
 | M5 | F4 | [jordanbaird/Ice #515](https://github.com/jordanbaird/Ice/issues/515) | [Feature Request]: Scrolling through menu bar items | 需求包含系统自动隐藏与滚动访问全部项目，已有横向滚动不能证明完整满足。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #519](https://github.com/jordanbaird/Ice/issues/519) | [Feature Request]: Ability to show all icons in click menu | 要求访问刘海遮住的项目，应验证发现范围后评估补充入口。 | 候选需求待评估 |
-| M5 | F4 | [jordanbaird/Ice #551](https://github.com/jordanbaird/Ice/issues/551) | [Feature Request]: Grid option when using Ice bar | 网格用于容纳大量项目，需要可访问性和点击目标的验收。 | 候选需求待评估 |
+| M5 | F4 | [jordanbaird/Ice #551](https://github.com/jordanbaird/Ice/issues/551) | [Feature Request]: Grid option when using Ice bar | 网格用于容纳大量项目，需要可访问性和点击目标的验收。 | 第二批代码已实现 · 保留原场景验收 |
 | M5 | F4 | [jordanbaird/Ice #860](https://github.com/jordanbaird/Ice/issues/860) | [Feature Request]: Option to re-add the menu bar icon, after manual removal | 误移除主控制图标后的恢复入口有明确使用价值，应先定义恢复行为。 | 首批代码/文档已实现 · 保留原场景验收 |
 | M5 | F5 | [jordanbaird/Ice #188](https://github.com/jordanbaird/Ice/issues/188) | [Feature Request]: Option to only hide on built-in display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
 | M5 | F5 | [jordanbaird/Ice #223](https://github.com/jordanbaird/Ice/issues/223) | [Feature Request]: Ability to enable Ice Bar only when on built-in display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
@@ -560,21 +562,21 @@
 | M5 | F3 | [jordanbaird/Ice #516](https://github.com/jordanbaird/Ice/issues/516) | [Feature Request]: Expose API for searching menu bar items for Launchbar/Alfred/Spotlight/etc | 扩展集成或快捷键能力；先稳定内部状态和交互契约。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #113](https://github.com/jordanbaird/Ice/issues/113) | [Feature Request]: Scroll again to toggle always-hidden section | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #208](https://github.com/jordanbaird/Ice/issues/208) | Feature Request: Adding Ice Bar as an additional layout under Menu Bar Items | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
-| M5 | F4 | [jordanbaird/Ice #209](https://github.com/jordanbaird/Ice/issues/209) | [Feature Request]: Arrange items directly inside Ice Bar | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
-| M5 | F4 | [jordanbaird/Ice #214](https://github.com/jordanbaird/Ice/issues/214) | [Feature Request]: Ability to pin Ice Bar | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
+| M5 | F4 | [jordanbaird/Ice #209](https://github.com/jordanbaird/Ice/issues/209) | [Feature Request]: Arrange items directly inside Ice Bar | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 第二批代码已实现 · 保留原场景验收 |
+| M5 | F4 | [jordanbaird/Ice #214](https://github.com/jordanbaird/Ice/issues/214) | [Feature Request]: Ability to pin Ice Bar | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 第二批代码已实现 · 保留原场景验收 |
 | M5 | F4 | [jordanbaird/Ice #240](https://github.com/jordanbaird/Ice/issues/240) | [Feature Request]: Showing hidden items replaces visible items | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #243](https://github.com/jordanbaird/Ice/issues/243) | [Feature Request]: Menu Bar Widget Ideas | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #310](https://github.com/jordanbaird/Ice/issues/310) | [Feature Request]: Allow a section to be hidable to show what's on the left | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #321](https://github.com/jordanbaird/Ice/issues/321) | [Feature Request]: Animation when showing items | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
-| M5 | F4 | [jordanbaird/Ice #335](https://github.com/jordanbaird/Ice/issues/335) | [Feature Request]: Ice Bar only for Always Hidden | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
-| M5 | F4 | [jordanbaird/Ice #342](https://github.com/jordanbaird/Ice/issues/342) | [Feature Request]: Display menu bar items as a vertical list | Display 在标题中为显示动作，需求是带名称的纵向列表，不是按显示器配置。 | 候选需求待评估 |
+| M5 | F4 | [jordanbaird/Ice #335](https://github.com/jordanbaird/Ice/issues/335) | [Feature Request]: Ice Bar only for Always Hidden | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 第二批代码已实现 · 保留原场景验收 |
+| M5 | F4 | [jordanbaird/Ice #342](https://github.com/jordanbaird/Ice/issues/342) | [Feature Request]: Display menu bar items as a vertical list | Display 在标题中为显示动作，需求是带名称的纵向列表，不是按显示器配置。 | 第二批代码已实现 · 保留原场景验收 |
 | M5 | F4 | [jordanbaird/Ice #372](https://github.com/jordanbaird/Ice/issues/372) | [Feature Request]: Ability to see both hidden sections at the same time when using the Ice Bar | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #481](https://github.com/jordanbaird/Ice/issues/481) | [Feature Request]: Option to enable showing hidden section when hovering over un-hidden side | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
-| M5 | F4 | [jordanbaird/Ice #487](https://github.com/jordanbaird/Ice/issues/487) | [Feature Request]: Always Hidden Use Ice Bar | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
+| M5 | F4 | [jordanbaird/Ice #487](https://github.com/jordanbaird/Ice/issues/487) | [Feature Request]: Always Hidden Use Ice Bar | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 第二批代码已实现 · 保留原场景验收 |
 | M5 | F4 | [jordanbaird/Ice #494](https://github.com/jordanbaird/Ice/issues/494) | [Feature Request]: Make option for showing hidden items on mouse down, not up | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #497](https://github.com/jordanbaird/Ice/issues/497) | [Feature Request]: Open 'Menu Bar Layout' from Right-Click | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 首批代码/文档已实现 · 保留原场景验收 |
 | M5 | F4 | [jordanbaird/Ice #518](https://github.com/jordanbaird/Ice/issues/518) | [Feature Request]: Configuration option to Always open Ice as minimized | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
-| M5 | F4 | [jordanbaird/Ice #527](https://github.com/jordanbaird/Ice/issues/527) | [Feature Request]: Allow pinning bar location with hidden ice icon | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
+| M5 | F4 | [jordanbaird/Ice #527](https://github.com/jordanbaird/Ice/issues/527) | [Feature Request]: Allow pinning bar location with hidden ice icon | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 第二批代码已实现 · 保留原场景验收 |
 | M5 | F4 | [jordanbaird/Ice #552](https://github.com/jordanbaird/Ice/issues/552) | [Feature Request]: Option for Double click on ice icon in menu bar to show always hidden menu icons instead of settings | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #554](https://github.com/jordanbaird/Ice/issues/554) | [Feature Request]: Show menu bar item name on hover | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #600](https://github.com/jordanbaird/Ice/issues/600) | [Feature Request]: Open hidden items from the Ice Icon | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |

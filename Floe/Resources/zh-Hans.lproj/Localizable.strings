@@ -284,3 +284,47 @@
 "Automatic placement only moves uniquely identifiable items. Ambiguous items keep their current position." = "自动放置仅移动可唯一识别的图标。身份不明确的图标会保留当前位置。";
 
 "Layout updated." = "布局已更新。";
+
+"Follow Use Floe Bar" = "跟随“使用 Floe 浮栏”";
+
+"Native menu bar" = "原生菜单栏";
+
+"Floe Bar" = "Floe 浮栏";
+
+"Horizontal icons" = "横向图标";
+
+"Names list" = "名称列表";
+
+"Icon grid" = "图标网格";
+
+"Hidden section display" = "隐藏分区显示方式";
+
+"Always Hidden section display" = "始终隐藏分区显示方式";
+
+"Floe Bar layout" = "浮栏布局";
+
+"Grid columns: %lld" = "网格列数：%lld";
+
+"Fixed Floe Bar position" = "固定浮栏位置";
+
+"Use Pin position in the Floe Bar to save its position for each display. Pinning does not prevent automatic rehide." = "在浮栏中点击“固定位置”，可分别保存每个显示器上的位置。固定位置不会阻止自动收起。";
+
+"Showing Always Hidden in the native menu bar also reveals Hidden because the native sections share one row." = "在原生菜单栏中展开始终隐藏分区时，也会露出隐藏分区，因为原生分区共用同一行。";
+
+"Use Floe Bar applies only to sections set to Follow Use Floe Bar." = "“使用 Floe 浮栏”开关仅影响选择“跟随”的分区。";
+
+"Reorder" = "整理";
+
+"Pin position" = "固定位置";
+
+"Unpin position" = "取消固定位置";
+
+"Drop at end" = "放到末尾";
+
+"Drag an icon onto another to place it before that icon." = "将图标拖到另一图标上，可放到它的前面。";
+
+"Could not reorder the icon. Its actual position is shown; close other menus and try again." = "无法调整图标顺序。当前显示的是实际位置，请关闭其他菜单后重试。";
+
+"Right click" = "右键点击";
+
+"Close" = "关闭";

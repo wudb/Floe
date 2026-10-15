@@ -47,12 +47,18 @@ enum MenuBarSection { enum Name { case hidden, alwaysHidden } }
     var frame = CGRect(x: 0, y: 0, width: 0, height: 0)
     var fronts = 0
     var isVisible = true
+    var isMovableByWindowBackground = true
     func close() {}
     func orderFrontRegardless() { fronts += 1 }
 }
+@MainActor final class FloeBarReorderController {
+    var cancelled = false
+    func activate() {}
+    func cancel() { cancelled = true }
+}
 @MainActor final class FloeBarHostingView {
     let screenID: Int
-    init(appState: AppState, colorManager: ColorManager, screen: NSScreen, section: MenuBarSection.Name, close: () -> Void) {
+    init(appState: AppState, colorManager: ColorManager, reorder: FloeBarReorderController, screen: NSScreen, section: MenuBarSection.Name, close: () -> Void) {
         screenID = screen.id
     }
 }
@@ -66,6 +72,8 @@ enum MenuBarSection { enum Name { case hidden, alwaysHidden } }
     var presentationGeneration: UUID?
     var contentDisplayID: Int?
     let colorManager = ColorManager()
+    var reorderController: FloeBarReorderController?
+    func positionPanel(for screen: NSScreen) {}
     func updateOrigin(for screen: NSScreen) {}
     __PRODUCTION__
 }
@@ -88,8 +96,10 @@ enum MenuBarSection { enum Name { case hidden, alwaysHidden } }
         cache.finish(1); await newest.value
         cache.finish(0); await old.value
         precondition(panel.contentView?.screenID == 2 && panel.fronts == 1, "old same-section request must not overwrite new screen")
+        let dragController = panel.reorderController!
         let closing = Task { await panel.show(section: .alwaysHidden, on: NSScreen(id: 1)) }
         await wait(cache, id: 2); panel.close(); cache.finish(2); await closing.value
+        precondition(dragController.cancelled, "close must cancel the active drag session immediately")
         precondition(panel.contentView == nil && !state.navigationState.isFloeBarPresented && panel.fronts == 1)
         let cancelled = Task { await panel.show(section: .hidden, on: NSScreen(id: 1)) }
         await wait(cache, id: 3); cancelled.cancel(); cache.finish(3); await cancelled.value

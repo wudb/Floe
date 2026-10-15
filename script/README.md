@@ -30,11 +30,20 @@ launch Floe or change permissions/settings. Fill in `reproduction.md` with the
 actual steps, display setup, permission behavior and observed CGS/AX path.
 Review preferences before sharing. See [M0 audit](../docs/m0-issue-audit.md).
 
-Local ad-hoc builds explicitly disable hardened runtime to allow the embedded
-Sparkle framework to load without a matching Team ID. `dev.sh` retains its
-certificate signing path; when the requested certificate is missing, both the
-build and final signing use the ad-hoc identity. A direct local Release build
-with `CODE_SIGN_IDENTITY=-` also needs `ENABLE_HARDENED_RUNTIME=NO`.
+Development entry points `run.sh` and `dev.sh` share a fixed install path,
+`/Applications/Floe-Dev.app`. They choose a usable `Floe Dev` signing identity,
+then an Apple Development identity. Set `FLOE_CODE_SIGN_IDENTITY` to pin a
+specific certificate if multiple identities exist. Missing identities fail
+instead of silently producing an ad-hoc build. Explicit disposable builds can
+use `FLOE_CODE_SIGN_IDENTITY=- ./script/dev.sh`; their grants may expire after
+rebuilding.
+
+For Xcode Run, select your development Team in Signing & Capabilities. Debug
+uses Apple Development signing; keep the same certificate and launch path.
+Changing from an old ad-hoc build may require granting Accessibility and Screen
+Recording again, then restarting the app. The scripts do not reset TCC grants.
+Release signing remains unchanged. Ad-hoc Release builds need
+`ENABLE_HARDENED_RUNTIME=NO` for the embedded Sparkle framework.
 
 ## Language regression checks
 

@@ -126,6 +126,16 @@ Automatic placement waits for menus to close and the pointer to stop moving. It 
 
 If the Floe icon was removed, reopen Floe from Applications, then choose **Restore Floe icon** in General settings. Reopening intentionally keeps access to settings available even when the menu bar icon is missing.
 
+## Floe Bar layouts and placement
+
+In General settings, choose **Native menu bar**, **Floe Bar**, or **Follow Use Floe Bar** separately for Hidden and Always Hidden. Follow preserves the existing global switch and shortcut. For example, Hidden can stay in the native row while Always Hidden opens in the Floe Bar. Native Always Hidden still reveals Hidden because both sections share the same row.
+
+Choose horizontal icons, a names list, or a grid. The grid supports 2–12 requested columns and reduces the column count on narrow displays; list and grid content scroll vertically and stay within the display's available area. Names and activation use the same discovered items as the existing bar, including the Accessibility fallback.
+
+Click **Reorder** in the bar, drag an icon onto another to insert it before that icon, or onto **Drop at end**. Click Done to return to normal menu activation. The actual native order is read back after a move; a rejected or stale move shows an error instead of saving a visual-only order. Closing the bar cancels the edit session. Protected items and missing/offscreen Accessibility frames cannot be forced into a new position.
+
+After leaving Reorder mode, move the bar by its background, then click **Pin position** to save the current position for that display. While pinned, later background drags update that display's position. Positions are stored relatively, so resizing or changing display scale does not reuse old pixel coordinates. An unfamiliar display starts at the available area's top-right. **Unpin position** restores the normal location rule. Pinning fixes placement; it does not keep the bar open or disable automatic rehide.
+
 ## Acknowledgments
 
 Floe is forked from [cavaldos/Ice](https://github.com/cavaldos/Ice), which is forked from [jordanbaird/Ice](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird). Thanks to both upstream projects.

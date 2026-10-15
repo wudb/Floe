@@ -5,6 +5,7 @@
 
 import Combine
 import SwiftUI
+import UniformTypeIdentifiers
 
 // MARK: - FloeBarPanel
 
@@ -22,6 +23,8 @@ final class FloeBarPanel: NSPanel {
     /// 同一分区也可能连续请求不同屏幕；异步返回只能发布最新一次显示请求。
     private var presentationGeneration: UUID?
     private var contentDisplayID: CGDirectDisplayID?
+    private var windowDragStartOrigin: CGPoint?
+    private var reorderController: FloeBarReorderController?
 
     /// Automatic rehide must not collapse originals while their menu is in use.
     private(set) var isActivatingAXItem = false
@@ -83,11 +86,59 @@ final class FloeBarPanel: NSPanel {
                 else {
                     return
                 }
-                updateOrigin(for: screen)
+                positionPanel(for: screen)
             }
             .store(in: &c)
 
+        if let appState {
+            let preferences = appState.settingsManager.generalSettingsManager.barPreferences
+            preferences.$presentationRevision.dropFirst()
+                .sink { [weak self, weak appState] _ in
+                    self?.close()
+                    guard let appState else { return }
+                    if let changed = preferences.changedSection {
+                        let name: MenuBarSection.Name = changed == "alwaysHidden" ? .alwaysHidden : .hidden
+                        self?.collapseNativeHierarchy(for: name, in: appState)
+                    }
+                }
+                .store(in: &c)
+        }
+
+        if let appState {
+            appState.settingsManager.generalSettingsManager.$useFloeBar.dropFirst()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self, weak appState] _ in
+                    self?.close()
+                    guard let appState else { return }
+                    let preferences = appState.settingsManager.generalSettingsManager.barPreferences
+                    for section in appState.menuBarManager.sections {
+                        let key = section.name == .alwaysHidden ? "alwaysHidden" : "hidden"
+                        if preferences.presentation(for: key) == .inherited {
+                            self?.collapseNativeHierarchy(for: section.name, in: appState)
+                        }
+                    }
+                }
+                .store(in: &c)
+        }
+
+        if let preferences = appState?.settingsManager.generalSettingsManager.barPreferences {
+            preferences.$revision.dropFirst()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in
+                    guard let self, isVisible, let screen else { return }
+                    positionPanel(for: screen)
+                }
+                .store(in: &c)
+        }
+
         cancellables = c
+    }
+
+    /// 普通隐藏层收起时，其左侧的始终隐藏层也会被遮住，逻辑状态必须一并收起。
+    /// 这里只重置当前展开状态，保留两个分区各自的呈现规则和下次启动偏好。
+    private func collapseNativeHierarchy(for name: MenuBarSection.Name, in appState: AppState) {
+        let names: [MenuBarSection.Name] = name == .alwaysHidden ? [.alwaysHidden] : [.visible, .hidden, .alwaysHidden]
+        for name in names { appState.menuBarManager.section(withName: name)?.setState(.hideItems, persist: false) }
     }
 
     private func refreshContent(for screen: NSScreen) {
@@ -95,11 +146,51 @@ final class FloeBarPanel: NSPanel {
               let appState, let section = currentSection
         else { return }
         contentDisplayID = screen.displayID
-        contentView = FloeBarHostingView(appState: appState, colorManager: colorManager, screen: screen, section: section) { [weak self] in
+        reorderController?.cancel()
+        let reorder = FloeBarReorderController()
+        reorder.activate()
+        reorderController = reorder
+        isMovableByWindowBackground = true
+        contentView = FloeBarHostingView(appState: appState, colorManager: colorManager, reorder: reorder, screen: screen, section: section) { [weak self] in
             self?.close()
         }
         colorManager.invalidate()
         colorManager.updateAllProperties(with: frame, screen: screen)
+    }
+
+    private func displayKey(_ screen: NSScreen) -> String {
+        if let uuid = CGDisplayCreateUUIDFromDisplayID(screen.displayID)?.takeRetainedValue() {
+            return CFUUIDCreateString(nil, uuid) as String
+        }
+        return String(screen.displayID)
+    }
+
+    private func positionPanel(for screen: NSScreen) {
+        if let preferences = appState?.settingsManager.generalSettingsManager.barPreferences,
+           let origin = preferences.fixedOrigin(size: frame.size, bounds: screen.visibleFrame, display: displayKey(screen)) {
+            setFrameOrigin(origin)
+        } else {
+            updateOrigin(for: screen)
+        }
+    }
+
+    func toggleFixedPosition() {
+        guard let screen, let preferences = appState?.settingsManager.generalSettingsManager.barPreferences else { return }
+        if preferences.fixedPosition { preferences.fixedPosition = false } else {
+            preferences.pin(origin: frame.origin, size: frame.size, bounds: screen.visibleFrame, display: displayKey(screen))
+        }
+    }
+
+    override func sendEvent(_ event: NSEvent) {
+        if event.type == .leftMouseDown { windowDragStartOrigin = frame.origin }
+        super.sendEvent(event)
+        // AppKit 的窗口背景拖拽可在 mouseDown 内完成跟踪；仅在实际拖动后更新该屏锚点。
+        if event.type == .leftMouseDown || event.type == .leftMouseUp,
+           windowDragStartOrigin != nil, windowDragStartOrigin != frame.origin, let screen,
+           let preferences = appState?.settingsManager.generalSettingsManager.barPreferences, preferences.fixedPosition {
+            preferences.pin(origin: frame.origin, size: frame.size, bounds: screen.visibleFrame, display: displayKey(screen))
+        }
+        if event.type == .leftMouseUp { windowDragStartOrigin = nil }
     }
 
     private func updateOrigin(for screen: NSScreen) {
@@ -210,10 +301,10 @@ final class FloeBarPanel: NSPanel {
                     func hasOpenMenu() -> Bool {
                         WindowInfo.getOnScreenWindows().contains { window in
                             !previousWindows.contains(window.windowID) &&
-                            !window.frame.isEmpty && !window.isMenuBarItem &&
-                            window.layer >= CGWindowLevelForKey(.mainMenuWindow) &&
-                            (window.ownerPID == item.pid ||
-                                NSRunningApplication(processIdentifier: window.ownerPID)?.bundleIdentifier == "com.apple.controlcenter")
+                                !window.frame.isEmpty && !window.isMenuBarItem &&
+                                window.layer >= CGWindowLevelForKey(.mainMenuWindow) &&
+                                (window.ownerPID == item.pid ||
+                                    NSRunningApplication(processIdentifier: window.ownerPID)?.bundleIdentifier == "com.apple.controlcenter")
                         }
                     }
                     var observedMenu = false
@@ -268,11 +359,16 @@ final class FloeBarPanel: NSPanel {
         }
 
         contentDisplayID = screen.displayID
-        contentView = FloeBarHostingView(appState: appState, colorManager: colorManager, screen: screen, section: section) { [weak self] in
+        reorderController?.cancel()
+        let reorder = FloeBarReorderController()
+        reorder.activate()
+        reorderController = reorder
+        isMovableByWindowBackground = true
+        contentView = FloeBarHostingView(appState: appState, colorManager: colorManager, reorder: reorder, screen: screen, section: section) { [weak self] in
             self?.close()
         }
 
-        updateOrigin(for: screen)
+        positionPanel(for: screen)
 
         // 先使用已有颜色显示面板，新颜色异步更新；同步截图可能永久阻塞主线程。
         colorManager.updateAllProperties(with: frame, screen: screen)
@@ -281,6 +377,9 @@ final class FloeBarPanel: NSPanel {
     }
 
     override func close() {
+        reorderController?.cancel()
+        reorderController = nil
+        isMovableByWindowBackground = true
         presentationGeneration = nil
         contentDisplayID = nil
         colorManager.invalidate()
@@ -301,6 +400,7 @@ private final class FloeBarHostingView: NSHostingView<AnyView> {
     init(
         appState: AppState,
         colorManager: FloeBarColorManager,
+        reorder: FloeBarReorderController,
         screen: NSScreen,
         section: MenuBarSection.Name,
         closePanel: @escaping () -> Void
@@ -313,6 +413,8 @@ private final class FloeBarHostingView: NSHostingView<AnyView> {
                 .environmentObject(appState.itemManager)
                 .environmentObject(appState.menuBarManager)
                 .environmentObject(colorManager)
+                .environmentObject(reorder)
+                .environmentObject(appState.settingsManager.generalSettingsManager.barPreferences)
                 .erasedToAnyView()
         )
     }
@@ -394,6 +496,8 @@ private struct FloeBarContentView: View {
     @EnvironmentObject var itemManager: MenuBarItemManager
     @EnvironmentObject var imageCache: MenuBarItemImageCache
     @EnvironmentObject var menuBarManager: MenuBarManager
+    @EnvironmentObject var preferences: FloeBarPreferences
+    @EnvironmentObject var reorder: FloeBarReorderController
     @State private var frame = CGRect.zero
     @State private var scrollIndicatorsFlashTrigger = 0
     @State private var axRows = [AXRowItem]()
@@ -442,6 +546,9 @@ private struct FloeBarContentView: View {
     }
 
     private var barShape: AnyInsettableShape {
+        if preferences.layout != .icons || reorder.isEditing {
+            return AnyInsettableShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
         // Same stadium shape as the split's trailing pill: rectangular body
         // plus 2 oval/rectangular end caps (mirror `shapePath`).
         let trailing = configuration.splitShapeInfo.trailing
@@ -502,28 +609,172 @@ private struct FloeBarContentView: View {
     }
 
     var body: some View {
-        ZStack {
-            content
-                .frame(height: contentHeight)
-                .padding(.horizontal, horizontalPadding)
-                .padding(.vertical, verticalPadding)
-                .layoutBarStyle(appState: appState, averageColorInfo: colorManager.colorInfo, tintOpacity: barTintOpacity, useLiveBlur: isSplitPill)
-                .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
-                .overlay(splitBorderOverlay)
-                .clipShape(clipShape)
-                .shadow(color: barShadowColor, radius: barShadowRadius)
+        VStack(spacing: 4) {
+            // 日常展示只保留图标栏，整理时才显示操作和反馈。
+            if reorder.isEditing {
+                toolbar
+            }
+            ZStack {
+                content
+                    .frame(height: preferences.layout == .icons ? contentHeight : nil)
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.vertical, verticalPadding)
+                    .layoutBarStyle(appState: appState, averageColorInfo: colorManager.colorInfo, tintOpacity: barTintOpacity, useLiveBlur: isSplitPill)
+                    .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
+                    .overlay(splitBorderOverlay)
+                    .clipShape(clipShape)
+                    .shadow(color: barShadowColor, radius: barShadowRadius)
 
-            if configuration.current.hasBorder, !isSplitPill {
-                clipShape
-                    .inset(by: configuration.current.borderWidth / 2)
-                    .stroke(lineWidth: configuration.current.borderWidth)
-                    .foregroundStyle(Color(cgColor: configuration.current.borderColor))
+                if configuration.current.hasBorder, !isSplitPill {
+                    clipShape
+                        .inset(by: configuration.current.borderWidth / 2)
+                        .stroke(lineWidth: configuration.current.borderWidth)
+                        .foregroundStyle(Color(cgColor: configuration.current.borderColor))
+                }
             }
         }
         .padding(5)
-        .frame(maxWidth: screen.frame.width)
+        .contextMenu {
+            Button(LocalizedStringKey(reorder.isEditing ? "Done" : "Reorder")) {
+                toggleReordering()
+            }
+            .disabled(reorder.isMoving)
+            Button(LocalizedStringKey(preferences.fixedPosition ? "Unpin position" : "Pin position")) {
+                menuBarManager.floeBarPanel.toggleFixedPosition()
+            }
+            Button("Close", action: closePanel)
+        }
+        .frame(maxWidth: screen.visibleFrame.width)
         .fixedSize()
         .onFrameChange(update: $frame)
+        .onAppear { reorder.activate() }
+        .onDisappear { reorder.cancel() }
+    }
+
+    private func toggleReordering() {
+        reorder.isEditing.toggle()
+        // 整理时把拖拽交给图标，退出后恢复拖动浮栏背景。
+        menuBarManager.floeBarPanel.isMovableByWindowBackground = !reorder.isEditing
+    }
+
+    private var toolbar: some View {
+        VStack(spacing: 4) {
+            HStack(spacing: 10) {
+                Text(LocalizedStringKey(section == .alwaysHidden ? "Always Hidden" : "Hidden"))
+                Spacer(minLength: 8)
+                Button(LocalizedStringKey(reorder.isEditing ? "Done" : "Reorder")) {
+                    toggleReordering()
+                }
+                    .disabled(reorder.isMoving)
+                Button(LocalizedStringKey(preferences.fixedPosition ? "Unpin position" : "Pin position")) {
+                    menuBarManager.floeBarPanel.toggleFixedPosition()
+                }
+                Button(action: closePanel) { Image(systemName: "xmark") }.accessibilityLabel("Close")
+            }
+            .font(.caption)
+            .padding(8)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+            if reorder.isMoving { ProgressView().controlSize(.small) }
+            if reorder.failed {
+                Text("Could not reorder the icon. Its actual position is shown; close other menus and try again.")
+                    .font(.caption).fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .frame(width: min(340, max(1, screen.visibleFrame.width - 20)))
+    }
+
+    private var gridColumns: Int {
+        max(1, min(preferences.columns, Int(max(1, screen.visibleFrame.width - 24) / 84)))
+    }
+
+    /// 两条发现路径复用相同布局，列表/网格不会因截图失败而退回不可读的横排。
+    @ViewBuilder
+    private func arrangedRows<Content: View>(count: Int, @ViewBuilder rows: () -> Content) -> some View {
+        switch preferences.layout {
+        case .icons:
+            ScrollView(.horizontal) { HStack(spacing: 4, content: rows) }
+                .frame(maxWidth: max(1, screen.visibleFrame.width - 24))
+                .defaultScrollAnchor(.trailing)
+        case .list:
+            ScrollView(.vertical) { LazyVStack(alignment: .leading, spacing: 4, content: rows) }
+                .frame(width: min(340, max(1, screen.visibleFrame.width - 24)), height: min(CGFloat(count) * 44 + 8, screen.visibleFrame.height * 0.6))
+        case .grid:
+            ScrollView(.vertical) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: gridColumns), spacing: 6, content: rows)
+            }
+            .frame(
+                width: min(CGFloat(gridColumns) * 84, max(1, screen.visibleFrame.width - 24)),
+                height: min(CGFloat((count + gridColumns - 1) / gridColumns) * 68 + 8, screen.visibleFrame.height * 0.6)
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func tile<Icon: View>(name: String, @ViewBuilder icon: () -> Icon) -> some View {
+        if preferences.layout == .list {
+            HStack(spacing: 10) { icon().frame(width: 28, height: 28); Text(name).lineLimit(1); Spacer(minLength: 4) }
+                .padding(6).frame(maxWidth: .infinity, minHeight: 40)
+        } else if preferences.layout == .grid {
+            VStack(spacing: 3) { icon().frame(width: 28, height: 28); Text(name).font(.caption).lineLimit(2) }
+                .frame(maxWidth: .infinity, minHeight: 62)
+        } else {
+            icon().frame(minWidth: 28, minHeight: 22)
+        }
+    }
+
+    private func endDropZone(_ last: FloeBarReorderController.Item) -> some View {
+        Text("Drop at end")
+            .font(.caption).padding(8)
+            .frame(minWidth: 28, minHeight: 24)
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 6))
+            .onDrop(of: [UTType.text], isTargeted: .constant(false)) { providers in
+                reorder.accept(providers, before: last, after: true, section: section, appState: appState)
+            }
+    }
+
+    private func cgsIcon(_ item: MenuBarItem) -> some View {
+        Group {
+            if let image = item.owningApplication?.icon {
+                Image(nsImage: image).resizable().scaledToFit()
+            } else { Image(systemName: "menubar.rectangle") }
+        }
+        .frame(width: 24, height: 22)
+    }
+
+    @ViewBuilder
+    private func cgsRow(_ item: MenuBarItem) -> some View {
+        if reorder.isEditing {
+            tile(name: item.displayName) { cgsIcon(item) }
+                .contentShape(Rectangle())
+                .accessibilityLabel(item.displayName)
+                .onDrag { item.isMovable ? reorder.provider(for: .cgs(item)) : NSItemProvider() }
+                .onDrop(of: [UTType.text], isTargeted: .constant(false)) { providers in
+                    reorder.accept(providers, before: .cgs(item), section: section, appState: appState)
+                }
+                .help("Drag an icon onto another to place it before that icon.")
+        } else {
+            Button {
+                activateCGS(item, button: .left)
+            } label: { tile(name: item.displayName) { cgsIcon(item) } }
+            .buttonStyle(.plain)
+            .help(item.displayName)
+            .accessibilityLabel(item.displayName)
+            .contextMenu {
+                Button("Right click") {
+                    closePanel()
+                    itemManager.tempShowItem(item, clickWhenFinished: true, mouseButton: .right)
+                }
+            }
+        }
+    }
+
+    private func activateCGS(_ item: MenuBarItem, button: CGMouseButton) {
+        closePanel()
+        Task {
+            // 先完成浮栏/右键菜单的关闭，再让真实宿主接收点击。
+            do { try await Task.sleep(for: .milliseconds(25)) } catch { return }
+            itemManager.tempShowItem(item, clickWhenFinished: true, mouseButton: button)
+        }
     }
 
     /// 自动隐藏和跨屏截图不适合 CGS 临时移动，优先提供可访问的 AX 项目列表。
@@ -546,6 +797,13 @@ private struct FloeBarContentView: View {
                         await loadAXRows()
                     }
                 }
+        } else if preferences.layout != .icons || reorder.isEditing, items.isEmpty {
+            Text("No menu bar items").padding(8)
+        } else if preferences.layout != .icons || reorder.isEditing {
+            arrangedRows(count: items.count + (reorder.isEditing ? 1 : 0)) {
+                ForEach(items, id: \.windowID) { cgsRow($0) }
+                if reorder.isEditing, let last = items.last { endDropZone(.cgs(last)) }
+            }
         } else if !ScreenCapture.cachedCheckPermissions() {
             HStack {
                 Text("The Floe Bar requires screen recording permissions.")
@@ -636,51 +894,53 @@ private struct FloeBarContentView: View {
             Text("Unable to display menu bar items")
                 .padding(.horizontal, 10)
         } else {
-            ScrollView(.horizontal) {
-                HStack(spacing: 0) {
-                    ForEach(axRows) { row in
-                        axRowView(row)
-                    }
-                }
-            }
-            .defaultScrollAnchor(.trailing)
-            .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
-            .task {
-                scrollIndicatorsFlashTrigger += 1
+            arrangedRows(count: axRows.count + (reorder.isEditing ? 1 : 0)) {
+                ForEach(axRows) { axRowView($0) }
+                if reorder.isEditing, let last = axRows.last { endDropZone(.ax(last.item)) }
             }
         }
     }
 
     @ViewBuilder
-    private func axRowView(_ row: AXRowItem) -> some View {
-        Button {
-            press(row)
-        } label: {
-            if let systemName = row.systemImage {
-                Image(systemName: systemName)
-                    .font(.system(size: 16))
-                    .frame(minWidth: 28, minHeight: 22)
-            } else if let icon = row.appIcon {
-                Image(nsImage: icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 22)
-            } else if let title = row.title, !title.isEmpty {
-                Text(title)
-                    .lineLimit(1)
-                    .padding(.horizontal, 6)
-            } else {
-                Text(row.displayName)
-                    .lineLimit(1)
-                    .padding(.horizontal, 6)
-            }
+    private func axIcon(_ row: AXRowItem) -> some View {
+        if let systemName = row.systemImage {
+            Image(systemName: systemName)
+                .font(.system(size: 16))
+                .frame(minWidth: 28, minHeight: 22)
+        } else if let icon = row.appIcon {
+            Image(nsImage: icon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 22)
+        } else if let title = row.title, !title.isEmpty {
+            Text(title)
+                .lineLimit(1)
+                .padding(.horizontal, 6)
+        } else {
+            Text(row.displayName)
+                .lineLimit(1)
+                .padding(.horizontal, 6)
         }
-        .buttonStyle(.plain)
-        .contentShape(Rectangle())
-        .help(row.displayName)
-        .accessibilityLabel(row.displayName)
-        .accessibilityAction(named: "press") {
-            press(row)
+    }
+
+    @ViewBuilder
+    private func axRowView(_ row: AXRowItem) -> some View {
+        if reorder.isEditing {
+            tile(name: row.displayName) { axIcon(row) }
+                .contentShape(Rectangle())
+                .accessibilityLabel(row.displayName)
+                .onDrag { reorder.provider(for: .ax(row.item)) }
+                .onDrop(of: [UTType.text], isTargeted: .constant(false)) { providers in
+                    reorder.accept(providers, before: .ax(row.item), section: section, appState: appState)
+                }
+                .help("Drag an icon onto another to place it before that icon.")
+        } else {
+            Button { press(row) } label: { tile(name: row.displayName) { axIcon(row) } }
+                .buttonStyle(.plain)
+                .contentShape(Rectangle())
+                .help(row.displayName)
+                .accessibilityLabel(row.displayName)
+                .accessibilityAction(named: "press") { press(row) }
         }
     }
 
@@ -787,7 +1047,7 @@ private struct FloeBarContentView: View {
             }
             rows.append(
                 AXRowItem(
-                    id: stableID(for: "ax:\(item.pid):\(item.bundleID ?? ""):\(item.identifier ?? ""):\(item.title ?? "")"),
+                    id: stableID(for: "ax:\(item.pid):\(CFHash(item.element))"),
                     item: item,
                     title: item.title,
                     displayName: item.displayName,

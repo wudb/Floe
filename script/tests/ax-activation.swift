@@ -122,7 +122,9 @@ final class MenuBarManager {
     func section(withName name: MenuBarSection.Name) -> MenuBarSection? { sections.first { $0.name == name } }
 }
 final class EventStub { var isMouseInsideMenuBar = false; var isMouseInsideFloeBar = false; func cancelDelayedInteractions() {} }
+final class ItemManagerStub { var isEditingLayout = false }
 final class AppState {
+    let itemManager = ItemManagerStub()
     let eventManager = EventStub()
     func preventShowOnHover() {}
     let menuBarManager = MenuBarManager()

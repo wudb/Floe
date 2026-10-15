@@ -31,6 +31,7 @@ final class GeneralSettingsManager: ObservableObject {
     /// A Boolean value that indicates whether to show hidden items
     /// in a separate bar below the menu bar.
     @Published var useFloeBar = false
+    let barPreferences = FloeBarPreferences()
 
     /// The location where the Floe Bar appears.
     @Published var floeBarLocation: FloeBarLocation = .dynamic

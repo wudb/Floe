@@ -74,7 +74,8 @@ final class MenuBarSection {
 
     /// A Boolean value that indicates whether the Floe Bar should be used.
     private var useFloeBar: Bool {
-        appState?.settingsManager.generalSettingsManager.useFloeBar ?? false
+        guard let settings = appState?.settingsManager.generalSettingsManager else { return false }
+        return settings.barPreferences.usesFloating(section: name == .alwaysHidden ? "alwaysHidden" : "hidden", legacy: settings.useFloeBar)
     }
 
     /// A weak reference to the menu bar manager's Floe Bar panel.
@@ -93,9 +94,8 @@ final class MenuBarSection {
     /// A Boolean value that indicates whether the section is hidden.
     var isHidden: Bool {
         if useFloeBar {
-            if controlItem.state == .showItems {
-                return false
-            }
+            // 临时激活和原生层级展开仍是真实可见状态，不能误判为已隐藏。
+            if controlItem.state == .showItems { return false }
             switch name {
             case .visible, .hidden:
                 return floeBarPanel?.currentSection != .hidden
@@ -241,21 +241,18 @@ final class MenuBarSection {
                 }
             }
         case .visible:
-            floeBarPanel?.close()
             guard let hiddenSection = appState.menuBarManager.section(withName: .hidden) else {
                 return
             }
             setState(.showItems, persist: persistState)
             hiddenSection.setState(.showItems, persist: persistState)
         case .hidden:
-            floeBarPanel?.close()
             guard let visibleSection = appState.menuBarManager.section(withName: .visible) else {
                 return
             }
             setState(.showItems, persist: persistState)
             visibleSection.setState(.showItems, persist: persistState)
         case .alwaysHidden:
-            floeBarPanel?.close()
             guard
                 let hiddenSection = appState.menuBarManager.section(withName: .hidden),
                 let visibleSection = appState.menuBarManager.section(withName: .visible)
@@ -293,6 +290,7 @@ final class MenuBarSection {
             presentationTask = nil
         }
         guard
+            persistState || appState?.itemManager.isEditingLayout != true,
             persistState || floeBarPanel?.isActivatingAXItem != true,
             // 自动 hover/计时/智能隐藏不能打断其他应用的菜单或原生表单弹窗。
             persistState || !MenuInteractionGuard.isInteracting,
@@ -301,12 +299,12 @@ final class MenuBarSection {
         else {
             return
         }
-        floeBarPanel?.close()
+        let hadFloatingPanel = floeBarPanel?.currentSection == (name == .alwaysHidden ? .alwaysHidden : .hidden)
+        if hadFloatingPanel { floeBarPanel?.close() }
         switch name {
-        case _ where useFloeBar:
-            for section in appState.menuBarManager.sections {
-                section.setState(.hideItems, persist: persistState)
-            }
+        case _ where useFloeBar && hadFloatingPanel:
+            // 这里只关闭浮栏；真实原生展开则继续走下面的层级收起，保留 AX 临时激活行为。
+            break
         case .visible:
             guard
                 let hiddenSection = appState.menuBarManager.section(withName: .hidden),

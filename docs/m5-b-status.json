@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-15",
+  "scope": "第二批浮栏增强：分区呈现、名称列表、网格、拖拽与固定位置",
+  "total_m5": 79,
+  "items": [
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 335,
+      "url": "https://github.com/jordanbaird/Ice/issues/335",
+      "status": "implemented_pending_original_scenario",
+      "change": "分区可独立选原生/浮栏；普通隐藏区原生、始终隐藏区浮栏已接入"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 487,
+      "url": "https://github.com/jordanbaird/Ice/issues/487",
+      "status": "implemented_pending_original_scenario",
+      "change": "与 #335 共用分区呈现规则，保留旧全局开关作为继承值"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 342,
+      "url": "https://github.com/jordanbaird/Ice/issues/342",
+      "status": "implemented_pending_original_scenario",
+      "change": "浮栏名称列表；选择后激活真实宿主菜单，不把第三方菜单嵌入为自己的子菜单"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 495,
+      "url": "https://github.com/jordanbaird/Ice/issues/495",
+      "status": "implemented_pending_original_scenario",
+      "change": "通过网格呈现多行并纵向滚动"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 551,
+      "url": "https://github.com/jordanbaird/Ice/issues/551",
+      "status": "implemented_pending_original_scenario",
+      "change": "支持网格列数设置及窄屏减少列数"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 209,
+      "url": "https://github.com/jordanbaird/Ice/issues/209",
+      "status": "implemented_pending_original_scenario",
+      "change": "浮栏整理模式直接拖拽，同步原生顺序并读回验证；支持放到末尾"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 214,
+      "url": "https://github.com/jordanbaird/Ice/issues/214",
+      "status": "implemented_pending_original_scenario",
+      "change": "当前任意位置按显示器相对比例保存；未增加居中/四边等全部预设按钮"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 527,
+      "url": "https://github.com/jordanbaird/Ice/issues/527",
+      "status": "implemented_pending_original_scenario",
+      "change": "固定位置独立于 Floe 主图标帧，隐藏主图标时仍使用保存的位置"
+    }
+  ],
+  "behavior": [
+    "分区默认为继承原全局开关；改动呈现规则会关闭当前浮栏并重置受影响分区的临时展开状态，不覆盖持久显隐偏好",
+    "原生始终隐藏区会同时露出隐藏区；关闭一个浮栏不无条件收起另一分区的原生栏",
+    "整理模式只接受本次本地载荷；结束编辑或关闭窗口使旧载荷失效，关闭时取消移动任务",
+    "CGS 拖拽同时校验窗口 ID、宿主 PID 和项目身份，拒绝宿主重建/窗口复用后的旧引用",
+    "AX 路径临时展开后读取最新帧，拒绝跨屏/屏外拖动并验证真实顺序，结束或取消恢复未被用户更改的临时状态",
+    "固定位置使用显示器 UUID 和可用移动范围比例，固定不改变自动收起",
+    "整理模式暂停窗口背景拖动，防止抢占图标拖拽；完成整理或重新打开浮栏后恢复背景移动"
+  ],
+  "remaining_acceptance": [
+    "完整 Floe 窗口在真实菜单栏、多显示器、屏幕自动隐藏和不同系统上的交互/截图尚未验收",
+    "原生 SwiftUI 截图只渲染生产布局片段和示例名称，不是完整应用或第三方宿主截图",
+    "AX 无节点、屏外帧及系统保护项不保证可整理；AX-only 跨重启的顺序恢复不属于本批验收",
+    "同时展示两隐藏分区、浮栏独立于原生栏的专属项目顺序、位置预设按钮未在本批实现"
+  ],
+  "regression_scripts": [
+    "floe-bar-preferences.swift",
+    "floe-bar-section-modes.swift",
+    "floe-bar-drag-session.swift",
+    "floe-bar-reorder.swift",
+    "floe-bar-ax-reorder.swift",
+    "floe-bar-layout.swift"
+  ],
+  "layout_evidence": {
+    "source": "生产 arrangedRows / tile 布局方法，原生 NSHostingView，无真实图标或鼠标事件",
+    "viewport_width_pt": 320,
+    "list_size_pt": [
+      312,
+      376
+    ],
+    "grid_size_pt": [
+      268,
+      376
+    ],
+    "images": [
+      "m5-b-evidence/list-layout.png",
+      "m5-b-evidence/grid-layout.png"
+    ]
+  },
+  "validation": {
+    "swift_regression_scripts": 47,
+    "result": "passed",
+    "debug_build": "passed",
+    "release_build": "passed",
+    "strict_swiftlint": "passed",
+    "native_layout_fragment_render": "passed",
+    "full_application_visual_and_real_status_item_drag": "not_verified",
+    "final_targeted_rechecks": [
+      "floe-bar-section-modes.swift",
+      "floe-bar-lifecycle.swift",
+      "ax-activation.swift",
+      "app-language.swift"
+    ]
+  }
+}

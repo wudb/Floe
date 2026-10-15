@@ -232,9 +232,8 @@ struct GeneralSettingsPane: View {
     @ViewBuilder
     private var floeBarOptions: some View {
         useFloeBar
-        if manager.useFloeBar {
-            floeBarLocationPicker
-        }
+        FloeBarOptionsView(preferences: manager.barPreferences)
+        floeBarLocationPicker
     }
 
     @ViewBuilder

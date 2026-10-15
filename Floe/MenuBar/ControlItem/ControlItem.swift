@@ -317,18 +317,31 @@ final class ControlItem {
 
             appState.settingsManager.generalSettingsManager.$useFloeBar
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self] useFloeBar in
+                .sink { [weak self, weak appState] useFloeBar in
                     guard
                         let self,
+                        let appState,
                         let button = statusItem.button
                     else {
                         return
                     }
-                    if useFloeBar {
+                    let key = section?.name == .alwaysHidden ? "alwaysHidden" : "hidden"
+                    if appState.settingsManager.generalSettingsManager.barPreferences.usesFloating(section: key, legacy: useFloeBar) {
                         button.sendAction(on: [.leftMouseDown, .rightMouseUp])
                     } else {
                         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
                     }
+                }
+                .store(in: &c)
+
+            appState.settingsManager.generalSettingsManager.barPreferences.$presentationRevision
+                .dropFirst()
+                .sink { [weak self, weak appState] _ in
+                    guard let self, let appState, let button = statusItem.button else { return }
+                    let settings = appState.settingsManager.generalSettingsManager
+                    let key = section?.name == .alwaysHidden ? "alwaysHidden" : "hidden"
+                    let floating = settings.barPreferences.usesFloating(section: key, legacy: settings.useFloeBar)
+                    button.sendAction(on: floating ? [.leftMouseDown, .rightMouseUp] : [.leftMouseUp, .rightMouseUp])
                 }
                 .store(in: &c)
 

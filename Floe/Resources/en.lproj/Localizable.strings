@@ -284,3 +284,47 @@
 "Automatic placement only moves uniquely identifiable items. Ambiguous items keep their current position." = "Automatic placement only moves uniquely identifiable items. Ambiguous items keep their current position.";
 
 "Layout updated." = "Layout updated.";
+
+"Follow Use Floe Bar" = "Follow Use Floe Bar";
+
+"Native menu bar" = "Native menu bar";
+
+"Floe Bar" = "Floe Bar";
+
+"Horizontal icons" = "Horizontal icons";
+
+"Names list" = "Names list";
+
+"Icon grid" = "Icon grid";
+
+"Hidden section display" = "Hidden section display";
+
+"Always Hidden section display" = "Always Hidden section display";
+
+"Floe Bar layout" = "Floe Bar layout";
+
+"Grid columns: %lld" = "Grid columns: %lld";
+
+"Fixed Floe Bar position" = "Fixed Floe Bar position";
+
+"Use Pin position in the Floe Bar to save its position for each display. Pinning does not prevent automatic rehide." = "Use Pin position in the Floe Bar to save its position for each display. Pinning does not prevent automatic rehide.";
+
+"Showing Always Hidden in the native menu bar also reveals Hidden because the native sections share one row." = "Showing Always Hidden in the native menu bar also reveals Hidden because the native sections share one row.";
+
+"Use Floe Bar applies only to sections set to Follow Use Floe Bar." = "Use Floe Bar applies only to sections set to Follow Use Floe Bar.";
+
+"Reorder" = "Reorder";
+
+"Pin position" = "Pin position";
+
+"Unpin position" = "Unpin position";
+
+"Drop at end" = "Drop at end";
+
+"Drag an icon onto another to place it before that icon." = "Drag an icon onto another to place it before that icon.";
+
+"Could not reorder the icon. Its actual position is shown; close other menus and try again." = "Could not reorder the icon. Its actual position is shown; close other menus and try again.";
+
+"Right click" = "Right click";
+
+"Close" = "Close";

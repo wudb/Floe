@@ -21,24 +21,30 @@ elif [ -n "${MARKETING_VERSION:-}" ] || [ -n "${CURRENT_PROJECT_VERSION:-}" ]; t
     [ -n "${CURRENT_PROJECT_VERSION:-}" ] && VERSION_ARGS+=(CURRENT_PROJECT_VERSION="$CURRENT_PROJECT_VERSION")
 fi
 
-IDENTITY="${FLOE_CODE_SIGN_IDENTITY:-Floe Dev}"
+# 只从可用的签名身份中选择，避免仅有证书却缺失私钥；默认不静默降级。
+IDENTITY="${FLOE_CODE_SIGN_IDENTITY:-}"
+if [ -z "$IDENTITY" ]; then
+    IDENTITIES=$(security find-identity -v -p codesigning)
+    IDENTITY=$(printf '%s\n' "$IDENTITIES" | awk '/"Floe Dev"/ { print $2; exit }')
+    if [ -z "$IDENTITY" ]; then
+        IDENTITY=$(printf '%s\n' "$IDENTITIES" | awk '/"Apple Development:/ { print $2; exit }')
+    fi
+    if [ -z "$IDENTITY" ]; then
+        echo '❌ No usable development signing identity. Create a Code Signing certificate with its private key first.' >&2
+        echo '   For a disposable build only: FLOE_CODE_SIGN_IDENTITY=- ./script/dev.sh' >&2
+        exit 1
+    fi
+fi
 DEV_APP="${FLOE_DEV_APP:-/Applications/Floe-Dev.app}"
 DEST="platform=macOS,arch=arm64"
 
 SIGN_ARGS=()
 # ad-hoc 无 Team ID，关闭库验证所属的 hardened runtime，避免 Sparkle 启动失败。
 if [ "$IDENTITY" = "-" ]; then
+    echo "⚠️  Explicit ad-hoc build: rebuilding may invalidate existing permissions."
     SIGN_ARGS=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= ENABLE_HARDENED_RUNTIME=NO)
-elif security find-certificate -c "$IDENTITY" >/dev/null 2>&1; then
-    SIGN_ARGS=(CODE_SIGN_STYLE=Manual "CODE_SIGN_IDENTITY=$IDENTITY" "DEVELOPMENT_TEAM=${FLOE_DEVELOPMENT_TEAM:-}")
 else
-    echo "⚠️  No \"$IDENTITY\" cert found — falling back to an ad-hoc build (macOS will ask for permissions again)."
-    echo "   One-time setup: Keychain Access > Certificate Assistant > Create a Certificate…"
-    echo "   Name: $IDENTITY | Identity Type: Self Signed Root | Certificate Type: Code Signing"
-    echo "   Then re-run this script, or force ad-hoc: FLOE_CODE_SIGN_IDENTITY=- ./script/dev.sh"
-    # 后续重新签名也必须采用实际的回退身份，不能继续使用缺失的证书。
-    IDENTITY="-"
-    SIGN_ARGS=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= ENABLE_HARDENED_RUNTIME=NO)
+    SIGN_ARGS=(CODE_SIGN_STYLE=Manual "CODE_SIGN_IDENTITY=$IDENTITY" "DEVELOPMENT_TEAM=${FLOE_DEVELOPMENT_TEAM:-}")
 fi
 
 echo "→ Building Debug (sign: ${IDENTITY})…"
@@ -79,6 +85,6 @@ else
 fi
 
 echo ""
-echo "✅ Done. Grant once in System Settings — future runs of this script keep the grant:"
+echo "✅ Done. Grant in System Settings; keep using the same certificate and app path:"
 echo "   • Accessibility: open \"x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility\""
 echo "   • Screen Recording: open \"x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture\""

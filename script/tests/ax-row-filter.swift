@@ -33,6 +33,7 @@ struct FixtureWorkspace {
 enum MenuBarItemAXDiscovery {
     enum SectionKind { case visible, hidden, alwaysHidden }
     struct AXMenuBarItem {
+        let element = NSObject()
         let pid: pid_t = 42
         let bundleID: String? = nil
         let identifier: String? = nil

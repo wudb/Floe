@@ -413,7 +413,9 @@ extension EventManager {
         guard
             let appState,
             appState.settingsManager.generalSettingsManager.showOnHover,
-            !appState.settingsManager.generalSettingsManager.useFloeBar,
+            !appState.settingsManager.generalSettingsManager.barPreferences.usesFloating(
+                section: "hidden", legacy: appState.settingsManager.generalSettingsManager.useFloeBar
+            ),
             isMouseInsideMenuBar
         else {
             return
