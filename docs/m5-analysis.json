@@ -1,0 +1,1368 @@
+{
+  "analysis_date": "2026-10-15",
+  "baseline_commit": "46b805a4c1f3479549a7048290903abe26d070c8",
+  "scope": "源码及需求分析，不修改业务代码，不将源码覆盖等同于原场景验收",
+  "total": 79,
+  "upstream_comment_count": 210,
+  "package_counts": {
+    "F1": 14,
+    "F2": 7,
+    "F3": 8,
+    "F4": 31,
+    "F5": 16,
+    "F6": 3
+  },
+  "coverage_counts": {
+    "missing": 55,
+    "partial": 19,
+    "covered_in_code": 3,
+    "blocked_by_release_setup": 1,
+    "requires_distribution_decision": 1
+  },
+  "batches": {
+    "A": "优先：默认新项规则、键盘/VoiceOver、列表导航、直接入口及恢复文档",
+    "B": "浮栏呈现：分区策略、列表/网格、重排和位置",
+    "C": "自适应呈现：目标屏/刘海/可用空间、全屏及触发区域",
+    "D": "持久模型：版本化导入导出、Profiles、RTL、每项快捷键；原生多屏独立性先验证",
+    "E": "独立评估：同步、自定义组、自动化/集成、widgets 和复杂原生替换",
+    "F": "发布基础：Floe 自有更新源、签名产物和 Homebrew 分发"
+  },
+  "items": [
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 6,
+      "title": "[Feature Request] Change the location where new menu bar icons come up.",
+      "url": "https://github.com/jordanbaird/Ice/issues/6",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "A",
+      "finding": "只有已知项目的用户布局恢复；New 是固定提示占位，没有未知项落点策略或可拖动锚点。",
+      "acceptance": "区分首次发现、宿主重建和暂时显示；已知用户选择优先，未知项按配置进入指定分区/位置；禁用 always-hidden 时有明确回退。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 326,
+      "title": "[Feature Request]: Custom configuration path / export settings",
+      "url": "https://github.com/jordanbaird/Ice/issues/326",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "UserDefaults/局部 JSON 持久化不是可移植导入导出；上游评论的 Ice plist 命令不能直接作为 Floe 配置方案。",
+      "acceptance": "版本化配置、校验、导入预览、失败回滚；不导出屏幕权限、窗口 ID 或设备特定坐标。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift",
+        "Floe/Settings"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 378,
+      "title": "[Feature Request]: Show all menu bar items as default",
+      "url": "https://github.com/jordanbaird/Ice/issues/378",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "A",
+      "finding": "首次使用全部可见的初始化规则与运行中新图标默认位置是两个行为；没有首次选择流程。",
+      "acceptance": "首次使用可选全部可见且不迁移已有用户布局；随后新图标仍服从单独的默认规则。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 566,
+      "title": "[Feature Request]: Hide/unhide using custom application whitelist",
+      "url": "https://github.com/jordanbaird/Ice/issues/566",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "A",
+      "finding": "单项持久化可恢复部分重建宿主，但没有应用级始终可见规则；多状态项或身份变化仍受限。",
+      "acceptance": "应用级规则覆盖重建项，定义单项选择与应用规则优先级，不把全部同名兄弟项误合并。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 617,
+      "title": "[Feature Request]: Auto-Sort behavior for \"Unrecognized\" Apps",
+      "url": "https://github.com/jordanbaird/Ice/issues/617",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "A",
+      "finding": "只有已知项目的用户布局恢复；New 是固定提示占位，没有未知项落点策略或可拖动锚点。",
+      "acceptance": "区分首次发现、宿主重建和暂时显示；已知用户选择优先，未知项按配置进入指定分区/位置；禁用 always-hidden 时有明确回退。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 713,
+      "title": "[Feature Request]: Blacklist instead of whitelist strategy",
+      "url": "https://github.com/jordanbaird/Ice/issues/713",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "A",
+      "finding": "只有已知项目的用户布局恢复；New 是固定提示占位，没有未知项落点策略或可拖动锚点。",
+      "acceptance": "区分首次发现、宿主重建和暂时显示；已知用户选择优先，未知项按配置进入指定分区/位置；禁用 always-hidden 时有明确回退。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 767,
+      "title": "[Feature Request]: Have new menubar items appear in always shown, or customizable",
+      "url": "https://github.com/jordanbaird/Ice/issues/767",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "A",
+      "finding": "只有已知项目的用户布局恢复；New 是固定提示占位，没有未知项落点策略或可拖动锚点。",
+      "acceptance": "区分首次发现、宿主重建和暂时显示；已知用户选择优先，未知项按配置进入指定分区/位置；禁用 always-hidden 时有明确回退。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 809,
+      "title": "[Feature Request]: Always place new icons at the end",
+      "url": "https://github.com/jordanbaird/Ice/issues/809",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "A",
+      "finding": "新项、临时显示和系统指示器混在同一诉求中；不能把系统不可移动项纳入强制排序。",
+      "acceptance": "可移动普通新项遵守末端/锚点规则；临时显示恢复原位；系统保护项不重复尝试拖拽。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 938,
+      "title": "[Feature Request]: Option that lets you choose location of new items",
+      "url": "https://github.com/jordanbaird/Ice/issues/938",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "A",
+      "finding": "只有已知项目的用户布局恢复；New 是固定提示占位，没有未知项落点策略或可拖动锚点。",
+      "acceptance": "区分首次发现、宿主重建和暂时显示；已知用户选择优先，未知项按配置进入指定分区/位置；禁用 always-hidden 时有明确回退。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 83,
+      "title": "[Feature Request]: Organize apps by keyboard shortcuts or in preferences pane",
+      "url": "https://github.com/jordanbaird/Ice/issues/83",
+      "work_package": "F2",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "A",
+      "finding": "已有设置拖拽与浮栏辅助功能动作，但布局项整理仍以拖拽为主，没有完整键盘移动/分区操作。",
+      "acceptance": "VoiceOver 读出项目名称、分区、位置；无需拖拽即可跨区和前后移动，失败和不可移动原因可读。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift",
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 252,
+      "title": "[Feature Request]: RTL support ",
+      "url": "https://github.com/jordanbaird/Ice/issues/252",
+      "work_package": "F2",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "RTL 是系统状态项方向和分区几何问题；只改变 SwiftUI 阅读方向或翻译不能解决。",
+      "acceptance": "RTL 系统下发现、左右锚点、展开、隐藏、暂时显示及布局恢复均正确，LTR 不回归。",
+      "evidence": [
+        "Floe/Events/EventManager.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarItemManager.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 638,
+      "title": "Can it support the multilingual version?",
+      "url": "https://github.com/jordanbaird/Ice/issues/638",
+      "work_package": "F2",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "A",
+      "finding": "已有英/简中与语言选择机制；不能把笼统多语言诉求理解成任意语言均支持。",
+      "acceptance": "明确首批支持英/简中；新语言有完整资源、回退与窗口切换验证。",
+      "evidence": [
+        "Floe/Utilities/AppLanguage.swift",
+        "Floe/Settings/SettingsManagers/LanguageManager.swift",
+        "Floe/Settings/SettingsPanes/GeneralSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 641,
+      "title": "[Feature Request]: Support Ctrl+N and Ctrl+P to navigate down and up in the  menu bar items list",
+      "url": "https://github.com/jordanbaird/Ice/issues/641",
+      "work_package": "F2",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "A",
+      "finding": "搜索使用 ScrollView/Button，Return 激活首条；没有显式选中行模型及 Ctrl+N/P 处理。",
+      "acceptance": "上下键和 Ctrl+N/P 移动当前选择，Return 激活当前项，筛选后选择有效，Escape 关闭。",
+      "evidence": [
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 712,
+      "title": "[Feature Request]: Localize Ice",
+      "url": "https://github.com/jordanbaird/Ice/issues/712",
+      "work_package": "F2",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "D",
+      "finding": "请求正文是日语，评论另提法语；当前仅有英语和简体中文，没有日/法资源。",
+      "acceptance": "新增语言资源与文本/布局复核，不以已有中文机制宣称日语需求完成。",
+      "evidence": [
+        "Floe/Utilities/AppLanguage.swift",
+        "Floe/Settings/SettingsManagers/LanguageManager.swift",
+        "Floe/Settings/SettingsPanes/GeneralSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 787,
+      "title": "[Feature Request]: need language option，Chinese for example....",
+      "url": "https://github.com/jordanbaird/Ice/issues/787",
+      "work_package": "F2",
+      "upstream_state": "open",
+      "code_coverage": "covered_in_code",
+      "proposed_batch": "A",
+      "finding": "已有简体中文、跟随系统和手动语言切换，覆盖明确的中文请求。",
+      "acceptance": "执行现有 app-language 回归并检查独立窗口/菜单的中英文显示；本轮未作真机视觉验收。",
+      "evidence": [
+        "Floe/Utilities/AppLanguage.swift",
+        "Floe/Settings/SettingsManagers/LanguageManager.swift",
+        "Floe/Settings/SettingsPanes/GeneralSettingsPane.swift",
+        "script/tests/app-language.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 801,
+      "title": "[Feature Request]: 求中文",
+      "url": "https://github.com/jordanbaird/Ice/issues/801",
+      "work_package": "F2",
+      "upstream_state": "open",
+      "code_coverage": "covered_in_code",
+      "proposed_batch": "A",
+      "finding": "已有简体中文、跟随系统和手动语言切换，覆盖明确的中文请求。",
+      "acceptance": "执行现有 app-language 回归并检查独立窗口/菜单的中英文显示；本轮未作真机视觉验收。",
+      "evidence": [
+        "Floe/Utilities/AppLanguage.swift",
+        "Floe/Settings/SettingsManagers/LanguageManager.swift",
+        "Floe/Settings/SettingsPanes/GeneralSettingsPane.swift",
+        "script/tests/app-language.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 291,
+      "title": "[Feature Request]: Hotkeys for individual menu bar items",
+      "url": "https://github.com/jordanbaird/Ice/issues/291",
+      "work_package": "F3",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "现有快捷键针对分区/搜索/浮栏开关，不支持每个项目绑定。",
+      "acceptance": "稳定身份映射、快捷键冲突、宿主暂时缺席及左右点击语义明确；不能持久化 windowID。",
+      "evidence": [
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 227,
+      "title": "[Feature Request]: Use Ice Bar as overflow spot for otherwise-hidden menu items",
+      "url": "https://github.com/jordanbaird/Ice/issues/227",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "C",
+      "finding": "CGS/AX 发现和浮栏访问已存在，但不是仅将原生栏放不下的 visible 项自动溢出；刘海遮挡不能只按 hidden 分区判断。",
+      "acceptance": "测量真实应用菜单边界和可用区，发现受遮挡项并可激活；有空间时不重复显示，AX 缺失有合理回退。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarItemManager.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 495,
+      "title": "[Feature Request]: Organize hidden icons into multiple rows",
+      "url": "https://github.com/jordanbaird/Ice/issues/495",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "当前为单行横向 ScrollView，没有多行/列数配置。",
+      "acceptance": "网格/多行的键盘顺序、可访问名称、点击目标、滚动和屏幕尺寸约束一致。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 515,
+      "title": "[Feature Request]: Scrolling through menu bar items",
+      "url": "https://github.com/jordanbaird/Ice/issues/515",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "B",
+      "finding": "已有横向滚动，M3 增加自动隐藏菜单栏时 AX 回退；仍需验证所有项目发现、访问和原系统组合。",
+      "acceptance": "系统菜单栏自动隐藏且大量图标时全部可达，横纵滚轮/触控板行为清楚；没有截图也能使用 AX 回退。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 519,
+      "title": "[Feature Request]: Ability to show all icons in click menu",
+      "url": "https://github.com/jordanbaird/Ice/issues/519",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "C",
+      "finding": "CGS/AX 发现和浮栏访问已存在，但不是仅将原生栏放不下的 visible 项自动溢出；刘海遮挡不能只按 hidden 分区判断。",
+      "acceptance": "测量真实应用菜单边界和可用区，发现受遮挡项并可激活；有空间时不重复显示，AX 缺失有合理回退。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarItemManager.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 551,
+      "title": "[Feature Request]: Grid option when using Ice bar",
+      "url": "https://github.com/jordanbaird/Ice/issues/551",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "当前为单行横向 ScrollView，没有多行/列数配置。",
+      "acceptance": "网格/多行的键盘顺序、可访问名称、点击目标、滚动和屏幕尺寸约束一致。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 860,
+      "title": "[Feature Request]: Option to re-add the menu bar icon, after manual removal",
+      "url": "https://github.com/jordanbaird/Ice/issues/860",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "A",
+      "finding": "重新打开应用进入设置，并可切换显示 Floe 图标以重新 addToMenuBar；没有明确的恢复/重置按钮。",
+      "acceptance": "Command-drag 移除和设置隐藏两种情况均可从重新打开应用恢复，位置不在屏外且不丢偏好。",
+      "evidence": [
+        "Floe/Main/AppDelegate.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 188,
+      "title": "[Feature Request]: Option to only hide on built-in display",
+      "url": "https://github.com/jordanbaird/Ice/issues/188",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "原生三个分区由全局状态项和长度控制，不是每屏独立容器；按屏展开不能直接当作每屏不同布局。",
+      "acceptance": "先验证原生窗口/状态项是否支持各屏差异；明确独立屏策略与全局共享状态的边界，保留 always-hidden。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 223,
+      "title": "[Feature Request]: Ability to enable Ice Bar only when on built-in display",
+      "url": "https://github.com/jordanbaird/Ice/issues/223",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "C",
+      "finding": "只有全局 useFloeBar Bool，没有按内屏、刘海或可用空间选择呈现方式的策略。",
+      "acceptance": "增加明确手动/自动策略；以目标屏逻辑可用空间决定，插拔屏/主题/应用菜单变化重算，临界值防抖。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Settings/SettingsManagers/GeneralSettingsManager.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 242,
+      "title": "[Feature Request]: Ability to have unique menubars for each display",
+      "url": "https://github.com/jordanbaird/Ice/issues/242",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "各屏独立状态项集合不是浮栏定位功能；需要验证系统能力并设计身份/屏幕配置关系。",
+      "acceptance": "两个屏幕同时显示不同集合，屏幕断开/镜像/合盖后有确定回退，不承诺系统不支持的行为。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 299,
+      "title": "[Feature Request]: Always show hidden items if monitor screen is larger than <enter resolution>",
+      "url": "https://github.com/jordanbaird/Ice/issues/299",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "原生三个分区由全局状态项和长度控制，不是每屏独立容器；按屏展开不能直接当作每屏不同布局。",
+      "acceptance": "先验证原生窗口/状态项是否支持各屏差异；明确独立屏策略与全局共享状态的边界，保留 always-hidden。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 303,
+      "title": "[Feature Request]: Use Ice Bar only when screen size is smaller than <enter resolution>",
+      "url": "https://github.com/jordanbaird/Ice/issues/303",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "C",
+      "finding": "全局浮栏快捷键已存在，满足正文的备选方案；按屏幕尺寸自动切换仍缺失。",
+      "acceptance": "明确物理像素与逻辑点区别；按实际可用宽度选择呈现，快捷键临时覆盖自动策略的规则清楚。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 406,
+      "title": "[Feature Request]: Allow clicks inside the notch",
+      "url": "https://github.com/jordanbaird/Ice/issues/406",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "C",
+      "finding": "空白菜单栏命中显式排除刘海，属与其他刘海应用共存的当前行为；可选启用尚未实现。",
+      "acceptance": "默认兼容外部刘海工具；可选触发仅处理刘海范围，左右键和全屏自动隐藏分别验证。",
+      "evidence": [
+        "Floe/Events/EventManager.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 463,
+      "title": "[Feature Request]: Make the \"Use Ice Bar\" toggle dynamic",
+      "url": "https://github.com/jordanbaird/Ice/issues/463",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "C",
+      "finding": "只有全局 useFloeBar Bool，没有按内屏、刘海或可用空间选择呈现方式的策略。",
+      "acceptance": "增加明确手动/自动策略；以目标屏逻辑可用空间决定，插拔屏/主题/应用菜单变化重算，临界值防抖。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Settings/SettingsManagers/GeneralSettingsManager.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 544,
+      "title": "[Feature Request]: Disable in full screen mode",
+      "url": "https://github.com/jordanbaird/Ice/issues/544",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "C",
+      "finding": "M3 已在全屏隐藏外观，但这不是禁用核心隐藏/浮栏功能的策略。",
+      "acceptance": "明确全屏时是停止触发、全部展开还是沿用状态；进入/退出不覆盖持久布局。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Events/EventManager.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 555,
+      "title": "[Feature Request]: <Disable / alt settings with external monitor>",
+      "url": "https://github.com/jordanbaird/Ice/issues/555",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "外屏连接条件与布局 Profile 的自动切换都没有实现；应复用配置模型，避免再做一套规则。",
+      "acceptance": "按稳定显示器身份匹配配置；插拔/合盖/镜像切换防抖，可手动覆盖，缺失项目不丢失。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 570,
+      "title": "[Feature Request]: When bar items pass through the notch",
+      "url": "https://github.com/jordanbaird/Ice/issues/570",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "C",
+      "finding": "只有全局 useFloeBar Bool，没有按内屏、刘海或可用空间选择呈现方式的策略。",
+      "acceptance": "增加明确手动/自动策略；以目标屏逻辑可用空间决定，插拔屏/主题/应用菜单变化重算，临界值防抖。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Settings/SettingsManagers/GeneralSettingsManager.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 604,
+      "title": "[Feature Request]: Disable functionality behind notch",
+      "url": "https://github.com/jordanbaird/Ice/issues/604",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "C",
+      "finding": "已默认排除刘海命中，且有全局右键菜单开关；没有仅刘海区域的独立左右键策略。",
+      "acceptance": "与 BetterTouchTool 等第三方触发共存；区分全局关闭右键和局部刘海排除，不与 #406 默认冲突。",
+      "evidence": [
+        "Floe/Events/EventManager.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift",
+        "Floe/Settings/SettingsManagers/AdvancedSettingsManager.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 630,
+      "title": "[Feature Request]: Ice Bar under when I'm on one screen.",
+      "url": "https://github.com/jordanbaird/Ice/issues/630",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "C",
+      "finding": "没有按连接屏幕数量切换浮栏模式。",
+      "acceptance": "明确镜像、虚拟屏、合盖下的有效屏幕数；切换不覆盖手动设置或当前临时菜单会话。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 691,
+      "title": "[Feature Request]: Allow unhide all when the display is larger",
+      "url": "https://github.com/jordanbaird/Ice/issues/691",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "原生三个分区由全局状态项和长度控制，不是每屏独立容器；按屏展开不能直接当作每屏不同布局。",
+      "acceptance": "先验证原生窗口/状态项是否支持各屏差异；明确独立屏策略与全局共享状态的边界，保留 always-hidden。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 703,
+      "title": "[Feature Request]: Ice Bar only on Macs with a Notch",
+      "url": "https://github.com/jordanbaird/Ice/issues/703",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "C",
+      "finding": "只有全局 useFloeBar Bool，没有按内屏、刘海或可用空间选择呈现方式的策略。",
+      "acceptance": "增加明确手动/自动策略；以目标屏逻辑可用空间决定，插拔屏/主题/应用菜单变化重算，临界值防抖。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Settings/SettingsManagers/GeneralSettingsManager.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 783,
+      "title": "[Feature Request]: Separate sets for laptops when connect to external monitor",
+      "url": "https://github.com/jordanbaird/Ice/issues/783",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "外屏连接条件与布局 Profile 的自动切换都没有实现；应复用配置模型，避免再做一套规则。",
+      "acceptance": "按稳定显示器身份匹配配置；插拔/合盖/镜像切换防抖，可手动覆盖，缺失项目不丢失。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 797,
+      "title": "[Feature Request]: only on screens with a notch",
+      "url": "https://github.com/jordanbaird/Ice/issues/797",
+      "work_package": "F5",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "C",
+      "finding": "只有全局 useFloeBar Bool，没有按内屏、刘海或可用空间选择呈现方式的策略。",
+      "acceptance": "增加明确手动/自动策略；以目标屏逻辑可用空间决定，插拔屏/主题/应用菜单变化重算，临界值防抖。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Settings/SettingsManagers/GeneralSettingsManager.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 26,
+      "title": "[Feature request] Profiles for menubar layout",
+      "url": "https://github.com/jordanbaird/Ice/issues/26",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "仅有单套布局保存，没有命名 Profiles、切换、配置版本与删除流程。",
+      "acceptance": "两套命名配置可切换；缺失应用保留配置；执行失败可恢复；切换不覆盖最新手动操作。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 46,
+      "title": "[Feature Request]: Menubar groups",
+      "url": "https://github.com/jordanbaird/Ice/issues/46",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "固定三分区不等同于用户自定义分组；分组按钮及独立呈现模型均缺失。",
+      "acceptance": "明确组成员身份、排序、同时显示规则及与三个系统分区的映射。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 91,
+      "title": "[Feature Request]: Spacers",
+      "url": "https://github.com/jordanbaird/Ice/issues/91",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "没有用户可增删的间隔项目；应先确定仅浮栏间隔还是原生状态项间隔。",
+      "acceptance": "增删/持久化间隔且不误计入真实宿主项目；原生与浮栏模式分别验收。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 95,
+      "title": "[Feature Request]: Cross-Device Syncing",
+      "url": "https://github.com/jordanbaird/Ice/issues/95",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "没有跨设备同步；稳定配置格式和冲突解决应先于 iCloud 同步。",
+      "acceptance": "双设备冲突、离线合并、不同已安装应用/屏幕及禁用同步后本地配置保持。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 560,
+      "title": "[Feature Request]: Automatically sort menu bar items in hidden section by name",
+      "url": "https://github.com/jordanbaird/Ice/issues/560",
+      "work_package": "F1",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "搜索按名称排序不等于原生菜单栏自动排序；当前布局主要保留手动顺序。",
+      "acceptance": "先提供显式一次性排序；自动排序需明确何时触发且不能反复覆盖用户拖动。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift",
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 62,
+      "title": "[Feature Request]: Show menu bar items when trigger condition are met",
+      "url": "https://github.com/jordanbaird/Ice/issues/62",
+      "work_package": "F3",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "没有电量/脚本/图像条件触发引擎。图像比较和脚本有额外运行成本及错误语义。",
+      "acceptance": "先限定一个事件驱动条件；定义规则优先级、退避和手动操作覆盖，采样确认无轮询风暴。",
+      "evidence": [
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift",
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 141,
+      "title": "[Feature Request]: x-callback-url for automation",
+      "url": "https://github.com/jordanbaird/Ice/issues/141",
+      "work_package": "F3",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "内部搜索和动作可复用，但没有声明/处理公开 URL、AppleScript/CLI 或 launcher 搜索契约。",
+      "acceptance": "先统一动作/查询服务及版本化参数、项目 ID 和错误；再选择一个外部适配层验证。",
+      "evidence": [
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift",
+        "Floe/Info.plist",
+        "Floe/Main/AppDelegate.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 148,
+      "title": "[Feature Request]: Custom trigger API for applications to implement",
+      "url": "https://github.com/jordanbaird/Ice/issues/148",
+      "work_package": "F3",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "请求包含第三方 accessibilityValue 加分布式通知契约，目前没有该协议的订阅/规则执行。",
+      "acceptance": "按项目身份读取数值并响应通知，去重/限频；无效数据不覆盖用户状态，不能直接假定已兼容 Bartender API。",
+      "evidence": [
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarItemAXDiscovery.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 340,
+      "title": "[Feature Request]: Show ice bar next to mouse in any screen location with keyboard shortcut",
+      "url": "https://github.com/jordanbaird/Ice/issues/340",
+      "work_package": "F3",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "B",
+      "finding": "位置设置支持鼠标横坐标，但 originY 始终位于目标屏菜单栏下方；没有任意屏幕位置的光标浮栏。",
+      "acceptance": "快捷键在当前指针附近同时定位 X/Y，按屏幕可用区域约束且菜单弹出方向正确。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 382,
+      "title": "[Feature Request]: Add AppleScript or CLI support",
+      "url": "https://github.com/jordanbaird/Ice/issues/382",
+      "work_package": "F3",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "内部搜索和动作可复用，但没有声明/处理公开 URL、AppleScript/CLI 或 launcher 搜索契约。",
+      "acceptance": "先统一动作/查询服务及版本化参数、项目 ID 和错误；再选择一个外部适配层验证。",
+      "evidence": [
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift",
+        "Floe/Info.plist",
+        "Floe/Main/AppDelegate.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 501,
+      "title": "[Feature Request]: Raycast Integration",
+      "url": "https://github.com/jordanbaird/Ice/issues/501",
+      "work_package": "F3",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "内部搜索和动作可复用，但没有声明/处理公开 URL、AppleScript/CLI 或 launcher 搜索契约。",
+      "acceptance": "先统一动作/查询服务及版本化参数、项目 ID 和错误；再选择一个外部适配层验证。",
+      "evidence": [
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift",
+        "Floe/Info.plist",
+        "Floe/Main/AppDelegate.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 516,
+      "title": "[Feature Request]: Expose API for searching menu bar items for Launchbar/Alfred/Spotlight/etc",
+      "url": "https://github.com/jordanbaird/Ice/issues/516",
+      "work_package": "F3",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "内部搜索和动作可复用，但没有声明/处理公开 URL、AppleScript/CLI 或 launcher 搜索契约。",
+      "acceptance": "先统一动作/查询服务及版本化参数、项目 ID 和错误；再选择一个外部适配层验证。",
+      "evidence": [
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift",
+        "Floe/Info.plist",
+        "Floe/Main/AppDelegate.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 113,
+      "title": "[Feature Request]: Scroll again to toggle always-hidden section",
+      "url": "https://github.com/jordanbaird/Ice/issues/113",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "已有滚轮展开普通隐藏区，没有连续两次滚动分级展开 always-hidden 的状态机。",
+      "acceptance": "不同方向/停顿/连续滚动有稳定语义，always-hidden 禁用时回退，不与横向滚动冲突。",
+      "evidence": [
+        "Floe/Events/EventManager.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 208,
+      "title": "Feature Request: Adding Ice Bar as an additional layout under Menu Bar Items",
+      "url": "https://github.com/jordanbaird/Ice/issues/208",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "D",
+      "finding": "浮栏复用三分区，无独立于原生菜单栏的浮栏专属布局。",
+      "acceptance": "明确独立收藏/顺序与三分区归属关系，避免一处拖拽悄悄改变另一处。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 209,
+      "title": "[Feature Request]: Arrange items directly inside Ice Bar",
+      "url": "https://github.com/jordanbaird/Ice/issues/209",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "浮栏项目的 AppKit 点击视图不是 Command-drag 重排入口。",
+      "acceptance": "浮栏直接拖拽后读回原生最终顺序，权限/失败反馈和取消完整，不误触发菜单。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 214,
+      "title": "[Feature Request]: Ability to pin Ice Bar",
+      "url": "https://github.com/jordanbaird/Ice/issues/214",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "只有动态/指针/图标定位，没有按屏幕比例的持久固定锚点；隐藏图标时原生 frame 也不保证可用。",
+      "acceptance": "按显示器保存相对位置，隐藏/移除图标后仍可固定，屏幕尺寸改变和断开有回退。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 240,
+      "title": "[Feature Request]: Showing hidden items replaces visible items",
+      "url": "https://github.com/jordanbaird/Ice/issues/240",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "用隐藏区替换 visible 的模式尚未实现；不能等同于普通展开或隐藏应用菜单。",
+      "acceptance": "定义始终可见项目和可替换项目，快速切换/菜单打开/失败回滚不丢原排序。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 243,
+      "title": "[Feature Request]: Menu Bar Widget Ideas",
+      "url": "https://github.com/jordanbaird/Ice/issues/243",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "Widgets 是大量新的信息提供者和权限/网络能力，不属于现有菜单项管理的小扩展。",
+      "acceptance": "另立范围，仅选择必要 widget；定义数据源、权限、更新频率和后台成本。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 310,
+      "title": "[Feature Request]: Allow a section to be hidable to show what's on the left",
+      "url": "https://github.com/jordanbaird/Ice/issues/310",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "请求任意子段暂时折叠，需要比固定三分区更强的分组模型。",
+      "acceptance": "明确选区成员、折叠锚点、刘海溢出与恢复顺序；不能隐藏不可移动系统项。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 321,
+      "title": "[Feature Request]: Animation when showing items",
+      "url": "https://github.com/jordanbaird/Ice/issues/321",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "E",
+      "finding": "外观右侧边缘已有收缩动画，但不是全部原生图标滑动/淡入动画。",
+      "acceptance": "动画不改变命中、点击和最终布局，支持减少动态效果，先验证系统支持范围。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/Appearance/MenuBarOverlayPanel.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 335,
+      "title": "[Feature Request]: Ice Bar only for Always Hidden",
+      "url": "https://github.com/jordanbaird/Ice/issues/335",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "全局 useFloeBar 同时控制普通隐藏和 always-hidden，没有按分区选择呈现。",
+      "acceptance": "普通隐藏仍原生展开，always-hidden 独立浮栏；两者状态和收起策略一致，禁用 always-hidden 不留空面板。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 342,
+      "title": "[Feature Request]: Display menu bar items as a vertical list",
+      "url": "https://github.com/jordanbaird/Ice/issues/342",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "B",
+      "finding": "独立搜索面板已有图标+名称纵向列表，可激活项目；不是点击主图标后的列表呈现模式。",
+      "acceptance": "增加可选点击呈现模式并复用搜索模型；保留真实宿主菜单，不承诺把所有第三方菜单嵌入为子菜单。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 372,
+      "title": "[Feature Request]: Ability to see both hidden sections at the same time when using the Ice Bar",
+      "url": "https://github.com/jordanbaird/Ice/issues/372",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "单个 currentSection 表示当前浮栏分区；尚不能同时展示两个隐藏区。",
+      "acceptance": "同一浮栏分组展示两区并可区分，键盘顺序、关闭/收起及禁用分区行为清楚。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 481,
+      "title": "[Feature Request]: Option to enable showing hidden section when hovering over un-hidden side",
+      "url": "https://github.com/jordanbaird/Ice/issues/481",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "当前悬停基于空白菜单栏区域，不能配置覆盖整个 visible 状态项区域。",
+      "acceptance": "定义触发区域避免遮挡正在使用的状态项；延迟/点击优先级和误触率需验证。",
+      "evidence": [
+        "Floe/Events/EventManager.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 487,
+      "title": "[Feature Request]: Always Hidden Use Ice Bar",
+      "url": "https://github.com/jordanbaird/Ice/issues/487",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "全局 useFloeBar 同时控制普通隐藏和 always-hidden，没有按分区选择呈现。",
+      "acceptance": "普通隐藏仍原生展开，always-hidden 独立浮栏；两者状态和收起策略一致，禁用 always-hidden 不留空面板。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 494,
+      "title": "[Feature Request]: Make option for showing hidden items on mouse down, not up",
+      "url": "https://github.com/jordanbaird/Ice/issues/494",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "B",
+      "finding": "空白菜单栏和主控制图标是不同事件路径；现有代码没有可配置 mouseDown/mouseUp 触发时机。",
+      "acceptance": "单击、双击、拖拽、Option-click 不重复触发；保留长按/拖动取消。",
+      "evidence": [
+        "Floe/Events/EventManager.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 497,
+      "title": "[Feature Request]: Open 'Menu Bar Layout' from Right-Click",
+      "url": "https://github.com/jordanbaird/Ice/issues/497",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "A",
+      "finding": "空白处右键只有编辑外观和通用设置，不能直接导航菜单栏布局页。",
+      "acceptance": "一个右键菜单项直接选中布局页，冷启动/现有设置窗口均正确，不丢当前布局操作。",
+      "evidence": [
+        "Floe/MenuBar/MenuBarManager.swift",
+        "Floe/Main/AppState.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 518,
+      "title": "[Feature Request]: Configuration option to Always open Ice as minimized",
+      "url": "https://github.com/jordanbaird/Ice/issues/518",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "A",
+      "finding": "普通启动会隐藏设置窗口；重新打开已运行应用会主动打开设置，尚无每次都最小化的开关。",
+      "acceptance": "分别定义首次启动、登录启动和应用重开；保留 #860 图标丢失后的明确恢复设置入口。",
+      "evidence": [
+        "Floe/Main/AppDelegate.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 527,
+      "title": "[Feature Request]: Allow pinning bar location with hidden ice icon",
+      "url": "https://github.com/jordanbaird/Ice/issues/527",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "只有动态/指针/图标定位，没有按屏幕比例的持久固定锚点；隐藏图标时原生 frame 也不保证可用。",
+      "acceptance": "按显示器保存相对位置，隐藏/移除图标后仍可固定，屏幕尺寸改变和断开有回退。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 552,
+      "title": "[Feature Request]: Option for Double click on ice icon in menu bar to show always hidden menu icons instead of settings",
+      "url": "https://github.com/jordanbaird/Ice/issues/552",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "B",
+      "finding": "没有将双击操作配置为显示 always-hidden 的设置；需处理单击与双击竞争。",
+      "acceptance": "双击仅执行指定动作，单击不提前产生最终相反状态，系统双击间隔与 Option-click 一致。",
+      "evidence": [
+        "Floe/Events/EventManager.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 554,
+      "title": "[Feature Request]: Show menu bar item name on hover",
+      "url": "https://github.com/jordanbaird/Ice/issues/554",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "covered_in_code",
+      "proposed_batch": "A",
+      "finding": "AX 浮栏有 help，截图浮栏 AppKit 视图设置 toolTip；搜索也显示项目名。",
+      "acceptance": "两条发现路径均可见正确名称，同名兄弟项至少显示可区分信息；需实际 hover 验收。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Hotkeys/HotkeyAction.swift",
+        "Floe/UI/MenuBarSearchPanel.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 600,
+      "title": "[Feature Request]: Open hidden items from the Ice Icon",
+      "url": "https://github.com/jordanbaird/Ice/issues/600",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "请求改变原生隐藏区展开的锚点；浮栏 .floeIcon 定位不是该行为。",
+      "acceptance": "定义原生控制项和固定系统项的相对顺序，展开/归位不推走其他重要项目。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 724,
+      "title": "[Feature Request]: Hide Ice icon from dock",
+      "url": "https://github.com/jordanbaird/Ice/issues/724",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "A",
+      "finding": "构建已设置 LSUIElement，但打开设置/权限时切 .regular，因此不保证所有场景无 Dock 图标。",
+      "acceptance": "明确后台、设置、权限和弹窗各场景策略，Dock 隐藏时仍可激活/切换/关闭窗口；不要求用户改签名。",
+      "evidence": [
+        "Floe.xcodeproj/project.pbxproj",
+        "Floe/Main/AppDelegate.swift",
+        "Floe/Main/AppState.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 726,
+      "title": "[Feature Request]: Clicking on center of menu bar reveals the desktop",
+      "url": "https://github.com/jordanbaird/Ice/issues/726",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "中部点击显示桌面与当前空白点击展开隐藏区冲突，应是互斥可选动作。",
+      "acceptance": "不拦截真实菜单和状态项；启用显示桌面时明确放弃该区域的展开动作，并可恢复。",
+      "evidence": [
+        "Floe/Events/EventManager.swift",
+        "Floe/MenuBar/ControlItem/ControlItem.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 727,
+      "title": "[Feature Request]: Bartender 3 mode",
+      "url": "https://github.com/jordanbaird/Ice/issues/727",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "missing",
+      "proposed_batch": "E",
+      "finding": "用隐藏区替换 visible 的模式尚未实现；不能等同于普通展开或隐藏应用菜单。",
+      "acceptance": "定义始终可见项目和可替换项目，快速切换/菜单打开/失败回滚不丢原排序。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 778,
+      "title": "[Feature Request]: Add Toggle to expand hidden section to contain always hidden icons",
+      "url": "https://github.com/jordanbaird/Ice/issues/778",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "B",
+      "finding": "已有 Option-click 和快捷键，但未在浮栏提供显式展开 always-hidden 的按钮。",
+      "acceptance": "鼠标入口明确展示当前隐藏区/始终隐藏区，禁用分区时不出现无效入口。",
+      "evidence": [
+        "Floe/UI/FloeBar/FloeBar.swift",
+        "Floe/MenuBar/MenuBarSection.swift",
+        "Floe/Settings/SettingsManagers/AdvancedSettingsManager.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 961,
+      "title": "[Feature Request]: No dock icon",
+      "url": "https://github.com/jordanbaird/Ice/issues/961",
+      "work_package": "F4",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "A",
+      "finding": "构建已设置 LSUIElement，但打开设置/权限时切 .regular，因此不保证所有场景无 Dock 图标。",
+      "acceptance": "明确后台、设置、权限和弹窗各场景策略，Dock 隐藏时仍可激活/切换/关闭窗口；不要求用户改签名。",
+      "evidence": [
+        "Floe.xcodeproj/project.pbxproj",
+        "Floe/Main/AppDelegate.swift",
+        "Floe/Main/AppState.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 210,
+      "title": "[Feature Request]: Option to update to beta releases",
+      "url": "https://github.com/jordanbaird/Ice/issues/210",
+      "work_package": "F6",
+      "upstream_state": "open",
+      "code_coverage": "blocked_by_release_setup",
+      "proposed_batch": "F",
+      "finding": "Floe 自有更新 feed/公钥未配置，更新有意禁用；不能先加 beta 开关连接上游渠道。",
+      "acceptance": "先建立 Floe 签名更新源，再区分 stable/beta、版本升级降级及用户 opt-in。",
+      "evidence": [
+        "Floe/Updates/UpdatesManager.swift",
+        "Floe/Info.plist"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 601,
+      "title": "[Feature Request]: Documentation for hidden and always hidden behavior",
+      "url": "https://github.com/jordanbaird/Ice/issues/601",
+      "work_package": "F6",
+      "upstream_state": "open",
+      "code_coverage": "partial",
+      "proposed_batch": "A",
+      "finding": "README 有演示，但没有覆盖新项默认、重建恢复、临时显示与 always-hidden 的完整文字契约。",
+      "acceptance": "中英文同步说明实际实现；将期望行为与当前行为分开，说明快捷入口及异常恢复。",
+      "evidence": [
+        "README.md",
+        "README.zh-CN.md",
+        "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift",
+        "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift"
+      ]
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 862,
+      "title": "[Feature Request]: submit the app to the homebrew",
+      "url": "https://github.com/jordanbaird/Ice/issues/862",
+      "work_package": "F6",
+      "upstream_state": "open",
+      "code_coverage": "requires_distribution_decision",
+      "proposed_batch": "F",
+      "finding": "上游评论已指向 Ice 的 Homebrew cask，但它不分发 Floe；当前请求应改写为 Floe 发布任务。",
+      "acceptance": "验证 Floe 自有稳定产物、版本、下载 URL、签名/校验及安装升级/卸载后，再选择 tap 或上游 cask。",
+      "evidence": [
+        "README.md",
+        "Floe/Updates/UpdatesManager.swift"
+      ]
+    }
+  ]
+}

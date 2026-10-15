@@ -19,6 +19,8 @@ final class MenuBarLayoutStore {
     private var isRestoring = false
     private var choiceRevision = 0
     private var retryAfter = Date.distantPast
+    private(set) var appliedRevision = 0
+    var isApplyingChoices: Bool { isRestoring }
 
     init() {
         entries = UserDefaults.standard.data(forKey: Self.defaultsKey)
@@ -66,6 +68,41 @@ final class MenuBarLayoutStore {
             UserDefaults.standard.set(data, forKey: Self.defaultsKey)
         }
         observedWindows = identified.mapValues(\.windowID)
+    }
+
+    func hasChoice(for key: String) -> Bool { entries.contains { $0.key == key } }
+
+    /// 为升级前已有项目建立基线，保留此前保存的用户选择和退出宿主记录。
+    func seedMissingChoices(_ cache: MenuBarItemManager.ItemCache) {
+        var changed = false
+        let identified = identifiedItems(cache.allItems)
+        for section in MenuBarSection.Name.allCases {
+            for item in cache[section].sorted(by: { $0.frame.minX < $1.frame.minX }) {
+                if let key = identified.first(where: { $0.value.windowID == item.windowID })?.key, !hasChoice(for: key) {
+                    entries.append(Entry(key: key, section: String(describing: section)))
+                    observedWindows[key] = item.windowID
+                    changed = true
+                }
+            }
+        }
+        if changed { saveEntries() }
+    }
+
+    /// 新项/显式规则选择进入既有恢复管线，复用菜单保护、失败退避和用户操作取消。
+    func assign(key: String, section: String, atEnd: Bool) {
+        guard ["visible", "hidden", "alwaysHidden"].contains(section) else { return }
+        // 同一待恢复规则不重置退避，也不改变同区其他项目的相对顺序。
+        if entries.contains(where: { $0.key == key && $0.section == section }), observedWindows[key] == nil { return }
+        choiceRevision += 1
+        entries.removeAll { $0.key == key }
+        let entry = Entry(key: key, section: section)
+        if atEnd { entries.append(entry) } else { entries.insert(entry, at: 0) }
+        observedWindows.removeValue(forKey: key)
+        saveEntries()
+    }
+
+    private func saveEntries() {
+        if let data = try? JSONEncoder().encode(entries) { UserDefaults.standard.set(data, forKey: Self.defaultsKey) }
     }
 
     /// 用户开始原生拖拽后淘汰尚未执行的自动恢复步骤。
@@ -119,6 +156,7 @@ final class MenuBarLayoutStore {
                         ? .rightOfItem(anchor) : .leftOfItem(anchor)
                     do {
                         try await manager.move(item: item, to: destination)
+                        appliedRevision += 1
                         pending.remove(key)
                     } catch {
                         Logger.layoutStore.error("Layout restore failed for \(item.logString): \(error)")

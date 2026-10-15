@@ -31,6 +31,7 @@ struct MenuBarLayoutSettingsPane: View {
     @State private var pageGeneration = 0
     @State private var moveFailed = false
     @State private var searchText = ""
+    @FocusState private var focusedItemID: String?
     /// IDs of icons currently being moved in the background: the UI updates
     /// optimistically right away, with a small badge on each icon showing
     /// it's syncing, so the whole list doesn't freeze.
@@ -103,6 +104,7 @@ struct MenuBarLayoutSettingsPane: View {
                 .disabled(isRefreshing)
             }
 
+            NewItemRulesView(rules: appState.itemManager.newItemRules, manager: appState.itemManager)
             TextField("Search menu bar items", text: $searchText)
                 .textFieldStyle(.roundedBorder)
                 .onExitCommand { searchText = "" }
@@ -202,11 +204,7 @@ struct MenuBarLayoutSettingsPane: View {
                     .foregroundStyle(.secondary)
             }
             FlowLayout(spacing: 8) {
-                // Dashed "New" cell at the head of the Visible group: where newly
-                // appeared icons land, matching the mock (right-aligned, so it sits leftmost).
-                if meta.kind == .visible {
-                    newItemPlaceholder
-                }
+
                 if items.isEmpty {
                     Text(LocalizedStringKey(meta.emptyHint))
                         .font(.callout)
@@ -245,7 +243,7 @@ struct MenuBarLayoutSettingsPane: View {
         }
     }
 
-    private func itemView(_ item: RowItem, pending: Bool, isDropTarget: Bool) -> some View {
+    private func itemVisual(_ item: RowItem) -> some View {
         VStack(spacing: 3) {
             ZStack(alignment: .topTrailing) {
                 Group {
@@ -283,6 +281,66 @@ struct MenuBarLayoutSettingsPane: View {
                 .frame(maxWidth: 68)
         }
         .frame(width: 68)
+    }
+
+    private func accessibleItem(_ item: RowItem) -> some View {
+        itemVisual(item)
+        .focusable()
+        .focused($focusedItemID, equals: item.id)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(item.title)
+        .accessibilityValue(layoutDescription(for: item.id))
+        .accessibilityHint(Text(LocalizedStringKey(item.isMovable ? "Use the actions menu to move this icon or change its section." : "This system item cannot be moved.")))
+        .accessibilityAction(named: "Move to Visible") { moveWithKeyboard(item.id, to: .visible) }
+        .accessibilityAction(named: "Move to Hidden") { moveWithKeyboard(item.id, to: .hidden) }
+        .accessibilityAction(named: "Move to Always Hidden") { moveWithKeyboard(item.id, to: .alwaysHidden) }
+        .accessibilityAction(named: "Move earlier") { reorderWithKeyboard(item.id, offset: -1) }
+        .accessibilityAction(named: "Move later") { reorderWithKeyboard(item.id, offset: 1) }
+        .onKeyPress(characters: CharacterSet(charactersIn: "123")) { press in
+            guard press.modifiers.intersection([.command, .control, .option]) == .command else { return .ignored }
+            let kind: MenuBarItemAXDiscovery.SectionKind = press.characters == "1" ? .visible : press.characters == "2" ? .hidden : .alwaysHidden
+            moveWithKeyboard(item.id, to: kind)
+            return .handled
+        }
+        .onKeyPress(keys: [.leftArrow, .rightArrow]) { press in
+            guard press.modifiers.isDisjoint(with: [.control, .option]) else { return .ignored }
+            let offset = press.key == .leftArrow ? -1 : 1
+            if press.modifiers.contains(.command) {
+                reorderWithKeyboard(item.id, offset: offset)
+            } else {
+                let ids = visibleMetas.flatMap { filteredItems(in: $0.kind).map(\.id) }
+                if let index = ids.firstIndex(of: item.id), ids.indices.contains(index + offset) {
+                    focusedItemID = ids[index + offset]
+                }
+            }
+            return .handled
+        }
+    }
+
+    @ViewBuilder
+    private func itemActions(_ item: RowItem) -> some View {
+        Button("Move to Visible") { moveWithKeyboard(item.id, to: .visible) }
+            .disabled(!item.isMovable)
+        Button("Move to Hidden") { moveWithKeyboard(item.id, to: .hidden) }
+            .disabled(!item.isMovable || !item.canBeHidden)
+        Button("Move to Always Hidden") { moveWithKeyboard(item.id, to: .alwaysHidden) }
+            .disabled(!item.isMovable || !item.canBeHidden || !appState.settingsManager.advancedSettingsManager.enableAlwaysHiddenSection)
+        Divider()
+        Button("Move earlier") { reorderWithKeyboard(item.id, offset: -1) }.disabled(!item.isMovable)
+        Button("Move later") { reorderWithKeyboard(item.id, offset: 1) }.disabled(!item.isMovable)
+        if let bundle = item.bundleID, !appState.itemManager.isItemDiscoveryUnavailable {
+            Divider()
+            Button(LocalizedStringKey(appState.itemManager.newItemRules.alwaysShows(bundle) ? "Stop always showing this app" : "Always show this app")) {
+                let rules = appState.itemManager.newItemRules
+                rules.setAlwaysShown(bundle, enabled: !rules.alwaysShows(bundle))
+                Task { await appState.itemManager.reconcileLayout(); await refresh() }
+            }
+        }
+    }
+
+    private func itemView(_ item: RowItem, pending: Bool, isDropTarget: Bool) -> some View {
+        accessibleItem(item)
+        .contextMenu { itemActions(item) }
         .help(pending ? L10n.string("%@ — moving…", item.subtitle ?? item.title) : (item.subtitle ?? item.title))
         .opacity(pending ? 0.7 : 1)
         .overlay {
@@ -343,24 +401,53 @@ struct MenuBarLayoutSettingsPane: View {
         )
     }
 
-    /// Dashed "New" cell at the head of the Visible group: where newly appeared icons land.
-    private var newItemPlaceholder: some View {
-        VStack(spacing: 3) {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(.tertiary, style: StrokeStyle(lineWidth: 1, dash: [5, 4]))
-                .frame(width: 40, height: 30)
-                .overlay {
-                    Image(systemName: "sparkle")
-                        .font(.system(size: 13))
-                        .foregroundStyle(.tertiary)
-                }
-            Text("New")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: 68)
+    private func layoutDescription(for id: String) -> String {
+        guard let found = findItem(id: id), let meta = visibleMetas.first(where: { $0.kind == found.kind }) else { return "" }
+        return L10n.string("%@, item %d of %d", L10n.string(meta.title), found.index + 1, sections[found.kind]?.count ?? 0)
+    }
+
+    private func moveWithKeyboard(_ id: String, to kind: MenuBarItemAXDiscovery.SectionKind) {
+        guard let found = findItem(id: id), found.item.isMovable,
+              kind == .visible || found.item.canBeHidden,
+              kind != .alwaysHidden || appState.settingsManager.advancedSettingsManager.enableAlwaysHiddenSection else { return }
+        beginAccessibleMove { await self.drop(itemID: id, to: kind) }
+    }
+
+    private func reorderWithKeyboard(_ id: String, offset: Int) {
+        guard let found = findItem(id: id), found.item.isMovable,
+              let items = sections[found.kind], items.indices.contains(found.index + offset) else { return }
+        // 现有插入操作定义为放到目标前面；后移等价于把下一项放到当前项之前。
+        let neighbor = items[found.index + offset]
+        guard neighbor.isMovable else { return }
+        beginAccessibleMove {
+            if offset < 0 { await self.drop(itemID: id, onto: neighbor.id) } else { await self.drop(itemID: neighbor.id, onto: id) }
         }
-        .frame(width: 68)
-        .help("New menu bar items appear here")
+    }
+
+    private func beginAccessibleMove(_ operation: @escaping @MainActor () async -> Void) {
+        guard isPageVisible, !isMoving, moveTask == nil else { return }
+        let previousFocus = focusedItemID
+        moveTask = Task {
+            await operation()
+            if isPageVisible, !Task.isCancelled {
+                // 跨分区会重建行，操作完成后恢复键盘焦点并向辅助技术报告结果。
+                await Task.yield()
+                focusedItemID = previousFocus
+                announceLayoutResult()
+            }
+            moveTask = nil
+        }
+    }
+
+    private func announceLayoutResult() {
+        let message = moveFailed
+            ? L10n.string("Could not move the menu bar item. Its actual position is shown; try again after closing menus.")
+            : L10n.string("Layout updated.")
+        NSAccessibility.post(
+            element: NSApp,
+            notification: .announcementRequested,
+            userInfo: [.announcement: message, .priority: NSAccessibilityPriorityLevel.medium.rawValue]
+        )
     }
 
     /// 合成鼠标事件不能触发用户 Command-drag 的“展开全部”逻辑或自动收起。
@@ -571,8 +658,6 @@ struct MenuBarLayoutSettingsPane: View {
             let leftFrame = insertIndex > 0 ? toItems[max(0, insertIndex - 1)].quartzFrame : nil
             let rightFrame = insertIndex < toItems.count ? toItems[insertIndex].quartzFrame : nil
             guard let destination = reorderDestination(for: toKind, leftFrame: leftFrame, rightFrame: rightFrame) else {
-                sections = snapshotBeforeDrag
-                moveFailed = true
                 sections = snapshotBeforeDrag
                 moveFailed = true
                 await refresh()
@@ -944,7 +1029,7 @@ struct MenuBarLayoutSettingsPane: View {
                 }
                 grouped[kind(centerX: item.frame.midX), default: []].append(
                     RowItem(
-                        id: stableID(for: "cgs:\(item.info):\(item.ownerPID)"),
+                        id: stableID(for: "cgs:\(item.windowID)"),
                         title: item.displayName,
                         subtitle: item.subtitle,
                         systemImage: systemImage,
@@ -952,7 +1037,8 @@ struct MenuBarLayoutSettingsPane: View {
                         isSystem: bundleID?.hasPrefix("com.apple.") == true,
                         quartzFrame: item.frame,
                         isMovable: item.isMovable,
-                        canBeHidden: item.canBeHidden
+                        canBeHidden: item.canBeHidden,
+                        bundleID: bundleID
                     )
                 )
             }
@@ -978,13 +1064,14 @@ struct MenuBarLayoutSettingsPane: View {
             }
             grouped[kind(centerX: item.axFrame?.midX), default: []].append(
                 RowItem(
-                    id: stableID(for: "ax:\(item.pid):\(item.bundleID ?? ""):\(item.identifier ?? ""):\(item.title ?? "")"),
+                    id: stableID(for: "ax:\(item.pid):\(CFHash(item.element))"),
                     title: item.displayName,
                     subtitle: item.subtitle,
                     systemImage: systemImage,
                     appIcon: appIcon,
                     isSystem: item.bundleID?.hasPrefix("com.apple.") == true,
-                    quartzFrame: item.axFrame
+                    quartzFrame: item.axFrame,
+                    bundleID: item.bundleID
                 )
             )
         }
@@ -1179,6 +1266,7 @@ private struct RowItem: Identifiable {
     /// CGS 已知系统限制；AX 未提供可靠限制时保留系统实际拒绝结果。
     var isMovable = true
     var canBeHidden = true
+    var bundleID: String?
 }
 
 private struct SectionMeta {

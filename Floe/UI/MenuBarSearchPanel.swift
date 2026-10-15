@@ -61,6 +61,7 @@ private struct MenuBarSearchView: View {
     @State private var query = ""
     @State private var rows = [Row]()
     @State private var isLoading = true
+    @State private var selectedID: String?
     @FocusState private var isFocused: Bool
 
     private var matches: [Row] {
@@ -76,7 +77,17 @@ private struct MenuBarSearchView: View {
                 .textFieldStyle(.roundedBorder)
                 .focused($isFocused)
                 .onSubmit {
-                    if let first = matches.first { activate(first) }
+                    if let row = matches.first(where: { $0.id == selectedID }) ?? matches.first { activate(row) }
+                }
+                .onKeyPress(keys: [.upArrow, .downArrow]) { press in
+                    guard press.modifiers.isDisjoint(with: [.control, .command, .option]) else { return .ignored }
+                    moveSelection(press.key == .upArrow ? -1 : 1)
+                    return .handled
+                }
+                .onKeyPress(characters: CharacterSet(charactersIn: "np")) { press in
+                    guard press.modifiers.intersection([.control, .command, .option]) == .control else { return .ignored }
+                    moveSelection(press.characters == "p" ? -1 : 1)
+                    return .handled
                 }
             if isLoading && rows.isEmpty {
                 ProgressView()
@@ -86,33 +97,44 @@ private struct MenuBarSearchView: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 4) {
-                        ForEach(matches) { row in
-                            Button { activate(row) } label: {
-                                HStack(spacing: 10) {
-                                    if let icon = row.icon {
-                                        Image(nsImage: icon).resizable().scaledToFit().frame(width: 24, height: 24)
-                                    } else {
-                                        Image(systemName: "menubar.rectangle").frame(width: 24, height: 24)
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 4) {
+                            ForEach(matches) { row in
+                                Button { activate(row) } label: {
+                                    HStack(spacing: 10) {
+                                        if let icon = row.icon {
+                                            Image(nsImage: icon).resizable().scaledToFit().frame(width: 24, height: 24)
+                                        } else {
+                                            Image(systemName: "menubar.rectangle").frame(width: 24, height: 24)
+                                        }
+                                        VStack(alignment: .leading) {
+                                            Text(row.name)
+                                            Text(row.detail).font(.caption).foregroundStyle(.secondary)
+                                        }
+                                        Spacer()
                                     }
-                                    VStack(alignment: .leading) {
-                                        Text(row.name)
-                                        Text(row.detail).font(.caption).foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
+                                    .padding(8)
+                                    .contentShape(Rectangle())
                                 }
-                                .padding(8)
-                                .contentShape(Rectangle())
+                                .buttonStyle(.plain)
+                                .accessibilityValue(row.id == selectedID ? L10n.string("Selected") : "")
+                                .background(row.id == selectedID ? Color.accentColor.opacity(0.18) : .clear, in: RoundedRectangle(cornerRadius: 6))
+                                .id(row.id)
                             }
-                            .buttonStyle(.plain)
                         }
+                    }
+                    .onChange(of: selectedID) { _, id in
+                        if let id { proxy.scrollTo(id) }
                     }
                 }
             }
         }
         .padding(16)
         .frame(width: 480, height: 360)
+        .onChange(of: matches.map(\.id)) { _, ids in
+            if !ids.contains(selectedID ?? "") { selectedID = ids.first }
+        }
         .onExitCommand(perform: closePanel)
         .task {
             isFocused = true
@@ -159,6 +181,10 @@ private struct MenuBarSearchView: View {
         isLoading = false
     }
 
+    private func moveSelection(_ offset: Int) {
+        selectedID = MenuBarListSelection.moving(selectedID, in: matches.map(\.id), by: offset)
+    }
+
     private func activate(_ row: Row) {
         closePanel()
         switch row.target {
@@ -167,5 +193,14 @@ private struct MenuBarSearchView: View {
         case .cgs(let item):
             appState.itemManager.tempShowItem(item, clickWhenFinished: true, mouseButton: .left)
         }
+    }
+}
+
+/// 搜索选择只保存身份；刷新/过滤后重建索引，避免激活旧行或越界。
+enum MenuBarListSelection {
+    static func moving(_ current: String?, in ids: [String], by offset: Int) -> String? {
+        guard !ids.isEmpty else { return nil }
+        guard let current, let index = ids.firstIndex(of: current) else { return offset < 0 ? ids.last : ids.first }
+        return ids[min(max(0, index + offset), ids.count - 1)]
     }
 }

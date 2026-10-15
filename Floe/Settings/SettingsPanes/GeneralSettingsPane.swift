@@ -167,6 +167,11 @@ struct GeneralSettingsPane: View {
                     Text("You can still access Floe's settings by right-clicking an empty area in the menu bar")
                 }
             }
+        Button("Restore Floe icon") {
+            manager.showFloeIcon = true
+            appState.menuBarManager.section(withName: .visible)?.controlItem.restoreToMenuBar()
+        }
+        .annotation("If the icon was removed, reopen Floe from Applications and restore it here.")
         if manager.showFloeIcon {
             FloeMenu("Floe icon") {
                 Picker("Floe icon", selection: manager.bindings.floeIcon) {

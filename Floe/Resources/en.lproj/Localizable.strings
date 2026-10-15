@@ -234,3 +234,53 @@
 "Search menu bar items" = "Search menu bar items";
 "Could not move the menu bar item. Its actual position is shown; try again after closing menus." = "Could not move the menu bar item. Its actual position is shown; try again after closing menus.";
 "No matching menu bar items" = "No matching menu bar items";
+
+"New menu bar items" = "New menu bar items";
+
+"Position in section" = "Position in section";
+
+"Beginning" = "Beginning";
+
+"End" = "End";
+
+"Keep system placement" = "Keep system placement";
+
+"Existing items keep their saved placement. If Always Hidden is disabled, new items use Hidden instead." = "Existing items keep their saved placement. If Always Hidden is disabled, new items use Hidden instead.";
+
+"Automatic placement waits until menus are closed and the pointer is idle." = "Automatic placement waits until menus are closed and the pointer is idle.";
+
+"Show all current icons" = "Show all current icons";
+
+"Automatic placement requires menu bar item discovery. You can still arrange icons manually below." = "Automatic placement requires menu bar item discovery. You can still arrange icons manually below.";
+
+"Use the actions menu to move this icon or change its section." = "Use the actions menu to move this icon or change its section.";
+
+"Move to Visible" = "Move to Visible";
+
+"Move to Hidden" = "Move to Hidden";
+
+"Move to Always Hidden" = "Move to Always Hidden";
+
+"Move earlier" = "Move earlier";
+
+"Move later" = "Move later";
+
+"Always show this app" = "Always show this app";
+
+"Stop always showing this app" = "Stop always showing this app";
+
+"%@, item %d of %d" = "%@, item %d of %d";
+
+"Edit Menu Bar Layout…" = "Edit Menu Bar Layout…";
+
+"Restore Floe icon" = "Restore Floe icon";
+
+"If the icon was removed, reopen Floe from Applications and restore it here." = "If the icon was removed, reopen Floe from Applications and restore it here.";
+
+"Selected" = "Selected";
+
+"This system item cannot be moved." = "This system item cannot be moved.";
+
+"Automatic placement only moves uniquely identifiable items. Ambiguous items keep their current position." = "Automatic placement only moves uniquely identifiable items. Ambiguous items keep their current position.";
+
+"Layout updated." = "Layout updated.";

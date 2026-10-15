@@ -168,6 +168,8 @@
 
 ### M5：产品能力扩展
 
+2026-10-15 第一批实现见 [M5 第一批状态](m5-a-status.json)：增加新项默认分区/首尾位置、应用始终显示规则、显式显示所有当前项、布局键盘及 VoiceOver 动作、搜索选中行导航、布局直达和图标恢复入口；中英文说明同步更新。自动放置仅覆盖可唯一识别且支持项目发现的场景，原场景验收仍保留；79 条数量不变。
+
 范围：默认图标规则、中文/其他本地化、VoiceOver、按屏幕策略、配置管理、Floe Bar 增强和自动化。
 
 | 工作包 | 内容 | 条目数 | 排期考虑 |
@@ -488,19 +490,19 @@
 | M4 | V2 | [jordanbaird/Ice #479](https://github.com/jordanbaird/Ice/issues/479) | [Bug]: Energy impact | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 代码改进 · 待原场景验收 |
 | M4 | V2 | [jordanbaird/Ice #578](https://github.com/jordanbaird/Ice/issues/578) | [Bug]: High CPU usage | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 代码改进 · 待原场景验收 |
 | M4 | V2 | [jordanbaird/Ice #830](https://github.com/jordanbaird/Ice/issues/830) | [Bug]: So many bugs | 常态性能或能耗反馈，需采样和对照；出现长期资源增长/卡死时上调到 P1。 | 代码改进 · 待原场景验收 |
-| M5 | F1 | [jordanbaird/Ice #6](https://github.com/jordanbaird/Ice/issues/6) | [Feature Request] Change the location where new menu bar icons come up. | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 候选需求待评估 |
+| M5 | F1 | [jordanbaird/Ice #6](https://github.com/jordanbaird/Ice/issues/6) | [Feature Request] Change the location where new menu bar icons come up. | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 首批代码/文档已实现 · 保留原场景验收 |
 | M5 | F1 | [jordanbaird/Ice #326](https://github.com/jordanbaird/Ice/issues/326) | [Feature Request]: Custom configuration path / export settings | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 候选需求待评估 |
-| M5 | F1 | [jordanbaird/Ice #378](https://github.com/jordanbaird/Ice/issues/378) | [Feature Request]: Show all menu bar items as default | 请求默认全部可见，先明确默认分区与新项目规则。 | 候选需求待评估 |
-| M5 | F1 | [jordanbaird/Ice #566](https://github.com/jordanbaird/Ice/issues/566) | [Feature Request]: Hide/unhide using custom application whitelist | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 候选需求待评估 |
-| M5 | F1 | [jordanbaird/Ice #617](https://github.com/jordanbaird/Ice/issues/617) | [Feature Request]: Auto-Sort behavior for "Unrecognized" Apps | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 候选需求待评估 |
-| M5 | F1 | [jordanbaird/Ice #713](https://github.com/jordanbaird/Ice/issues/713) | [Feature Request]: Blacklist instead of whitelist strategy | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 候选需求待评估 |
-| M5 | F1 | [jordanbaird/Ice #767](https://github.com/jordanbaird/Ice/issues/767) | [Feature Request]: Have new menubar items appear in always shown, or customizable | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 候选需求待评估 |
-| M5 | F1 | [jordanbaird/Ice #809](https://github.com/jordanbaird/Ice/issues/809) | [Feature Request]: Always place new icons at the end | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 候选需求待评估 |
-| M5 | F1 | [jordanbaird/Ice #938](https://github.com/jordanbaird/Ice/issues/938) | [Feature Request]: Option that lets you choose location of new items | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 候选需求待评估 |
-| M5 | F2 | [jordanbaird/Ice #83](https://github.com/jordanbaird/Ice/issues/83) | [Feature Request]: Organize apps by keyboard shortcuts or in preferences pane | VoiceOver 用户无法使用仅拖拽的整理入口；无障碍是可用性需求，优先于纯装饰扩展。 | 候选需求待评估 |
+| M5 | F1 | [jordanbaird/Ice #378](https://github.com/jordanbaird/Ice/issues/378) | [Feature Request]: Show all menu bar items as default | 请求默认全部可见，先明确默认分区与新项目规则。 | 首批代码/文档已实现 · 保留原场景验收 |
+| M5 | F1 | [jordanbaird/Ice #566](https://github.com/jordanbaird/Ice/issues/566) | [Feature Request]: Hide/unhide using custom application whitelist | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 首批代码/文档已实现 · 保留原场景验收 |
+| M5 | F1 | [jordanbaird/Ice #617](https://github.com/jordanbaird/Ice/issues/617) | [Feature Request]: Auto-Sort behavior for "Unrecognized" Apps | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 首批代码/文档已实现 · 保留原场景验收 |
+| M5 | F1 | [jordanbaird/Ice #713](https://github.com/jordanbaird/Ice/issues/713) | [Feature Request]: Blacklist instead of whitelist strategy | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 首批代码/文档已实现 · 保留原场景验收 |
+| M5 | F1 | [jordanbaird/Ice #767](https://github.com/jordanbaird/Ice/issues/767) | [Feature Request]: Have new menubar items appear in always shown, or customizable | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 首批代码/文档已实现 · 保留原场景验收 |
+| M5 | F1 | [jordanbaird/Ice #809](https://github.com/jordanbaird/Ice/issues/809) | [Feature Request]: Always place new icons at the end | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 首批代码/文档已实现 · 保留原场景验收 |
+| M5 | F1 | [jordanbaird/Ice #938](https://github.com/jordanbaird/Ice/issues/938) | [Feature Request]: Option that lets you choose location of new items | 需要明确默认分区/排序、配置或同步规则，先定最小产品范围。 | 首批代码/文档已实现 · 保留原场景验收 |
+| M5 | F2 | [jordanbaird/Ice #83](https://github.com/jordanbaird/Ice/issues/83) | [Feature Request]: Organize apps by keyboard shortcuts or in preferences pane | VoiceOver 用户无法使用仅拖拽的整理入口；无障碍是可用性需求，优先于纯装饰扩展。 | 首批代码/文档已实现 · 保留原场景验收 |
 | M5 | F2 | [jordanbaird/Ice #252](https://github.com/jordanbaird/Ice/issues/252) | [Feature Request]: RTL support  | 语言和阅读方向影响使用覆盖面；在核心交互稳定后提供可验收的首批语言支持。 | 候选需求待评估 |
 | M5 | F2 | [jordanbaird/Ice #638](https://github.com/jordanbaird/Ice/issues/638) | Can it support the multilingual version? | 语言和阅读方向影响使用覆盖面；在核心交互稳定后提供可验收的首批语言支持。 | 候选需求待评估 |
-| M5 | F2 | [jordanbaird/Ice #641](https://github.com/jordanbaird/Ice/issues/641) | [Feature Request]: Support Ctrl+N and Ctrl+P to navigate down and up in the  menu bar items list | 标准键盘导航有无障碍价值，先确认搜索/列表入口再补交互。 | 候选需求待评估 |
+| M5 | F2 | [jordanbaird/Ice #641](https://github.com/jordanbaird/Ice/issues/641) | [Feature Request]: Support Ctrl+N and Ctrl+P to navigate down and up in the  menu bar items list | 标准键盘导航有无障碍价值，先确认搜索/列表入口再补交互。 | 首批代码/文档已实现 · 保留原场景验收 |
 | M5 | F2 | [jordanbaird/Ice #712](https://github.com/jordanbaird/Ice/issues/712) | [Feature Request]: Localize Ice | 语言和阅读方向影响使用覆盖面；在核心交互稳定后提供可验收的首批语言支持。 | 候选需求待评估 |
 | M5 | F2 | [jordanbaird/Ice #787](https://github.com/jordanbaird/Ice/issues/787) | [Feature Request]: need language option，Chinese for example.... | 语言和阅读方向影响使用覆盖面；在核心交互稳定后提供可验收的首批语言支持。 | 候选需求待评估 |
 | M5 | F2 | [jordanbaird/Ice #801](https://github.com/jordanbaird/Ice/issues/801) | [Feature Request]: 求中文 | 语言和阅读方向影响使用覆盖面；在核心交互稳定后提供可验收的首批语言支持。 | 候选需求待评估 |
@@ -510,7 +512,7 @@
 | M5 | F4 | [jordanbaird/Ice #515](https://github.com/jordanbaird/Ice/issues/515) | [Feature Request]: Scrolling through menu bar items | 需求包含系统自动隐藏与滚动访问全部项目，已有横向滚动不能证明完整满足。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #519](https://github.com/jordanbaird/Ice/issues/519) | [Feature Request]: Ability to show all icons in click menu | 要求访问刘海遮住的项目，应验证发现范围后评估补充入口。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #551](https://github.com/jordanbaird/Ice/issues/551) | [Feature Request]: Grid option when using Ice bar | 网格用于容纳大量项目，需要可访问性和点击目标的验收。 | 候选需求待评估 |
-| M5 | F4 | [jordanbaird/Ice #860](https://github.com/jordanbaird/Ice/issues/860) | [Feature Request]: Option to re-add the menu bar icon, after manual removal | 误移除主控制图标后的恢复入口有明确使用价值，应先定义恢复行为。 | 候选需求待评估 |
+| M5 | F4 | [jordanbaird/Ice #860](https://github.com/jordanbaird/Ice/issues/860) | [Feature Request]: Option to re-add the menu bar icon, after manual removal | 误移除主控制图标后的恢复入口有明确使用价值，应先定义恢复行为。 | 首批代码/文档已实现 · 保留原场景验收 |
 | M5 | F5 | [jordanbaird/Ice #188](https://github.com/jordanbaird/Ice/issues/188) | [Feature Request]: Option to only hide on built-in display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
 | M5 | F5 | [jordanbaird/Ice #223](https://github.com/jordanbaird/Ice/issues/223) | [Feature Request]: Ability to enable Ice Bar only when on built-in display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
 | M5 | F5 | [jordanbaird/Ice #242](https://github.com/jordanbaird/Ice/issues/242) | [Feature Request]: Ability to have unique menubars for each display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
@@ -570,7 +572,7 @@
 | M5 | F4 | [jordanbaird/Ice #481](https://github.com/jordanbaird/Ice/issues/481) | [Feature Request]: Option to enable showing hidden section when hovering over un-hidden side | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #487](https://github.com/jordanbaird/Ice/issues/487) | [Feature Request]: Always Hidden Use Ice Bar | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #494](https://github.com/jordanbaird/Ice/issues/494) | [Feature Request]: Make option for showing hidden items on mouse down, not up | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
-| M5 | F4 | [jordanbaird/Ice #497](https://github.com/jordanbaird/Ice/issues/497) | [Feature Request]: Open 'Menu Bar Layout' from Right-Click | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
+| M5 | F4 | [jordanbaird/Ice #497](https://github.com/jordanbaird/Ice/issues/497) | [Feature Request]: Open 'Menu Bar Layout' from Right-Click | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 首批代码/文档已实现 · 保留原场景验收 |
 | M5 | F4 | [jordanbaird/Ice #518](https://github.com/jordanbaird/Ice/issues/518) | [Feature Request]: Configuration option to Always open Ice as minimized | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #527](https://github.com/jordanbaird/Ice/issues/527) | [Feature Request]: Allow pinning bar location with hidden ice icon | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #552](https://github.com/jordanbaird/Ice/issues/552) | [Feature Request]: Option for Double click on ice icon in menu bar to show always hidden menu icons instead of settings | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
@@ -582,7 +584,7 @@
 | M5 | F4 | [jordanbaird/Ice #778](https://github.com/jordanbaird/Ice/issues/778) | [Feature Request]: Add Toggle to expand hidden section to contain always hidden icons | 额外操作或布局能力，先确认需求和验收范围再进入实现。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #961](https://github.com/jordanbaird/Ice/issues/961) | [Feature Request]: No dock icon | 已有 LSUIElement，但窗口激活策略会影响 Dock；先明确用户希望隐藏的时机再设计选项。 | 候选需求待评估 |
 | M5 | F6 | [jordanbaird/Ice #210](https://github.com/jordanbaird/Ice/issues/210) | [Feature Request]: Option to update to beta releases | 分发/帮助需求，先明确 Floe 的渠道、更新源及支持范围。 | 候选需求待评估 |
-| M5 | F6 | [jordanbaird/Ice #601](https://github.com/jordanbaird/Ice/issues/601) | [Feature Request]: Documentation for hidden and always hidden behavior | 分发/帮助需求，先明确 Floe 的渠道、更新源及支持范围。 | 候选需求待评估 |
+| M5 | F6 | [jordanbaird/Ice #601](https://github.com/jordanbaird/Ice/issues/601) | [Feature Request]: Documentation for hidden and always hidden behavior | 分发/帮助需求，先明确 Floe 的渠道、更新源及支持范围。 | 首批代码/文档已实现 · 保留原场景验收 |
 | M5 | F6 | [jordanbaird/Ice #862](https://github.com/jordanbaird/Ice/issues/862) | [Feature Request]: submit the app to the homebrew | 分发/帮助需求，先明确 Floe 的渠道、更新源及支持范围。 | 候选需求待评估 |
 | Triage | T1 | [jordanbaird/Ice #73](https://github.com/jordanbaird/Ice/issues/73) | [Feature Request]: Defer recommended payment until once installed | 上游维护、网站或社区/发布信息；先明确本项目可行动部分，不直接计入缺陷开发。 | 外部事项待整理 |
 | Triage | T1 | [jordanbaird/Ice #745](https://github.com/jordanbaird/Ice/issues/745) | [Love]: Thank You For Ice! | 上游维护、网站或社区/发布信息；先明确本项目可行动部分，不直接计入缺陷开发。 | 外部事项待整理 |

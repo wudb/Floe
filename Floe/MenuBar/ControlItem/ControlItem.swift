@@ -626,6 +626,14 @@ final class ControlItem {
         statusItem.isVisible = true
     }
 
+    /// 显式恢复入口也重置屏外位置；不修改其他应用和两个分隔符的位置。
+    func restoreToMenuBar() {
+        guard !isSectionDivider else { return }
+        statusItem.isVisible = false
+        StatusItemDefaults[.preferredPosition, statusItem.autosaveName as String] = 0
+        statusItem.isVisible = true
+    }
+
     /// Removes the control item from the menu bar.
     func removeFromMenuBar() {
         guard isAddedToMenuBar else {

@@ -1,0 +1,136 @@
+{
+  "date": "2026-10-15",
+  "scope": "第一批默认规则、基础可访问性、导航及恢复文档",
+  "total_m5": 79,
+  "upstream_snapshot": "m5-upstream-review.json",
+  "implemented_items": [
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 6,
+      "url": "https://github.com/jordanbaird/Ice/issues/6",
+      "status": "implemented_pending_original_scenario",
+      "change": "新项可配置默认分区和首尾位置；不将初次基线和已知宿主重建当作新项",
+      "remaining_acceptance": "区分首次发现、宿主重建和暂时显示；已知用户选择优先，未知项按配置进入指定分区/位置；禁用 always-hidden 时有明确回退。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 378,
+      "url": "https://github.com/jordanbaird/Ice/issues/378",
+      "status": "implemented_pending_original_scenario",
+      "change": "提供显式显示所有当前图标；没有新增首次启动向导",
+      "remaining_acceptance": "首次使用可选全部可见且不迁移已有用户布局；随后新图标仍服从单独的默认规则。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 566,
+      "url": "https://github.com/jordanbaird/Ice/issues/566",
+      "status": "implemented_pending_original_scenario",
+      "change": "增加应用始终可见规则，对可唯一识别项生效；同名身份不明项仍保守跳过",
+      "remaining_acceptance": "应用级规则覆盖重建项，定义单项选择与应用规则优先级，不把全部同名兄弟项误合并。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 617,
+      "url": "https://github.com/jordanbaird/Ice/issues/617",
+      "status": "implemented_pending_original_scenario",
+      "change": "默认分区与首尾位置；禁用始终隐藏时回退到隐藏区",
+      "remaining_acceptance": "区分首次发现、宿主重建和暂时显示；已知用户选择优先，未知项按配置进入指定分区/位置；禁用 always-hidden 时有明确回退。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 713,
+      "url": "https://github.com/jordanbaird/Ice/issues/713",
+      "status": "implemented_pending_original_scenario",
+      "change": "默认可见，用户也可选择隐藏/始终隐藏/保留系统位置",
+      "remaining_acceptance": "区分首次发现、宿主重建和暂时显示；已知用户选择优先，未知项按配置进入指定分区/位置；禁用 always-hidden 时有明确回退。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 767,
+      "url": "https://github.com/jordanbaird/Ice/issues/767",
+      "status": "implemented_pending_original_scenario",
+      "change": "增加默认位置设置并保留已有选择",
+      "remaining_acceptance": "区分首次发现、宿主重建和暂时显示；已知用户选择优先，未知项按配置进入指定分区/位置；禁用 always-hidden 时有明确回退。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 809,
+      "url": "https://github.com/jordanbaird/Ice/issues/809",
+      "status": "implemented_pending_original_scenario",
+      "change": "普通新项首尾位置；临时显示仍独立，系统保护项不强制移动",
+      "remaining_acceptance": "可移动普通新项遵守末端/锚点规则；临时显示恢复原位；系统保护项不重复尝试拖拽。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 938,
+      "url": "https://github.com/jordanbaird/Ice/issues/938",
+      "status": "implemented_pending_original_scenario",
+      "change": "可配置分区与首尾位置；任意可拖动虚拟锚点尚未实现",
+      "remaining_acceptance": "区分首次发现、宿主重建和暂时显示；已知用户选择优先，未知项按配置进入指定分区/位置；禁用 always-hidden 时有明确回退。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 83,
+      "url": "https://github.com/jordanbaird/Ice/issues/83",
+      "status": "implemented_pending_original_scenario",
+      "change": "布局可聚焦；方向键切换、Command-方向键排序、Command-1/2/3 跨区；VoiceOver 名称/位置/操作",
+      "remaining_acceptance": "VoiceOver 读出项目名称、分区、位置；无需拖拽即可跨区和前后移动，失败和不可移动原因可读。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 641,
+      "url": "https://github.com/jordanbaird/Ice/issues/641",
+      "status": "implemented_pending_original_scenario",
+      "change": "搜索增加稳定选中项、方向键/Ctrl-N/P、激活选中项及过滤后的选择恢复",
+      "remaining_acceptance": "上下键和 Ctrl+N/P 移动当前选择，Return 激活当前项，筛选后选择有效，Escape 关闭。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 860,
+      "url": "https://github.com/jordanbaird/Ice/issues/860",
+      "status": "implemented_pending_original_scenario",
+      "change": "通用设置恢复按钮；重新打开应用保留设置入口；恢复时重置自身图标位置",
+      "remaining_acceptance": "Command-drag 移除和设置隐藏两种情况均可从重新打开应用恢复，位置不在屏外且不丢偏好。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 497,
+      "url": "https://github.com/jordanbaird/Ice/issues/497",
+      "status": "implemented_pending_original_scenario",
+      "change": "空白菜单栏右键直接进入布局页",
+      "remaining_acceptance": "一个右键菜单项直接选中布局页，冷启动/现有设置窗口均正确，不丢当前布局操作。"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 601,
+      "url": "https://github.com/jordanbaird/Ice/issues/601",
+      "status": "implemented_pending_original_scenario",
+      "change": "README 中英文同步说明新项、已有选择、临时显示、应用规则、恢复和键盘操作",
+      "remaining_acceptance": "中英文同步说明实际实现；将期望行为与当前行为分开，说明快捷入口及异常恢复。"
+    }
+  ],
+  "explicit_limits": [
+    "身份不明的同名多状态项不自动搬动；系统不支持项目发现时仍可手动整理，自动放置不可用",
+    "没有实现任意虚拟锚点、首次启动向导、所有窗口始终无 Dock 图标或重新打开应用永不显示设置",
+    "未进行真实 VoiceOver、菜单栏自动移动和各系统版本的交互验收；编译/模拟回归不是这些场景的完成证明"
+  ],
+  "tests": [
+    "new-item-rules.swift",
+    "layout-keyboard-actions.swift",
+    "search-selection.swift"
+  ],
+  "validation": {
+    "swift_regression_scripts": 41,
+    "result": "passed",
+    "final_targeted_rechecks": [
+      "layout-keyboard-actions.swift",
+      "new-item-rules.swift",
+      "search-selection.swift",
+      "app-language.swift"
+    ],
+    "debug_build": "passed",
+    "release_build": "passed",
+    "strict_swiftlint": "passed",
+    "native_voiceover_and_system_item_movement": "not_verified"
+  }
+}

@@ -234,3 +234,53 @@
 "Search menu bar items" = "搜索菜单栏项目";
 "Could not move the menu bar item. Its actual position is shown; try again after closing menus." = "无法移动菜单栏项目。已显示实际位置，请关闭菜单后重试。";
 "No matching menu bar items" = "没有匹配的菜单栏项目";
+
+"New menu bar items" = "新菜单栏图标";
+
+"Position in section" = "分区内位置";
+
+"Beginning" = "开头";
+
+"End" = "末尾";
+
+"Keep system placement" = "保留系统位置";
+
+"Existing items keep their saved placement. If Always Hidden is disabled, new items use Hidden instead." = "已有图标保留已保存的位置。若未启用始终隐藏，新图标将改放入隐藏分区。";
+
+"Automatic placement waits until menus are closed and the pointer is idle." = "自动放置会等待菜单关闭且鼠标停止移动。";
+
+"Show all current icons" = "显示所有当前图标";
+
+"Automatic placement requires menu bar item discovery. You can still arrange icons manually below." = "自动放置需要系统支持菜单栏项目发现。你仍可在下方手动整理图标。";
+
+"Use the actions menu to move this icon or change its section." = "使用操作菜单移动此图标或更改所属分区。";
+
+"Move to Visible" = "移至可见分区";
+
+"Move to Hidden" = "移至隐藏分区";
+
+"Move to Always Hidden" = "移至始终隐藏分区";
+
+"Move earlier" = "向前移动";
+
+"Move later" = "向后移动";
+
+"Always show this app" = "始终显示此应用";
+
+"Stop always showing this app" = "取消此应用的始终显示规则";
+
+"%@, item %d of %d" = "%@，第 %d 项，共 %d 项";
+
+"Edit Menu Bar Layout…" = "编辑菜单栏布局…";
+
+"Restore Floe icon" = "恢复 Floe 图标";
+
+"If the icon was removed, reopen Floe from Applications and restore it here." = "若图标已被移除，可从“应用程序”重新打开 Floe，再在此处恢复。";
+
+"Selected" = "已选中";
+
+"This system item cannot be moved." = "此系统图标无法移动。";
+
+"Automatic placement only moves uniquely identifiable items. Ambiguous items keep their current position." = "自动放置仅移动可唯一识别的图标。身份不明确的图标会保留当前位置。";
+
+"Layout updated." = "布局已更新。";

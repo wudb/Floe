@@ -92,6 +92,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.appState = appState
     }
 
+    /// 直接进入布局页，不能依赖上一次关闭设置时恰好停留的位置。
+    @objc func openMenuBarLayout() {
+        appState?.navigationState.settingsNavigationIdentifier = .menuBarLayout
+        openSettingsWindow()
+    }
+
     /// Opens the settings window and activates the app.
     @objc func openSettingsWindow() {
         guard let appState else {

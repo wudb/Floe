@@ -382,6 +382,13 @@ final class MenuBarManager: ObservableObject {
         editItem.target = self
         menu.addItem(editItem)
 
+        let layoutItem = NSMenuItem(
+            title: L10n.string("Edit Menu Bar Layout…"),
+            action: #selector(AppDelegate.openMenuBarLayout),
+            keyEquivalent: ""
+        )
+        layoutItem.target = appState?.appDelegate
+        menu.addItem(layoutItem)
         menu.addItem(.separator())
 
         let settingsItem = NSMenuItem(

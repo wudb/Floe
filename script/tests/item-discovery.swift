@@ -58,6 +58,7 @@ struct Cache {
 @MainActor final class LayoutStoreStub { func restoreIfNeeded(manager: Manager) async {} }
 @MainActor final class Manager {
     let layoutStore = LayoutStoreStub()
+    func reconcileLayout() async { await layoutStore.restoreIfNeeded(manager: self) }
     var isCachingItems = false
     var needsForcedCache = false
     var waitDelay = false

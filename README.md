@@ -116,7 +116,15 @@ Maintain new visible strings in both `Floe/Resources/en.lproj/Localizable.string
     <img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/PP_logo_h_200x51.png" alt="Donate with PayPal" style="height: 36px !important;">
 </a>
 
-Search menu bar items from the Floe context menu or a shortcut configured in Settings → Hotkeys. Search accepts item and application names; press Return to open the first result or Escape to close. Confirmed layout drags are saved for uniquely identifiable items on systems with CGS item discovery.
+Open **Edit Menu Bar Layout…** directly from the context menu in an empty menu bar area. Search accepts item and application names; use Up/Down or Control-N/Control-P to select a result, Return to open the selected result, and Escape to close.
+
+In Menu Bar Layout, Tab focuses icons, Left/Right changes focus, Command-Left/Right reorders an icon, and Command-1/2/3 moves it to Visible/Hidden/Always Hidden. The context menu and VoiceOver actions expose the same operations. Protected system items cannot be moved or hidden where macOS disallows it.
+
+Choose a destination and beginning/end position for **new menu bar items**. On first use, Floe keeps the current layout; changing this setting does not rearrange existing items. **Show all current icons** explicitly moves identifiable current items to Visible. If Always Hidden is disabled, new items assigned there use Hidden instead. Previously saved placement takes precedence over the default for new items. In an icon's context menu, **Always show this app** overrides its saved section until that rule is removed; removing the rule keeps the current placement and allows manual changes.
+
+Automatic placement waits for menus to close and the pointer to stop moving. It requires supported item discovery and unique identities; ambiguous items keep their position. Temporary reveals do not become new placement choices. Confirmed manual layout changes and automatic placement choices are saved for later restoration.
+
+If the Floe icon was removed, reopen Floe from Applications, then choose **Restore Floe icon** in General settings. Reopening intentionally keeps access to settings available even when the menu bar icon is missing.
 
 ## Acknowledgments
 

@@ -122,6 +122,7 @@ final class MenuBarItemManager: ObservableObject {
     /// Context values for the current temporarily shown items.
     private var tempShownItemContexts = [TempShownItemContext]()
     private let layoutStore = MenuBarLayoutStore()
+    let newItemRules = MenuBarNewItemRules()
     var isEditingLayout = false
 
     var hasTemporarilyShownItems: Bool { !tempShownItemContexts.isEmpty }
@@ -130,6 +131,28 @@ final class MenuBarItemManager: ObservableObject {
     func recordLayoutChoice() {
         guard !hasTemporarilyShownItems else { return }
         layoutStore.record(itemCache)
+    }
+
+    /// 默认规则、应用规则和已知布局共用串行恢复，不与编辑或暂时显示竞争。
+    func reconcileLayout() async {
+        guard !layoutStore.isApplyingChoices, !isMovingItem, !isEditingLayout, !hasTemporarilyShownItems,
+              !MenuInteractionGuard.isInteracting, let appState else { return }
+        newItemRules.prepare(
+            cache: itemCache,
+            store: layoutStore,
+            alwaysHiddenEnabled: appState.menuBarManager.section(withName: .alwaysHidden)?.isEnabled == true
+        )
+        let revision = layoutStore.appliedRevision
+        await layoutStore.restoreIfNeeded(manager: self)
+        // 自动移动也必须读回真实帧；窗口 ID 未变化不能保留移动前的分区快照。
+        if layoutStore.appliedRevision != revision { await cacheItemsIfNeeded(force: true) }
+    }
+
+    func showAllExistingItems() async {
+        guard !layoutStore.isApplyingChoices, !isMovingItem, !isEditingLayout, !hasTemporarilyShownItems, !MenuInteractionGuard.isInteracting else { return }
+        newItemRules.showExistingItems(cache: itemCache, store: layoutStore)
+        await layoutStore.restoreIfNeeded(manager: self)
+        await cacheItemsIfNeeded(force: true)
     }
 
     /// A timer that determines when to rehide the temporarily shown items.
@@ -387,7 +410,7 @@ extension MenuBarItemManager {
         if !force, cachedItemWindowIDs == itemWindowIDs {
             logSkippingCache(reason: "item windows have not changed")
             // 持久化归位失败后仍有机会按退避重试，无需等待窗口 ID 再次改变。
-            Task { await layoutStore.restoreIfNeeded(manager: self) }
+            Task { await reconcileLayout() }
             return
         }
         // A failed scan must be retried even when the IDs do not change:
@@ -423,7 +446,7 @@ extension MenuBarItemManager {
                 otherItems: items
             )
             cachedItemWindowIDs = itemWindowIDs
-            Task { await layoutStore.restoreIfNeeded(manager: self) }
+            Task { await reconcileLayout() }
         } catch {
             Logger.itemManager.error("Error enforcing control item order: \(error)")
             Logger.itemManager.debug("Clearing menu bar item cache")
