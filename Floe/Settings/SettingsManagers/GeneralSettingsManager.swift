@@ -32,6 +32,7 @@ final class GeneralSettingsManager: ObservableObject {
     /// in a separate bar below the menu bar.
     @Published var useFloeBar = false
     let barPreferences = FloeBarPreferences()
+    let adaptivePresentation = AdaptivePresentationPreferences()
 
     /// The location where the Floe Bar appears.
     @Published var floeBarLocation: FloeBarLocation = .dynamic

@@ -1,0 +1,189 @@
+{
+  "date": "2026-10-15",
+  "scope": "第三批自适应呈现：内外屏、刘海、连接数量、连续空间、全屏和手动覆盖",
+  "total_m5": 79,
+  "fully_accepted_issues": 0,
+  "upstream_recheck": "m5-c-upstream-current.json",
+  "items": [
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 188,
+      "url": "https://github.com/jordanbaird/Ice/issues/188",
+      "upstream_state": "OPEN",
+      "status": "partial_pending_original_scenario",
+      "change": "按内屏/外屏选择呈现已实现；不等同于外屏自动常显全部图标"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 223,
+      "url": "https://github.com/jordanbaird/Ice/issues/223",
+      "upstream_state": "OPEN",
+      "status": "implemented_pending_original_scenario",
+      "change": "支持仅内屏使用浮栏，并保留按显示器手动覆盖"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 242,
+      "url": "https://github.com/jordanbaird/Ice/issues/242",
+      "upstream_state": "OPEN",
+      "status": "material_gap",
+      "change": "本批只控制呈现；每屏独立图标集合仍有实质差距"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 299,
+      "url": "https://github.com/jordanbaird/Ice/issues/299",
+      "upstream_state": "OPEN",
+      "status": "partial_pending_original_scenario",
+      "change": "空间不足自适应已实现；大屏自动常显与像素阈值未实现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 303,
+      "url": "https://github.com/jordanbaird/Ice/issues/303",
+      "upstream_state": "OPEN",
+      "status": "partial_pending_original_scenario",
+      "change": "按连续可用空间选择原生/浮栏；未增加原始像素分辨率阈值"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 406,
+      "url": "https://github.com/jordanbaird/Ice/issues/406",
+      "upstream_state": "OPEN",
+      "status": "material_gap",
+      "change": "刘海参与容量测量；刘海点击触发仍未扩展"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 463,
+      "url": "https://github.com/jordanbaird/Ice/issues/463",
+      "upstream_state": "OPEN",
+      "status": "implemented_pending_original_scenario",
+      "change": "连续空间测量、未知回退及滞回退出已接入"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 544,
+      "url": "https://github.com/jordanbaird/Ice/issues/544",
+      "upstream_state": "OPEN",
+      "status": "partial_pending_original_scenario",
+      "change": "自适应分区可设全屏不展开；不等同于全局停用所有功能"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 555,
+      "url": "https://github.com/jordanbaird/Ice/issues/555",
+      "upstream_state": "OPEN",
+      "status": "partial_pending_original_scenario",
+      "change": "外屏呈现规则和 UUID 覆盖已实现；独立图标集合未实现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 570,
+      "url": "https://github.com/jordanbaird/Ice/issues/570",
+      "upstream_state": "OPEN",
+      "status": "implemented_pending_original_scenario",
+      "change": "原生展开总宽度与刘海右侧安全区统一判断"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 604,
+      "url": "https://github.com/jordanbaird/Ice/issues/604",
+      "upstream_state": "OPEN",
+      "status": "material_gap",
+      "change": "保留原有忽略刘海点击行为；未增加可配置开关"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 630,
+      "url": "https://github.com/jordanbaird/Ice/issues/630",
+      "upstream_state": "OPEN",
+      "status": "implemented_pending_original_scenario",
+      "change": "可选择仅单屏范围内使用浮栏"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 691,
+      "url": "https://github.com/jordanbaird/Ice/issues/691",
+      "upstream_state": "OPEN",
+      "status": "partial_pending_original_scenario",
+      "change": "大屏可选原生呈现；自动常显隐藏区未实现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 703,
+      "url": "https://github.com/jordanbaird/Ice/issues/703",
+      "upstream_state": "OPEN",
+      "status": "implemented_pending_original_scenario",
+      "change": "可选择仅刘海屏范围内使用浮栏"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 783,
+      "url": "https://github.com/jordanbaird/Ice/issues/783",
+      "upstream_state": "OPEN",
+      "status": "partial_pending_original_scenario",
+      "change": "内外屏/数量/全屏呈现已统一；独立完整配置集未实现"
+    },
+    {
+      "repository": "jordanbaird/Ice",
+      "number": 797,
+      "url": "https://github.com/jordanbaird/Ice/issues/797",
+      "upstream_state": "OPEN",
+      "status": "implemented_pending_original_scenario",
+      "change": "可选择仅刘海屏范围内使用浮栏"
+    }
+  ],
+  "behavior": [
+    "旧模式原样保留，仅 Adaptive 分区启用自动策略",
+    "优先级：分区固定/继承 > 每屏覆盖 > 每屏全屏规则 > 类型与数量组合范围 > 连续空间",
+    "使用逻辑点；可见+隐藏+必要时始终隐藏总宽度参与原生容量计算，未知测量优先浮栏",
+    "空间不足进入浮栏，退出时增加48点余量",
+    "目标屏幕按指针选择，异步展开保留触发屏幕并复核模式",
+    "主屏全屏状态不外推其他屏幕，未知私有接口数据不伪造结果",
+    "规则变化只关闭过时呈现，不主动展开；菜单、临时显示、拖拽期间延后协调",
+    "不修改持久显隐偏好，显示器覆盖按UUID保存",
+    "浮栏全屏底色和 AX 行过滤同样按所属屏读取，未知 Space 不丢弃项目",
+    "周期 AX 测量使用独立 SystemWideElement、20ms 单次消息超时及150ms共享时间预算；不修改全局 AX 超时"
+  ],
+  "remaining_acceptance": [
+    "真实刘海内屏/外屏混合全屏、不同应用菜单宽度、热插拔和缩放切换仍需原场景验收",
+    "容量使用已发现项目的缓存宽度；AX-only、缺少应用菜单或空间接口时采用保守回退",
+    "每屏独立图标集合、独立完整配置集、大屏自动常显与原始分辨率阈值未实现",
+    "不增加刘海点击触发/禁用配置；全屏不展开仅适用于自适应分区的新展开"
+  ],
+  "regression_scripts": [
+    "adaptive-presentation.swift",
+    "adaptive-presentation-integration.swift",
+    "display-space-states.swift",
+    "floe-bar-section-modes.swift",
+    "ax-activation.swift",
+    "adaptive-menu-measurement.swift",
+    "ax-row-filter.swift"
+  ],
+  "validation": {
+    "status": "passed",
+    "debug_build": "passed",
+    "release_build": "passed",
+    "strict_swiftlint": "passed",
+    "bilingual_localization_plutil": "passed",
+    "native_settings_fragment_render": "passed",
+    "host_per_display_space_probe": "passed; 3 desktop displays; mixed fullscreen not exercised",
+    "swift_regression_scripts": 51,
+    "swift_regression_result": "passed",
+    "git_diff_check": "passed",
+    "real_notch_mixed_fullscreen_hotplug_acceptance": "not_verified"
+  },
+  "evidence": {
+    "directory": "m5-c-evidence",
+    "settings_view_fragment_render": "en and zh-Hans at 640x720 logical points; expanded DisclosureGroup",
+    "host_space_probe": "3 displays, all non-fullscreen; read only",
+    "original_scenario_acceptance": "not_verified"
+  },
+  "source_sha256": {
+    "Floe/MenuBar/MenuBarPresentationController.swift": "a356e2e3e11f99bbe9c3f72e5afc26020a8fa4b9c8cfa37273e199e9f7d1ec57",
+    "Floe/UI/FloeBar/AdaptivePresentationPolicy.swift": "f80866904f22835b5a090e9d83956d32df5ee0de5914e1ce5e10ea80dd092cf2",
+    "Floe/UI/FloeBar/AdaptivePresentationPreferences.swift": "9db94aef0126267ab42fac3d39560648f56da2de7483a7fe3165f140943445c0",
+    "Floe/Bridging/Bridging.swift": "766d71fbbf1631ee43304291f3569b4f0b08801a23bf9b96f46e5050246adf68"
+  }
+}

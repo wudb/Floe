@@ -328,3 +328,26 @@
 "Right click" = "右键点击";
 
 "Close" = "关闭";
+
+/* Adaptive presentation */
+"Adaptive" = "自适应";
+"All displays" = "所有显示器";
+"Built-in display only" = "仅内置显示器";
+"External displays only" = "仅外接显示器";
+"Notched displays only" = "仅刘海显示器";
+"Any display count" = "任意屏幕数量";
+"One display connected" = "连接一台显示器";
+"Multiple displays connected" = "连接多台显示器";
+"Follow adaptive rules" = "遵循自适应规则";
+"Do not reveal in full screen" = "全屏时不展开";
+"Adaptive presentation rules" = "自适应呈现规则";
+"Rules affect only Adaptive sections. Fixed section choices take priority, then display overrides, full-screen rules, display scope and available space." = "规则仅影响选择“自适应”的分区。优先采用分区的固定选择，其次为显示器覆盖、全屏规则、屏幕范围和可用空间。";
+"Apply Floe Bar on" = "浮栏适用屏幕";
+"Connected displays" = "已连接的显示器";
+"Only use Floe Bar when space is limited" = "仅在空间不足时使用浮栏";
+"Measures the continuous space beside application menus and the notch. Unknown measurements use Floe Bar; displays outside the selected scope use the native menu bar." = "测量应用菜单与刘海旁的连续可用空间。无法测量时使用浮栏；范围以外的显示器使用原生菜单栏。";
+"Reserve menu bar space: %lld pt" = "预留菜单栏空间：%lld 点";
+"In full screen" = "全屏时";
+"Display overrides" = "按显示器手动覆盖";
+"Rules change presentation, not which icons are hidden. Display overrides are remembered after reconnecting." = "规则只改变呈现方式，不改变隐藏哪些图标。重新连接显示器后仍保留手动覆盖。";
+"Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide." = "右键点击浮栏背景可固定位置或整理图标。固定位置不影响自动收起。";

@@ -11,10 +11,11 @@ import Foundation
 @MainActor
 final class FloeBarPreferences: ObservableObject {
     enum Presentation: String, CaseIterable {
-        case inherited, native, floating
+        case inherited, native, floating, automatic
         var title: String {
             switch self {
             case .inherited: "Follow Use Floe Bar"
+            case .automatic: "Adaptive"
             case .native: "Native menu bar"
             case .floating: "Floe Bar"
             }
@@ -75,14 +76,6 @@ final class FloeBarPreferences: ObservableObject {
 
     func presentation(for section: String) -> Presentation {
         Presentation(rawValue: section == "alwaysHidden" ? state.alwaysHidden : state.hidden) ?? .inherited
-    }
-
-    func usesFloating(section: String, legacy: Bool) -> Bool {
-        switch presentation(for: section) {
-        case .inherited: legacy
-        case .native: false
-        case .floating: true
-        }
     }
 
     func setPresentation(_ mode: Presentation, for section: String) {

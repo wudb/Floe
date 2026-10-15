@@ -116,7 +116,13 @@ final class MenuBarSection {
     // PRODUCTION_START_REHIDE
     // PRODUCTION_STOP_REHIDE
 }
+final class PresentationController {
+    enum Decision { case native, disabled }
+    func decision(for name: MenuBarSection.Name) -> Decision { .native }
+    func usesFloating(for name: MenuBarSection.Name, on screen: TestScreen? = nil) -> Bool { true }
+}
 final class MenuBarManager {
+    let presentationController = PresentationController()
     let sections = MenuBarSection.Name.allCases.map { MenuBarSection(name: $0) }
     var floeBarPanel: FloeBarPanel!
     func section(withName name: MenuBarSection.Name) -> MenuBarSection? { sections.first { $0.name == name } }

@@ -128,13 +128,23 @@ If the Floe icon was removed, reopen Floe from Applications, then choose **Resto
 
 ## Floe Bar layouts and placement
 
-In General settings, choose **Native menu bar**, **Floe Bar**, or **Follow Use Floe Bar** separately for Hidden and Always Hidden. Follow preserves the existing global switch and shortcut. For example, Hidden can stay in the native row while Always Hidden opens in the Floe Bar. Native Always Hidden still reveals Hidden because both sections share the same row.
+In General settings, choose **Native menu bar**, **Floe Bar**, **Follow Use Floe Bar**, or **Adaptive** separately for Hidden and Always Hidden. Follow preserves the existing global switch and shortcut. For example, Hidden can stay in the native row while Always Hidden opens in the Floe Bar. Native Always Hidden still reveals Hidden because both sections share the same row.
 
 Choose horizontal icons, a names list, or a grid. The grid supports 2–12 requested columns and reduces the column count on narrow displays; list and grid content scroll vertically and stay within the display's available area. Names and activation use the same discovered items as the existing bar, including the Accessibility fallback.
 
-Click **Reorder** in the bar, drag an icon onto another to insert it before that icon, or onto **Drop at end**. Click Done to return to normal menu activation. The actual native order is read back after a move; a rejected or stale move shows an error instead of saving a visual-only order. Closing the bar cancels the edit session. Protected items and missing/offscreen Accessibility frames cannot be forced into a new position.
+Right-click the bar background and choose **Reorder**, drag an icon onto another to insert it before that icon, or onto **Drop at end**. Click Done to return to normal menu activation. The actual native order is read back after a move; a rejected or stale move shows an error instead of saving a visual-only order. Closing the bar cancels the edit session. Protected items and missing/offscreen Accessibility frames cannot be forced into a new position.
 
-After leaving Reorder mode, move the bar by its background, then click **Pin position** to save the current position for that display. While pinned, later background drags update that display's position. Positions are stored relatively, so resizing or changing display scale does not reuse old pixel coordinates. An unfamiliar display starts at the available area's top-right. **Unpin position** restores the normal location rule. Pinning fixes placement; it does not keep the bar open or disable automatic rehide.
+After leaving Reorder mode, move the bar by its background, then right-click its background and choose **Pin position** to save the current position for that display. While pinned, later background drags update that display's position. Positions are stored relatively, so resizing or changing display scale does not reuse old pixel coordinates. An unfamiliar display starts at the available area's top-right. **Unpin position** restores the normal location rule. Pinning fixes placement; it does not keep the bar open or disable automatic rehide.
+
+## Adaptive presentation
+
+Select **Adaptive** for either hidden section in General settings, then expand **Adaptive presentation rules**. Choose the target display type (all, built-in, external or notched) and connected display count (any, one or multiple). Both scope conditions must match. Outside this scope, the section opens in the native menu bar.
+
+By default, matching displays use Floe Bar only when the native row lacks continuous space beside application menus and the notch. Widths use logical points, including the visible and hidden icons that a native reveal would expose. Set the reserved space, or turn off the space condition to always use Floe Bar within the scope. Missing measurements and system menu bar auto-hide favor Floe Bar. A 48-point exit margin reduces repeated switching near the boundary.
+
+Fixed section choices take priority. For Adaptive sections, a saved per-display override takes priority over full-screen rules, followed by display scope and space. Full-screen options are follow rules, native, Floe Bar, or do not reveal. Full-screen status belongs to the target display; unavailable Space metadata stays unknown. Normal use shows only the icon bar; the toolbar appears during Reorder.
+
+Rules refresh after display/Space/frontmost-app changes and on a one-second measurement cycle. Outdated presentations close safely after menus, temporary reveals or reordering finish. The next user trigger chooses the new presentation; rules do not automatically show all icons or change saved visibility. Display overrides use persistent display UUIDs. This provides presentation rules, not independent native icon sets for every display.
 
 ## Acknowledgments
 

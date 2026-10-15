@@ -1,0 +1,387 @@
+{
+  "checked_at": "2026-10-15",
+  "source": "GitHub GraphQL via host gh; cross-references are latest eight, not exhaustive",
+  "data": {
+    "repository": {
+      "i188": {
+        "number": 188,
+        "title": "[Feature Request]: Option to only hide on built-in display",
+        "body": "### Description\n\nI use Ice to stop icons flowing across the notch on my Mac. However, I also often have external displays connected, where it isn't necessary to hide icons. I'd like an option to disable Ice for external displays//only enable for the built-in display.\n\n### Screenshots\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2024-10-28T20:27:27Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/188",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {}
+            },
+            {
+              "source": {}
+            },
+            {
+              "source": {
+                "url": "https://github.com/jordanbaird/Ice/pull/795",
+                "state": "OPEN",
+                "merged": false
+              }
+            },
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i223": {
+        "number": 223,
+        "title": "[Feature Request]: Ability to enable Ice Bar only when on built-in display",
+        "body": "### CHECK EXISTING ISSUES\n\n- [X] I have searched existing issues, and this feature has not been requested\n\n### Description\n\nThe new Ice Bar feature in 0.10 is a great way to avoid icons getting hidden under the notch. However, I only care about that when I'm using my laptop's built-in display -- when I'm using an external monitor I will almost-never have to worry about icons colliding with the application menus.\r\n\r\nIt would be nice if the Ice Bar setting could be made conditional -- \"Use Ice Bar: Yes / No / Only on built-in display\". (Or \"only when there's a notch\", but the built-in displays are generally smaller anyway, so...)\r\n\r\nThis is similar to #188, in that it's a \"depending on whether we're on a screen with a notch\" behavior-change. It's possible that a more-comprehensive solution would be to duplicate a large chunk of the behavior / appearance settings into two separate \"built-in\" / \"external\" sections.\n\n### Screenshots\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2026-06-21T12:02:55Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/223",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {}
+            },
+            {
+              "source": {}
+            },
+            {
+              "source": {
+                "url": "https://github.com/jordanbaird/Ice/pull/612",
+                "state": "OPEN",
+                "merged": false
+              }
+            },
+            {
+              "source": {
+                "url": "https://github.com/jordanbaird/Ice/pull/795",
+                "state": "OPEN",
+                "merged": false
+              }
+            },
+            {
+              "source": {
+                "url": "https://github.com/jordanbaird/Ice/pull/883",
+                "state": "CLOSED",
+                "merged": false
+              }
+            },
+            {
+              "source": {
+                "url": "https://github.com/holzcloud/holzBar/pull/18",
+                "state": "MERGED",
+                "merged": true
+              }
+            },
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            },
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/19",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i242": {
+        "number": 242,
+        "title": "[Feature Request]: Ability to have unique menubars for each display",
+        "body": "### Check Existing Issues\n\n- [X] I have searched existing issues, and this issue is not a duplicate\n\n### Description\n\nWhen using two monitors, there could be an option to show different menubars on each display.\r\nI don't know if this would be possible.\r\n\r\nThis could be handy in combination with menubar widgets.\n\n### Screenshots\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2024-07-13T16:34:58Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/242",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i299": {
+        "number": 299,
+        "title": "[Feature Request]: Always show hidden items if monitor screen is larger than <enter resolution>",
+        "body": "### Discussed in https://github.com/jordanbaird/Ice/discussions/294\r\n\r\n<div type='discussions-op-text'>\r\n\r\n<sup>Originally posted by **jalurgemilang** August  3, 2024</sup>\r\nI feel that this feature is very useful for users who have ultrawide monitors or, using multiple monitors of different sizes. In ultrawide monitors, the hidden items are always shown. On the secondary, smaller monitor, they are hidden.</div>",
+        "state": "OPEN",
+        "updatedAt": "2025-05-23T18:23:18Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/299",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {}
+            },
+            {
+              "source": {}
+            },
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i303": {
+        "number": 303,
+        "title": "[Feature Request]: Use Ice Bar only when screen size is smaller than <enter resolution>",
+        "body": "### Check Existing Issues\n\n- [X] I have checked existing issues, and this issue is not a duplicate\n\n### Description\n\nSimilar to #299 - Would be very useful for those of us that switch between Macbooks and larger screen sizes.\r\n\r\nOn a laptop screen (especially with a notch), I have just enough apps that when the always-hidden icons are shown some get cut off, the Ice Bar works perfectly for this use case, but the hidden apps (IMO) looks more aesthetically pleasing on larger screens when expanded inside the menu bar.\r\n\r\nIf new default/size settings aren't possible or this is an edge case, a keyboard shortcut to toggle the Ice Bar would allow similar functionality when combined with BTT/KM.\n\n### Screenshots\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2024-11-14T12:19:49Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/303",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {}
+            },
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i406": {
+        "number": 406,
+        "title": "[Feature Request]: Allow clicks inside the notch",
+        "body": "### Check Existing Issues\n\n- [X] I have checked existing issues, and this issue is not a duplicate\n\n### Description\n\nI'm not sure if this is intended or a bug, but clicking the MacBook notch (the black region) doesn't trigger the Ice bar.\r\n\r\nThis is especially noticeable when the menu bar is full, as the notch occupies most of the empty space, making it intuitive to click the notch to show the Ice bar. Currently, I can only trigger the Ice bar by clicking a few pixels below the notch or the small gaps between menu items in that case.\r\n\r\nWould it be possible to make the notch area trigger the Ice bar on clicks?\n\n### Steps to Reproduce\n\n1. Go to the \"General\" settings.\r\n2. Configure the following settings:\r\n    - Use Ice Bar: True\r\n    - Location: Dynamic\r\n    - Show on Click: True\r\n    - Show on Hover: False\r\n    - Show on Scroll: False\r\n3. Click the notch (the black region).\n\n### Ice Version\n\n0.11.10\n\n### macOS Version\n\n15.0.1\n\n### Screenshots\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2024-10-18T17:57:53Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/406",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i463": {
+        "number": 463,
+        "title": "[Feature Request]: Make the \"Use Ice Bar\" toggle dynamic",
+        "body": "### Check Existing Issues\n\n- [X] I have checked existing issues, and this issue is not a duplicate\n\n### Description\n\nI have \"Use Ice Bar\" enabled because my Mac has a notch and icons disappear behind it. But I also use an external display sometimes and it has no notch and plenty of space, and the ice bar makes usability slightly worse because it appears on top of my Chrome tabs and the icons all kinda blend in. I had to turn off \"show on hover\" because that kept causing misclicks.\r\n\r\nIt'll be nice if this had an \"Auto\" option (\"No/Yes/Auto\") instead of being a toggle, showing the ice bar only if there isn't enough space before the notch.\n\n### Screenshots\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2025-01-12T19:00:49Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/463",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i544": {
+        "number": 544,
+        "title": "[Feature Request]: Disable in full screen mode",
+        "body": "### Check Existing Issues\n\n- [x] I have checked existing issues, and this issue is not a duplicate\n\n### Description\n\nAs the title says, it would be nice to have the ability to disable in full screen mode\n\nThank you for your hard work\n\n### Screenshots\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2026-04-08T09:56:48Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/544",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {}
+            },
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i555": {
+        "number": 555,
+        "title": "[Feature Request]: <Disable / alt settings with external monitor>",
+        "body": "### Check Existing Issues\n\n- [x] I have checked existing issues, and this issue is not a duplicate\n\n### Description\n\nThe notch is the biggest reason to use Ice. \nCan we set that on external monitors, Ice is disabled? Or specify a different set of items that should be hidden? \n\n(Should be able to get this data by looking at the current resolution of the monitor.)\n\n### Screenshots\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2025-05-19T11:53:19Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/555",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i570": {
+        "number": 570,
+        "title": "[Feature Request]: When bar items pass through the notch",
+        "body": "### Check Existing Issues\n\n- [x] I have checked existing issues, and this issue is not a duplicate\n\n### Description\n\nSorry in advance if this is a duplicate ask, I searched but didn't find anything.\n\nWhen my hidden items are shown and expand beyond the notch, they are no longer visible. Could we add the ability to automatically use the ice bar if there is not enough space to display all items?\n\n### Screenshots\n\nMacbook screen, the notch is just the the left of the SSD icon\n<img width=\"1795\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/1a0127a8-a3b4-4882-9203-446891fab059\" />\n\nExternal screen\n![Image](https://github.com/user-attachments/assets/97c690a2-8ca3-4bd5-a3f2-b3a303156d7c)\n",
+        "state": "OPEN",
+        "updatedAt": "2025-05-22T18:15:57Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/570",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i604": {
+        "number": 604,
+        "title": "[Feature Request]: Disable functionality behind notch",
+        "body": "### Check Existing Issues\n\n- [x] I have checked existing issues, and this issue is not a duplicate\n\n### Description\n\nI use Better Touch Tool's floating menu feature, and my floating menu is located behind the notch to make the notch functional. One of the triggers I use is right-clicking on the notch to run a Mac Shortcut. But right clicking also triggers the settings for Ice Bar. Would it be possible to disable the Ice Bar trigger behind the notch? Or a toggle?\n\n### Screenshots\n\n<img width=\"481\" height=\"145\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/c79473ac-4474-45a3-af3b-2171a63081ba\" />",
+        "state": "OPEN",
+        "updatedAt": "2025-09-13T01:53:54Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/604",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i630": {
+        "number": 630,
+        "title": "[Feature Request]: Ice Bar under when I'm on one screen.",
+        "body": "### Check Existing Issues\n\n- [x] I have checked existing issues, and this issue is not a duplicate\n\n### Description\n\nI would love a switch for the Ice Bar that says \"Only kick on when I'm on a single screen\".\n\nThe main idea here is that I spend a lot of time with a docked laptop. Ice works great when I have two screens.\n\nWhen I pick up my laptop and go somewhere else, I suddenly shift from multiple screens to just one.\n\nI want a simple switch in the Ice Bar that toggles \"when on one screen, use the Ice Bar.\" This means if there’s more than one screen, the Ice Bar shouldn’t activate. Instead, everything should appear on the menu bar as we have it now.\n\nA straightforward Ice Bar setup should satisfy about half of the users who want multiple configurations for the Ice Bar.\n\n### Screenshots\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2025-08-09T13:53:18Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/630",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i691": {
+        "number": 691,
+        "title": "[Feature Request]: Allow unhide all when the display is larger",
+        "body": "### Check Existing Issues\n\n- [x] I have checked existing issues, and this issue is not a duplicate\n\n### Description\n\nIt would be great to be able to configure a screen size above which ice will show all items (except Always hidden) rather than having the same behavior on all screens. \n\nSo if the configured size is 3000px, everything over will have default unhide and on the smaller Mac Screen it would be the normal behavior. \n\nThanks\n\n### Screenshots\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2025-09-19T17:24:46Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/691",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {}
+            },
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i703": {
+        "number": 703,
+        "title": "[Feature Request]: Ice Bar only on Macs with a Notch",
+        "body": "Would love to have the ability to enable the Ice Bar only on MacBooks with a notch, or the ability to exclude the Ice Bar from being used on an external monitor (similar to Bartender for Mac).",
+        "state": "OPEN",
+        "updatedAt": "2025-12-16T21:21:43Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/703",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {}
+            },
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i783": {
+        "number": 783,
+        "title": "[Feature Request]: Separate sets for laptops when connect to external monitor",
+        "body": "### Search for Similar Requests\n\n- [x] I have searched existing issues for similar requests\n\n### Description\n\nIt would be great to have setting sets attached to different contexts. For example, I would love to have:\n\n- Home external monitor connected\n- Laptop only\n\n### Additional Information\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2025-11-17T10:11:41Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/783",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      },
+      "i797": {
+        "number": 797,
+        "title": "[Feature Request]: only on screens with a notch",
+        "body": "### Search for Similar Requests\n\n- [x] I have searched existing issues for similar requests\n\n### Description\n\nCan Ice Show menu bar items in a bar below the menu bar only on screens with a notch?\n\n### Additional Information\n\n_No response_",
+        "state": "OPEN",
+        "updatedAt": "2025-12-18T08:10:19Z",
+        "url": "https://github.com/jordanbaird/Ice/issues/797",
+        "timelineItems": {
+          "nodes": [
+            {
+              "source": {}
+            },
+            {
+              "source": {
+                "url": "https://github.com/leonardovida/icey/pull/11",
+                "state": "MERGED",
+                "merged": true
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

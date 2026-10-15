@@ -168,6 +168,8 @@
 
 ### M5：产品能力扩展
 
+2026-10-15 第三批实现见 [自适应呈现状态](m5-c-status.json)：统一分区/每屏手动覆盖、内外屏/刘海/屏幕数量范围、连续空间及每屏全屏规则。旧模式保持，自动策略仅影响选择“自适应”的分区。已通过主机核对相关上游状态；原场景与实质差距逐项保留，79 条数量不变。
+
 2026-10-15 第二批实现见 [浮栏增强状态](m5-b-status.json)：分区可独立选择原生/浮栏，增加名称列表、可配置网格、浮栏内拖拽读回及每屏相对固定位置。保留原生层级约束和旧全局开关；已渲染生产布局片段，完整系统交互仍待验收。M5 79 条数量不变。
 
 2026-10-15 第一批实现见 [M5 第一批状态](m5-a-status.json)：增加新项默认分区/首尾位置、应用始终显示规则、显式显示所有当前项、布局键盘及 VoiceOver 动作、搜索选中行导航、布局直达和图标恢复入口；中英文说明同步更新。自动放置仅覆盖可唯一识别且支持项目发现的场景，原场景验收仍保留；79 条数量不变。
@@ -515,22 +517,22 @@
 | M5 | F4 | [jordanbaird/Ice #519](https://github.com/jordanbaird/Ice/issues/519) | [Feature Request]: Ability to show all icons in click menu | 要求访问刘海遮住的项目，应验证发现范围后评估补充入口。 | 候选需求待评估 |
 | M5 | F4 | [jordanbaird/Ice #551](https://github.com/jordanbaird/Ice/issues/551) | [Feature Request]: Grid option when using Ice bar | 网格用于容纳大量项目，需要可访问性和点击目标的验收。 | 第二批代码已实现 · 保留原场景验收 |
 | M5 | F4 | [jordanbaird/Ice #860](https://github.com/jordanbaird/Ice/issues/860) | [Feature Request]: Option to re-add the menu bar icon, after manual removal | 误移除主控制图标后的恢复入口有明确使用价值，应先定义恢复行为。 | 首批代码/文档已实现 · 保留原场景验收 |
-| M5 | F5 | [jordanbaird/Ice #188](https://github.com/jordanbaird/Ice/issues/188) | [Feature Request]: Option to only hide on built-in display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #223](https://github.com/jordanbaird/Ice/issues/223) | [Feature Request]: Ability to enable Ice Bar only when on built-in display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #242](https://github.com/jordanbaird/Ice/issues/242) | [Feature Request]: Ability to have unique menubars for each display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #299](https://github.com/jordanbaird/Ice/issues/299) | [Feature Request]: Always show hidden items if monitor screen is larger than <enter resolution> | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #303](https://github.com/jordanbaird/Ice/issues/303) | [Feature Request]: Use Ice Bar only when screen size is smaller than <enter resolution> | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #406](https://github.com/jordanbaird/Ice/issues/406) | [Feature Request]: Allow clicks inside the notch | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #463](https://github.com/jordanbaird/Ice/issues/463) | [Feature Request]: Make the "Use Ice Bar" toggle dynamic | 正文请求空间不足时自动使用浮栏，依赖屏幕空间测量。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #544](https://github.com/jordanbaird/Ice/issues/544) | [Feature Request]: Disable in full screen mode | 请求按全屏状态关闭功能，属于自适应行为规则。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #555](https://github.com/jordanbaird/Ice/issues/555) | [Feature Request]: <Disable / alt settings with external monitor> | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #570](https://github.com/jordanbaird/Ice/issues/570) | [Feature Request]: When bar items pass through the notch | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #604](https://github.com/jordanbaird/Ice/issues/604) | [Feature Request]: Disable functionality behind notch | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #630](https://github.com/jordanbaird/Ice/issues/630) | [Feature Request]: Ice Bar under when I'm on one screen. | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #691](https://github.com/jordanbaird/Ice/issues/691) | [Feature Request]: Allow unhide all when the display is larger | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #703](https://github.com/jordanbaird/Ice/issues/703) | [Feature Request]: Ice Bar only on Macs with a Notch | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #783](https://github.com/jordanbaird/Ice/issues/783) | [Feature Request]: Separate sets for laptops when connect to external monitor | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
-| M5 | F5 | [jordanbaird/Ice #797](https://github.com/jordanbaird/Ice/issues/797) | [Feature Request]: only on screens with a notch | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 候选需求待评估 |
+| M5 | F5 | [jordanbaird/Ice #188](https://github.com/jordanbaird/Ice/issues/188) | [Feature Request]: Option to only hide on built-in display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批部分实现 · 原场景与差距保留 |
+| M5 | F5 | [jordanbaird/Ice #223](https://github.com/jordanbaird/Ice/issues/223) | [Feature Request]: Ability to enable Ice Bar only when on built-in display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批代码已实现 · 保留原场景验收 |
+| M5 | F5 | [jordanbaird/Ice #242](https://github.com/jordanbaird/Ice/issues/242) | [Feature Request]: Ability to have unique menubars for each display | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批评估 · 实质差距保留 |
+| M5 | F5 | [jordanbaird/Ice #299](https://github.com/jordanbaird/Ice/issues/299) | [Feature Request]: Always show hidden items if monitor screen is larger than <enter resolution> | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批部分实现 · 原场景与差距保留 |
+| M5 | F5 | [jordanbaird/Ice #303](https://github.com/jordanbaird/Ice/issues/303) | [Feature Request]: Use Ice Bar only when screen size is smaller than <enter resolution> | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批部分实现 · 原场景与差距保留 |
+| M5 | F5 | [jordanbaird/Ice #406](https://github.com/jordanbaird/Ice/issues/406) | [Feature Request]: Allow clicks inside the notch | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批评估 · 实质差距保留 |
+| M5 | F5 | [jordanbaird/Ice #463](https://github.com/jordanbaird/Ice/issues/463) | [Feature Request]: Make the "Use Ice Bar" toggle dynamic | 正文请求空间不足时自动使用浮栏，依赖屏幕空间测量。 | 第三批代码已实现 · 保留原场景验收 |
+| M5 | F5 | [jordanbaird/Ice #544](https://github.com/jordanbaird/Ice/issues/544) | [Feature Request]: Disable in full screen mode | 请求按全屏状态关闭功能，属于自适应行为规则。 | 第三批部分实现 · 原场景与差距保留 |
+| M5 | F5 | [jordanbaird/Ice #555](https://github.com/jordanbaird/Ice/issues/555) | [Feature Request]: <Disable / alt settings with external monitor> | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批部分实现 · 原场景与差距保留 |
+| M5 | F5 | [jordanbaird/Ice #570](https://github.com/jordanbaird/Ice/issues/570) | [Feature Request]: When bar items pass through the notch | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批代码已实现 · 保留原场景验收 |
+| M5 | F5 | [jordanbaird/Ice #604](https://github.com/jordanbaird/Ice/issues/604) | [Feature Request]: Disable functionality behind notch | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批评估 · 实质差距保留 |
+| M5 | F5 | [jordanbaird/Ice #630](https://github.com/jordanbaird/Ice/issues/630) | [Feature Request]: Ice Bar under when I'm on one screen. | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批代码已实现 · 保留原场景验收 |
+| M5 | F5 | [jordanbaird/Ice #691](https://github.com/jordanbaird/Ice/issues/691) | [Feature Request]: Allow unhide all when the display is larger | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批部分实现 · 原场景与差距保留 |
+| M5 | F5 | [jordanbaird/Ice #703](https://github.com/jordanbaird/Ice/issues/703) | [Feature Request]: Ice Bar only on Macs with a Notch | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批代码已实现 · 保留原场景验收 |
+| M5 | F5 | [jordanbaird/Ice #783](https://github.com/jordanbaird/Ice/issues/783) | [Feature Request]: Separate sets for laptops when connect to external monitor | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批部分实现 · 原场景与差距保留 |
+| M5 | F5 | [jordanbaird/Ice #797](https://github.com/jordanbaird/Ice/issues/797) | [Feature Request]: only on screens with a notch | 按屏幕自适应有使用价值，但依赖基础多屏行为稳定。 | 第三批代码已实现 · 保留原场景验收 |
 
 ### P3（64 条）
 

@@ -64,7 +64,12 @@ final class Section {
     enum Name { case hidden, alwaysHidden }
     let controlItem = ControlItem()
 }
+final class PresentationController {
+    var fullscreen: Bool? = false
+    func fullscreenState(on screen: Screen) -> Bool? { fullscreen }
+}
 final class MenuBarManager {
+    let presentationController = PresentationController()
     let hidden = Section()
     let alwaysHidden = Section()
     func section(withName name: Section.Name) -> Section? { name == .hidden ? hidden : alwaysHidden }
@@ -98,9 +103,9 @@ struct Logger {
     }
     func divider(_ x: CGFloat?) -> CGRect? { x.map { CGRect(x: $0, y: 0, width: 20, height: 24) } }
     func check(_ name: String, hidden: CGFloat?, always: CGFloat?, width: CGFloat? = nil,
-               fullscreen: Bool = false, nativeHidden: CGFloat? = nil, expected: [String]) async {
+               fullscreen: Bool? = false, nativeHidden: CGFloat? = nil, expected: [String]) async {
         let content = Content()
-        content.appState.isActiveSpaceFullscreen = fullscreen
+        content.menuBarManager.presentationController.fullscreen = fullscreen
         content.menuBarManager.hidden.controlItem.window = divider(nativeHidden).map { Window(frame: $0) }
         MenuBarItemAXDiscovery.dividers = (divider(hidden), divider(always))
         MenuBarOverlayPanelContentView.width = width
@@ -123,6 +128,7 @@ struct Logger {
     await check("partial geometry uses the visible-region fallback", hidden: nil, always: 500, width: 200, expected: ["400", "600"])
     await check("both missing dividers use the visible-region fallback", hidden: nil, always: nil, width: 200, expected: ["400", "600"])
     await check("missing geometry without a visible region retains all items", hidden: nil, always: nil, expected: ["400", "600", "1000", "unframed"])
+    await check("unknown display Space does not discard icons", hidden: nil, always: 500, width: 200, fullscreen: nil, expected: ["400", "600", "1000", "unframed"])
     await check("fullscreen ignores stale visible-region geometry", hidden: nil, always: 500, width: 200, fullscreen: true, expected: ["400", "600", "1000", "unframed"])
     await check("native hidden-divider fallback retains classification", hidden: nil, always: 500, nativeHidden: 800, expected: ["400", "600"])
     await check("parking-spacer geometry is not a hidden boundary", hidden: 7, always: 500, width: 200, expected: ["400", "600"])

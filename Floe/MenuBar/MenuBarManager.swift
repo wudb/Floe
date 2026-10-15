@@ -42,6 +42,7 @@ final class MenuBarManager: ObservableObject {
 
     /// The panel that contains the Floe Bar interface.
     let floeBarPanel: FloeBarPanel
+    let presentationController: MenuBarPresentationController
 
     /// A Boolean value that indicates whether the manager can update its stored
     /// information for the menu bar's average color.
@@ -52,6 +53,7 @@ final class MenuBarManager: ObservableObject {
     /// Initializes a new menu bar manager instance.
     init(appState: AppState) {
         self.floeBarPanel = FloeBarPanel(appState: appState)
+        self.presentationController = MenuBarPresentationController(appState: appState)
         self.appState = appState
     }
 
@@ -69,6 +71,7 @@ final class MenuBarManager: ObservableObject {
         initializeSections()
         configureCancellables()
         floeBarPanel.performSetup()
+        presentationController.performSetup()
     }
 
     /// Performs the initial setup of the menu bar manager's sections.
@@ -308,7 +311,10 @@ final class MenuBarManager: ObservableObject {
     ///
     /// On macOS 27 the exact top-left point can hit the WindowManager glass
     /// container instead of the menu bar, so probe a few points inside the bar.
-    private func menuBarElement(for displayID: CGDirectDisplayID) -> UIElement? {
+    private func menuBarElement(for displayID: CGDirectDisplayID, deadline: Date? = nil) -> UIElement? {
+        // 周期性的自适应测量使用独立引用及短超时，不更改其他 AX 调用的全局超时。
+        let probe = deadline == nil ? systemWideElement : SystemWideElement(AXUIElementCreateSystemWide())
+        if deadline != nil { AXUIElementSetMessagingTimeout(probe.element, 0.02) }
         let displayBounds = CGDisplayBounds(displayID)
         let candidates: [CGPoint] = [
             CGPoint(x: displayBounds.origin.x + 2, y: displayBounds.origin.y + 2),
@@ -317,13 +323,10 @@ final class MenuBarManager: ObservableObject {
             CGPoint(x: displayBounds.origin.x, y: displayBounds.origin.y),
         ]
         for point in candidates {
-            if
-                let element = try? systemWideElement.elementAtPosition(Float(point.x), Float(point.y)),
-                let role = try? element.role(),
-                role == .menuBar
-            {
-                return element
-            }
+            if let deadline, Date() >= deadline { return nil }
+            guard let element = try? probe.elementAtPosition(Float(point.x), Float(point.y)) else { continue }
+            if deadline != nil { AXUIElementSetMessagingTimeout(element.element, 0.02) }
+            if let role = try? element.role(), role == .menuBar { return element }
         }
         return nil
     }
@@ -338,16 +341,28 @@ final class MenuBarManager: ObservableObject {
     }
 
     /// Returns the frame of the application menu for the given display.
-    func getApplicationMenuFrame(for displayID: CGDirectDisplayID) -> CGRect? {
-        guard
-            let menuBar = menuBarElement(for: displayID),
-            let items: [UIElement] = try? menuBar.arrayAttribute(.children)?.filter({ (try? $0.attribute(.enabled)) == true })
-        else {
-            return nil
+    func getApplicationMenuFrame(for displayID: CGDirectDisplayID, deadline: Date? = nil) -> CGRect? {
+        if let deadline, Date() >= deadline { return nil }
+        guard let menuBar = menuBarElement(for: displayID, deadline: deadline),
+              let items: [UIElement] = try? menuBar.arrayAttribute(.children) else { return nil }
+        var applicationMenuFrame = CGRect.null
+        for item in items {
+            if let deadline {
+                guard Date() < deadline, items.count <= 128 else { return nil }
+                AXUIElementSetMessagingTimeout(item.element, 0.02)
+            }
+            guard let enabled: Bool = try? item.attribute(.enabled) else {
+                if deadline != nil { return nil }
+                continue
+            }
+            guard enabled else { continue }
+            guard let frame: CGRect = try? item.attribute(.frame) else {
+                if deadline != nil { return nil }
+                continue
+            }
+            applicationMenuFrame = applicationMenuFrame.union(frame)
         }
-
-        let itemFrames = items.lazy.compactMap { try? $0.attribute(.frame) as CGRect? }
-        let applicationMenuFrame = itemFrames.reduce(.null, CGRectUnion)
+        if let deadline, Date() >= deadline { return nil }
 
         if applicationMenuFrame.width <= 0 {
             return nil

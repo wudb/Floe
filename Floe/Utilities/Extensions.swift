@@ -438,6 +438,14 @@ extension NSScreen {
         deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as! CGDirectDisplayID
     }
 
+    /// 固定位置和自适应覆盖共用持久显示器身份，不依赖插拔后可能变化的编号。
+    var persistentDisplayKey: String {
+        if let uuid = CGDisplayCreateUUIDFromDisplayID(displayID)?.takeRetainedValue() {
+            return CFUUIDCreateString(nil, uuid) as String
+        }
+        return String(displayID)
+    }
+
     /// A Boolean value that indicates whether the screen has a notch.
     var hasNotch: Bool {
         safeAreaInsets.top != 0

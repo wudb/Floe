@@ -19,15 +19,10 @@ __PRODUCTION__
 @main struct Checks {
     @MainActor static func main() {
         let preferences = FloeBarPreferences()
-        for legacy in [false, true] {
-            for section in ["hidden", "alwaysHidden"] { precondition(preferences.usesFloating(section: section, legacy: legacy) == legacy) }
-        }
+        for section in ["hidden", "alwaysHidden"] { precondition(preferences.presentation(for: section) == .inherited) }
         preferences.setPresentation(.native, for: "hidden")
         preferences.setPresentation(.floating, for: "alwaysHidden")
-        for legacy in [false, true] {
-            precondition(!preferences.usesFloating(section: "hidden", legacy: legacy))
-            precondition(preferences.usesFloating(section: "alwaysHidden", legacy: legacy))
-        }
+        precondition(preferences.presentation(for: "hidden") == .native && preferences.presentation(for: "alwaysHidden") == .floating)
         preferences.layout = .grid; preferences.columns = 100; precondition(preferences.columns == 12)
         preferences.columns = -1; precondition(preferences.columns == 2)
         let bounds = CGRect(x: -1920, y: 37, width: 1920, height: 1040)

@@ -328,3 +328,26 @@
 "Right click" = "Right click";
 
 "Close" = "Close";
+
+/* Adaptive presentation */
+"Adaptive" = "Adaptive";
+"All displays" = "All displays";
+"Built-in display only" = "Built-in display only";
+"External displays only" = "External displays only";
+"Notched displays only" = "Notched displays only";
+"Any display count" = "Any display count";
+"One display connected" = "One display connected";
+"Multiple displays connected" = "Multiple displays connected";
+"Follow adaptive rules" = "Follow adaptive rules";
+"Do not reveal in full screen" = "Do not reveal in full screen";
+"Adaptive presentation rules" = "Adaptive presentation rules";
+"Rules affect only Adaptive sections. Fixed section choices take priority, then display overrides, full-screen rules, display scope and available space." = "Rules affect only Adaptive sections. Fixed section choices take priority, then display overrides, full-screen rules, display scope and available space.";
+"Apply Floe Bar on" = "Apply Floe Bar on";
+"Connected displays" = "Connected displays";
+"Only use Floe Bar when space is limited" = "Only use Floe Bar when space is limited";
+"Measures the continuous space beside application menus and the notch. Unknown measurements use Floe Bar; displays outside the selected scope use the native menu bar." = "Measures the continuous space beside application menus and the notch. Unknown measurements use Floe Bar; displays outside the selected scope use the native menu bar.";
+"Reserve menu bar space: %lld pt" = "Reserve menu bar space: %lld pt";
+"In full screen" = "In full screen";
+"Display overrides" = "Display overrides";
+"Rules change presentation, not which icons are hidden. Display overrides are remembered after reconnecting." = "Rules change presentation, not which icons are hidden. Display overrides are remembered after reconnecting.";
+"Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide." = "Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide.";

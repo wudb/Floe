@@ -36,7 +36,15 @@ final class Control {
     func show(section: Section.Name, on: Int) async { currentSection = section }
     func close() { currentSection = nil }
 }
+@MainActor final class Presentation {
+    enum Decision { case native, disabled }
+    var preferences: Preferences?
+    var disabled = false
+    func decision(for name: Section.Name) -> Decision { disabled ? .disabled : .native }
+    func usesFloating(for name: Section.Name, on screen: Int? = nil) -> Bool { preferences?.usesFloating(section: name == .alwaysHidden ? "alwaysHidden" : "hidden", legacy: false) ?? false }
+}
 @MainActor final class Bar {
+    let presentationController = Presentation()
     let panel = Panel()
     var sections = [Section]()
     func section(withName name: Section.Name) -> Section? { sections.first { $0.name == name } }
@@ -69,6 +77,10 @@ typealias MenuBarSection = Section
         let visible = Section(.visible, state), hidden = Section(.hidden, state), always = Section(.alwaysHidden, state)
         state.menuBarManager.sections = [visible, hidden, always]
         let preferences = state.settingsManager.generalSettingsManager.barPreferences
+        state.menuBarManager.presentationController.preferences = preferences
+        state.menuBarManager.presentationController.disabled = true
+        hidden.show(); precondition(hidden.controlItem.state == .hideItems && hidden.stateRevision == 0)
+        state.menuBarManager.presentationController.disabled = false
         preferences.modes = ["hidden": false, "alwaysHidden": true]
         hidden.show(); precondition(hidden.controlItem.state == .showItems)
         always.show(); await always.presentationTask?.value

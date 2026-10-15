@@ -74,8 +74,7 @@ final class MenuBarSection {
 
     /// A Boolean value that indicates whether the Floe Bar should be used.
     private var useFloeBar: Bool {
-        guard let settings = appState?.settingsManager.generalSettingsManager else { return false }
-        return settings.barPreferences.usesFloating(section: name == .alwaysHidden ? "alwaysHidden" : "hidden", legacy: settings.useFloeBar)
+        appState?.menuBarManager.presentationController.usesFloating(for: name) ?? false
     }
 
     /// A weak reference to the menu bar manager's Floe Bar panel.
@@ -201,6 +200,8 @@ final class MenuBarSection {
     /// - Parameter persistState: Whether this is an explicit visibility choice.
     ///   Automatic hover reveals must not change the next-launch preference.
     func show(persistState: Bool = true) {
+        // 只限制自适应规则下的新展开，手动分区/显示器覆盖仍由统一决策器优先处理。
+        guard appState?.menuBarManager.presentationController.decision(for: name) != .disabled else { return }
         if persistState {
             appState?.eventManager.cancelDelayedInteractions()
             appState?.preventShowOnHover()
@@ -217,6 +218,7 @@ final class MenuBarSection {
             // TODO: Can we use isEnabled for this check?
             return
         }
+        let targetScreen = screenForFloeBar
         switch name {
         case .visible where useFloeBar, .hidden where useFloeBar:
             // The Floe Bar shows items WITHOUT expanding the menu bar: the spacer stays put.
@@ -225,8 +227,9 @@ final class MenuBarSection {
             // trade-off per the user's call (menu bar must not jut left).
             presentationTask?.cancel()
             presentationTask = Task {
-                guard !Task.isCancelled else { return }
-                if let screenForFloeBar {
+                guard !Task.isCancelled,
+                      appState.menuBarManager.presentationController.usesFloating(for: name, on: targetScreen) else { return }
+                if let screenForFloeBar = targetScreen {
                     await floeBarPanel?.show(section: .hidden, on: screenForFloeBar)
                 }
             }
@@ -235,8 +238,9 @@ final class MenuBarSection {
             // the menu bar stays put.
             presentationTask?.cancel()
             presentationTask = Task {
-                guard !Task.isCancelled else { return }
-                if let screenForFloeBar {
+                guard !Task.isCancelled,
+                      appState.menuBarManager.presentationController.usesFloating(for: name, on: targetScreen) else { return }
+                if let screenForFloeBar = targetScreen {
                     await floeBarPanel?.show(section: .alwaysHidden, on: screenForFloeBar)
                 }
             }

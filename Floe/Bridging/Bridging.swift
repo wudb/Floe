@@ -4,6 +4,7 @@
 //
 
 import Cocoa
+import Darwin
 
 /// A namespace for bridged functionality.
 enum Bridging { }
@@ -304,4 +305,38 @@ extension Bridging {
 // MARK: - Logger
 private extension Logger {
     static let bridging = Logger(category: "Bridging")
+}
+
+// MARK: - Per-display Space snapshots
+
+extension Bridging {
+    /// 按持久显示器 UUID 读取各屏当前 Space；接口缺失或格式未知时返回未知，而非套用主屏状态。
+    static func fullscreenDisplayStates() -> [String: Bool] {
+        guard let symbol = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "CGSCopyManagedDisplaySpaces") else { return [:] }
+        typealias CopySpaces = @convention(c) (CGSConnectionID) -> Unmanaged<CFArray>?
+        let copy = unsafeBitCast(symbol, to: CopySpaces.self)
+        guard let displays = copy(CGSMainConnectionID())?.takeRetainedValue() as? [[String: Any]] else { return [:] }
+        let mainDisplayKey = NSScreen.screens.first(where: { $0.displayID == CGMainDisplayID() })?.persistentDisplayKey
+        return fullscreenDisplayStates(from: displays, mainDisplayKey: mainDisplayKey)
+    }
+
+    /// 隔离私有接口的字典格式；无法确认的显示器/类型不发布伪造状态。
+    static func fullscreenDisplayStates(from displays: [[String: Any]], mainDisplayKey: String?) -> [String: Bool] {
+        var states = [String: Bool]()
+        for display in displays {
+            guard let identifier = display["Display Identifier"] as? String,
+                  let space = display["Current Space"] as? [String: Any],
+                  let rawType = space["type"] as? Int,
+                  let type = UInt32(exactly: rawType),
+                  [CGSSpaceType.user.rawValue, CGSSpaceType.system.rawValue, CGSSpaceType.fullscreen.rawValue].contains(type) else { continue }
+            // 共享 Space 模式可能以 Main 代替 UUID，只能确认主显示器，不能扩散至其他屏幕。
+            let key: String
+            if identifier == "Main" {
+                guard let mainDisplayKey else { continue }
+                key = mainDisplayKey
+            } else { key = identifier }
+            states[key] = type == CGSSpaceType.fullscreen.rawValue
+        }
+        return states
+    }
 }

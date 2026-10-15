@@ -11,11 +11,11 @@ extension View {
     /// - Note: The view this modifier is applied to must be transparent, or the style
     ///   will be drawn incorrectly.
     @ViewBuilder
-    func layoutBarStyle(appState: AppState, averageColorInfo: MenuBarAverageColorInfo?, tintOpacity: Double = 0.2, useLiveBlur: Bool = false) -> some View {
+    func layoutBarStyle(appState: AppState, averageColorInfo: MenuBarAverageColorInfo?, tintOpacity: Double = 0.2, useLiveBlur: Bool = false, isFullscreen: Bool = false) -> some View {
         background {
             // 色调只叠加背景，避免覆盖菜单图标和文字，降低前景对比度。
             ZStack {
-                if appState.isActiveSpaceFullscreen {
+                if isFullscreen {
                     Color.black
                 } else if useLiveBlur {
                     // Mirror MenuBarOverlayPanel.updateChrome: live .menu blur
@@ -47,7 +47,7 @@ extension View {
                 } else {
                     Color.defaultLayoutBar
                 }
-                if !appState.isActiveSpaceFullscreen {
+                if !isFullscreen {
                     switch appState.appearanceManager.configuration.current.tintKind {
                     case .none:
                         EmptyView()

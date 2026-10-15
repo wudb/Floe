@@ -7,6 +7,7 @@ import SwiftUI
 
 struct FloeBarOptionsView: View {
     @ObservedObject var preferences: FloeBarPreferences
+    @ObservedObject var adaptivePreferences: AdaptivePresentationPreferences
 
     var body: some View {
         ForEach(["hidden", "alwaysHidden"], id: \.self) { section in
@@ -21,6 +22,7 @@ struct FloeBarOptionsView: View {
         }
         Text("Use Floe Bar applies only to sections set to Follow Use Floe Bar.")
             .font(.caption).foregroundStyle(.secondary)
+        AdaptivePresentationOptionsView(preferences: adaptivePreferences)
         Picker("Floe Bar layout", selection: Binding(get: { preferences.layout }, set: { preferences.layout = $0 })) {
             ForEach(FloeBarPreferences.Layout.allCases, id: \.self) { layout in
                 Text(LocalizedStringKey(layout.title)).tag(layout)
@@ -32,7 +34,7 @@ struct FloeBarOptionsView: View {
             }
         }
         Toggle("Fixed Floe Bar position", isOn: Binding(get: { preferences.fixedPosition }, set: { preferences.fixedPosition = $0 }))
-            .annotation("Use Pin position in the Floe Bar to save its position for each display. Pinning does not prevent automatic rehide.")
+            .annotation("Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide.")
         Text("Showing Always Hidden in the native menu bar also reveals Hidden because the native sections share one row.")
             .font(.caption).foregroundStyle(.secondary)
     }

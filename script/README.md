@@ -151,3 +151,19 @@ contains the new tag. The script requires `gh` and Sparkle's `generate_appcast`.
 
 Tags must follow `vX.Y.Z` and increase with each release. Never re-tag an old
 version. CI injects the version into the Xcode build.
+
+## Adaptive presentation regression checks
+
+```bash
+swift script/tests/adaptive-presentation.swift
+swift script/tests/adaptive-presentation-integration.swift
+swift script/tests/adaptive-menu-measurement.swift
+swift script/tests/display-space-states.swift
+```
+
+Compiles production policy, preferences, controller and Space parsing against
+controlled display/menu snapshots. Covers section/display/fullscreen priority,
+combined display scopes, missing measurements, notch capacity, hysteresis,
+pointer targeting, deferred cleanup and reconnect persistence. These checks do
+not manipulate real menu items or replace mixed desktop/fullscreen, hotplug and
+notched MacBook acceptance. See [M5 third-batch status](../docs/m5-c-status.json).

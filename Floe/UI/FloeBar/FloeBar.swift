@@ -158,16 +158,9 @@ final class FloeBarPanel: NSPanel {
         colorManager.updateAllProperties(with: frame, screen: screen)
     }
 
-    private func displayKey(_ screen: NSScreen) -> String {
-        if let uuid = CGDisplayCreateUUIDFromDisplayID(screen.displayID)?.takeRetainedValue() {
-            return CFUUIDCreateString(nil, uuid) as String
-        }
-        return String(screen.displayID)
-    }
-
     private func positionPanel(for screen: NSScreen) {
         if let preferences = appState?.settingsManager.generalSettingsManager.barPreferences,
-           let origin = preferences.fixedOrigin(size: frame.size, bounds: screen.visibleFrame, display: displayKey(screen)) {
+           let origin = preferences.fixedOrigin(size: frame.size, bounds: screen.visibleFrame, display: screen.persistentDisplayKey) {
             setFrameOrigin(origin)
         } else {
             updateOrigin(for: screen)
@@ -177,7 +170,7 @@ final class FloeBarPanel: NSPanel {
     func toggleFixedPosition() {
         guard let screen, let preferences = appState?.settingsManager.generalSettingsManager.barPreferences else { return }
         if preferences.fixedPosition { preferences.fixedPosition = false } else {
-            preferences.pin(origin: frame.origin, size: frame.size, bounds: screen.visibleFrame, display: displayKey(screen))
+            preferences.pin(origin: frame.origin, size: frame.size, bounds: screen.visibleFrame, display: screen.persistentDisplayKey)
         }
     }
 
@@ -188,7 +181,7 @@ final class FloeBarPanel: NSPanel {
         if event.type == .leftMouseDown || event.type == .leftMouseUp,
            windowDragStartOrigin != nil, windowDragStartOrigin != frame.origin, let screen,
            let preferences = appState?.settingsManager.generalSettingsManager.barPreferences, preferences.fixedPosition {
-            preferences.pin(origin: frame.origin, size: frame.size, bounds: screen.visibleFrame, display: displayKey(screen))
+            preferences.pin(origin: frame.origin, size: frame.size, bounds: screen.visibleFrame, display: screen.persistentDisplayKey)
         }
         if event.type == .leftMouseUp { windowDragStartOrigin = nil }
     }
@@ -619,7 +612,7 @@ private struct FloeBarContentView: View {
                     .frame(height: preferences.layout == .icons ? contentHeight : nil)
                     .padding(.horizontal, horizontalPadding)
                     .padding(.vertical, verticalPadding)
-                    .layoutBarStyle(appState: appState, averageColorInfo: colorManager.colorInfo, tintOpacity: barTintOpacity, useLiveBlur: isSplitPill)
+                    .layoutBarStyle(appState: appState, averageColorInfo: colorManager.colorInfo, tintOpacity: barTintOpacity, useLiveBlur: isSplitPill, isFullscreen: menuBarManager.presentationController.fullscreenState(on: screen) == true)
                     .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
                     .overlay(splitBorderOverlay)
                     .clipShape(clipShape)
@@ -1062,7 +1055,7 @@ private struct FloeBarContentView: View {
         // when the hidden/visible boundary is missing, even if always-hidden is readable.
         // Skip fullscreen (pill isn't drawn, width is stale).
         if hiddenBoundaryMissing,
-           !appState.isActiveSpaceFullscreen,
+           menuBarManager.presentationController.fullscreenState(on: screen) == false,
            let trailingWidth = MenuBarOverlayPanelContentView.currentTrailingVisibleWidth(for: screen.displayID),
            trailingWidth > 0, trailingWidth < screen.frame.width
         {

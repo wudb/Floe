@@ -1,0 +1,20 @@
+{
+  "displays" : [
+    {
+      "display_id" : 1,
+      "display_key" : "37D8832A-2D66-02CA-B9F7-8F30A301B230",
+      "fullscreen" : false
+    },
+    {
+      "display_id" : 2,
+      "display_key" : "EEEECE92-9D08-498A-A867-4C571EEDFFA6",
+      "fullscreen" : false
+    },
+    {
+      "display_id" : 3,
+      "display_key" : "DBAAA5A4-55EC-4D0C-8511-B83B77583F7D",
+      "fullscreen" : false
+    }
+  ],
+  "source" : "production Bridging fullscreenDisplayStates; read only, no Space changes"
+}

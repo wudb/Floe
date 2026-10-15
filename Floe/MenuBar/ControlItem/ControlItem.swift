@@ -315,35 +315,18 @@ final class ControlItem {
                 }
                 .store(in: &c)
 
-            appState.settingsManager.generalSettingsManager.$useFloeBar
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self, weak appState] useFloeBar in
-                    guard
-                        let self,
-                        let appState,
-                        let button = statusItem.button
-                    else {
-                        return
-                    }
-                    let key = section?.name == .alwaysHidden ? "alwaysHidden" : "hidden"
-                    if appState.settingsManager.generalSettingsManager.barPreferences.usesFloating(section: key, legacy: useFloeBar) {
-                        button.sendAction(on: [.leftMouseDown, .rightMouseUp])
-                    } else {
-                        button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-                    }
-                }
-                .store(in: &c)
-
-            appState.settingsManager.generalSettingsManager.barPreferences.$presentationRevision
-                .dropFirst()
-                .sink { [weak self, weak appState] _ in
-                    guard let self, let appState, let button = statusItem.button else { return }
-                    let settings = appState.settingsManager.generalSettingsManager
-                    let key = section?.name == .alwaysHidden ? "alwaysHidden" : "hidden"
-                    let floating = settings.barPreferences.usesFloating(section: key, legacy: settings.useFloeBar)
-                    button.sendAction(on: floating ? [.leftMouseDown, .rightMouseUp] : [.leftMouseUp, .rightMouseUp])
-                }
-                .store(in: &c)
+            Publishers.Merge3(
+                appState.settingsManager.generalSettingsManager.$useFloeBar.mapToVoid(),
+                appState.settingsManager.generalSettingsManager.barPreferences.$presentationRevision.mapToVoid(),
+                appState.menuBarManager.presentationController.$revision.mapToVoid()
+            )
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self, weak appState] _ in
+                guard let self, let appState, let button = statusItem.button else { return }
+                let mouseDown = appState.menuBarManager.presentationController.activatesOnMouseDown(for: section?.name ?? .hidden)
+                button.sendAction(on: mouseDown ? [.leftMouseDown, .rightMouseUp] : [.leftMouseUp, .rightMouseUp])
+            }
+            .store(in: &c)
 
             appState.settingsManager.advancedSettingsManager.$showSectionDividers
                 .receive(on: DispatchQueue.main)
