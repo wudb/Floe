@@ -29,7 +29,7 @@ final class MenuBarSearchPanel: NSPanel {
         guard let appState else { return }
         contentView = NSHostingView(rootView: MenuBarSearchView(appState: appState) { [weak self] in
             self?.close()
-        }.appLanguage())
+        }.appLanguage().appAppearance())
         center()
         appState.activate(withPolicy: NSApp.activationPolicy(), usingDock: false)
         makeKeyAndOrderFront(nil)

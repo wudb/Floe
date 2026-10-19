@@ -54,6 +54,18 @@ swift script/tests/app-language.swift
 Covers system-language matching, fallback to English, saved selections, native
 menu localization and formatted messages without changing system preferences.
 
+## App appearance regression checks
+
+```bash
+swift script/tests/app-appearance.swift
+```
+
+Compiles the production appearance preference, manager, picker and window bridge
+with in-memory defaults. Checks saved selections, invalid-value fallback, existing
+and newly created windows, and light/dark/system transitions in SwiftUI and AppKit.
+Offscreen picker previews are written to `/tmp/Floe-appearance-*.png`. It does not
+change user preferences, global system appearance or the running Floe application.
+
 ## M1 stability regression checks
 
 ```bash
@@ -194,6 +206,24 @@ The immediate-tooltip check covers synchronous pointer state changes, drag
 suppression, viewport clipping and edge positioning. It renders the production
 tooltip layer at controlled pointer locations to `/tmp/Floe-tooltip-*.png`;
 these are offscreen view checks, not live mouse-event acceptance.
+
+Theme surface and captured icon contrast checks:
+
+```bash
+swift script/tests/appearance-surfaces.swift
+```
+
+Compiles production surfaces and icon classification. Checks transparent white
+and black glyphs at 1x/2x/3x while preserving colored, opaque and detailed grayscale
+images. Renders light/dark component samples to `/tmp/Floe-surfaces-*.png`, with
+the native app appearance deliberately opposite to the SwiftUI environment.
+These use generated icon fixtures; real third-party captures, titlebar integration
+and macOS 26 Liquid Glass still require live visual acceptance.
+
+Also verifies that template conversion removes opposite-color capture shadows
+while preserving solid strokes and antialiased coverage at 1x/2x/3x. The floating
+bar comparison at `/tmp/Floe-bar-clarity-light.png` uses generated shadowed SF
+Symbols with production mask preparation and surface modifiers.
 
 ```bash
 swift script/tests/layout-cache-fallback.swift

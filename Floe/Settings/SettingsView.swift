@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @ObservedObject private var appearanceManager = AppAppearanceManager.shared
     @EnvironmentObject var navigationState: AppNavigationState
     @Environment(\.sidebarRowSize) var sidebarRowSize
 
@@ -41,9 +42,7 @@ struct SettingsView: View {
         HStack(spacing: 0) {
             sidebar
                 .frame(width: sidebarWidth)
-                .background {
-                    VisualEffectView(material: .sidebar, blendingMode: .behindWindow)
-                }
+                .floeSidebarSurface()
             VStack(alignment: .leading, spacing: 0) {
                 if navigationState.settingsNavigationIdentifier != .menuBarLayout {
                     Text(navigationState.settingsNavigationIdentifier.localized)
@@ -55,7 +54,9 @@ struct SettingsView: View {
                 detailView
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(nsColor: .windowBackgroundColor))
+            .background {
+                Color(nsColor: .windowBackgroundColor).ignoresSafeArea()
+            }
         }
     }
 
@@ -101,7 +102,7 @@ struct SettingsView: View {
                 }
             }
             Spacer(minLength: 24)
-            Label("Follows system appearance", systemImage: "circle.lefthalf.filled")
+            Label(appearanceManager.selection.statusTitleKey, systemImage: appearanceManager.selection.symbolName)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 12)

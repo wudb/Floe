@@ -141,6 +141,7 @@ extension Defaults {
         // MARK: General Settings
 
         case language = "Language"
+        case appAppearance = "AppAppearance"
         case showFloeIcon = "ShowFloeIcon"
         case floeIcon = "FloeIcon"
         case reverseFloeIcon = "ReverseFloeIcon"

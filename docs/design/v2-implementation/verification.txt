@@ -71,3 +71,45 @@ Floe V2 界面实现与验证记录
 - swift script/tests/layout-immediate-tooltip.swift：生产控制器的 1000 组同步移入/切换/移出/拖拽状态序列通过；视口裁剪和边缘定位检查通过。
 - tooltip-chatgpt.png、tooltip-long-name.png、tooltip-outside.png 为生产提示层在受控指针位置下的离屏渲染。
 - 验证覆盖控制状态、定位与渲染；没有通过系统鼠标事件验证真实 Floe 窗口的悬停表现。
+
+应用外观选项（2026-10-19）
+- 设置 → 通用增加“外观”：跟随系统（默认）、浅色、深色；偏好保存为 AppAppearance。
+- 侧栏底部同步显示当前选择；现有窗口即时更新，新窗口在挂载时应用已保存的选择。
+- 设置、权限、检索、浮栏及外观编辑 Popover 的界面根视图共用外观管理器。
+- 只为这些窗口设置 appearance，不覆盖 NSApp.appearance，也不修改 macOS 的系统偏好。
+- 返回跟随系统时将窗口 appearance 设回 nil，继续响应系统明暗切换。
+- swift script/tests/app-appearance.swift：保存/恢复、异常值回退、多窗口同步及实际 SwiftUI/AppKit 颜色环境切换通过。
+- appearance-light.png、appearance-dark.png 为生产外观选择器与外观桥接的离屏渲染，使用内存偏好与独立测试窗口。
+
+浅色外观协调（2026-10-19）
+- 侧栏改为稳定的浅蓝灰渐变并将背景延伸至标题栏区域，右侧保留细分界线。
+- 预览条和默认浮栏共用冷白底色、细灰描边；旧版系统改用 SwiftUI 原生材质，减轻后方深色窗口的影响。
+- 默认浮栏取消以菜单栏截图亮度覆盖用户外观的逻辑；显式自定义色调与全屏分支继续沿用原有策略。
+- 透明底黑白单色菜单栏截图按主题着色，彩色、实底和有明显明暗细节的图像保留原貌。
+- 单色识别按原图缓存并限制缓存数量，不新增截图、定时任务或权限请求。
+- swift script/tests/appearance-surfaces.swift：1x/2x/3x 图片分类及局部主题下的 AppKit 材质检查通过。
+- 外观桥接改为直接注入颜色环境，消除 preferredColorScheme 从显式值改回 nil 时滞留旧主题的问题；独立测试进程验证返回跟随系统后仍响应原生宿主的明暗变化。
+- light-surfaces-settings.png、dark-surfaces-settings.png：生产设置页组件配合 44 个样例项目的离屏渲染。
+- light-surfaces-components.png、dark-surfaces-components.png：生产材质配合白色、黑色和彩色图形样本的离屏渲染。
+- 当前主机 macOS 15.8.1；已查看明暗预览，但真实窗口标题栏衔接、实际第三方图标与 macOS 26 Liquid Glass 尚需现场确认。
+- 最终 Debug（arm64）、Release（arm64/x86_64）构建、SwiftLint strict、语言与外观回归、图片逻辑尺寸回归及 git diff --check 通过。
+
+浅色浮栏图标清晰度（2026-10-19）
+- 浮栏单独采用稳定的浅银灰底色和细描边，减小浅色模式的投影半径、位移和不透明度；设置页预览条保持原有样式。
+- 整条浮栏先合成再施加投影，避免外部阴影逐个叠加到图标上。
+- 单色截图按前景亮度提取字形覆盖率，剔除与字形相反颜色的截图阴影；不阈值化、缩放或扩张笔画。
+- 保留彩色与有明暗细节的原图，以及用户自定义色调分支；处理结果缓存限制为 128 项/8 MiB。
+- appearance-surfaces.swift 验证 1x/2x/3x 黑白字形：阴影区域透明、实心笔画不变、抗锯齿边缘覆盖率保留；floe-bar-image-scale.swift 验证逻辑尺寸不变。
+- bar-clarity-light.png 为带暗色阴影的 SF Symbols 样本配合生产样式和遮罩处理的离屏对比，不是第三方图标或实际浮栏截图。
+- 此次修改的 Debug（arm64）、Release（arm64/x86_64）、SwiftLint strict、图标回归和 git diff --check 通过；实际第三方图标显示仍待现场复测。
+
+登录启动开关本地化（2026-10-19）
+- “Launch at login”已有中英文词条，但第三方开关的 String 重载将标题按原文显示；改为显式 Text 本地化标签。
+- 中英文各 314 个资源键一致，扫描到的直接静态设置文案均有对应词条。
+- 使用实际 LaunchAtLogin 依赖、生产标签与 appLanguage 在同一离屏宿主中依次渲染中文、英文、中文，并逐一查看确认显示“登录时启动”/“Launch at login”；未操作登录启动状态。
+- Debug 构建、app-language.swift、SwiftLint strict、双语资源 plutil 校验及 git diff --check 通过。
+
+1.0.0 提交前校验（2026-10-19）
+- Debug 与 Release 的 MARKETING_VERSION 均为 1.0.0；构建号保持 1117。
+- 最终 Release（arm64/x86_64）构建通过，读取产物 Info.plist 确认 CFBundleShortVersionString 为 1.0.0、CFBundleVersion 为 1117。
+- SwiftLint strict、app-language.swift、工程与双语资源 plutil 校验及 git diff --check 通过。

@@ -8,6 +8,7 @@ import SwiftUI
 
 struct GeneralSettingsPane: View {
     @ObservedObject private var languageManager = LanguageManager.shared
+    @ObservedObject private var appearanceManager = AppAppearanceManager.shared
     @EnvironmentObject var appState: AppState
     @State private var isImportingCustomFloeIcon = false
     @State private var isPresentingError = false
@@ -92,6 +93,11 @@ struct GeneralSettingsPane: View {
             FloeSection {
                 launchAtLogin
                 Divider()
+                FloeLabeledContent("Appearance") {
+                    AppAppearancePicker(selection: $appearanceManager.selection)
+                }
+                .annotation("Follow your Mac's appearance, or choose Light or Dark for Floe")
+                Divider()
                 FloeLabeledContent("Language") {
                     AppLanguagePicker(selection: $languageManager.selection)
                 }
@@ -133,7 +139,10 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var launchAtLogin: some View {
-        LaunchAtLogin.Toggle("Launch at login")
+        // 显式提供本地化标签，避免第三方 Toggle 的 String 重载将标题按原文显示。
+        LaunchAtLogin.Toggle {
+            Text("Launch at login")
+        }
     }
 
     @ViewBuilder

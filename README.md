@@ -51,6 +51,13 @@ For local development, open `Floe.xcodeproj` and select the `Floe` scheme, or se
 
 Floe uses the bundle identifier `com.wudb.Floe`, with separate preferences and privacy permissions from Ice. Grant Accessibility and Screen Recording to Floe on first launch. Automatic updates are disabled until Floe has its own update feed and signing key.
 
+## Appearance
+
+Open **Settings → General → Appearance** and choose **Follow System** (default),
+**Light**, or **Dark**. Your selection is saved and applies immediately. Follow
+System continues to track your Mac's light/dark appearance. This preference
+changes Floe's interface without changing macOS system settings.
+
 ## Language
 
 Open **Settings → General → Language** and choose **Follow System**, **English**,

@@ -353,6 +353,10 @@
 "Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide." = "右键点击浮栏背景可固定位置或整理图标。固定位置不影响自动收起。";
 
 /* V2 settings design */
+"Appearance" = "外观";
+"Light" = "浅色";
+"Dark" = "深色";
+"Follow your Mac's appearance, or choose Light or Dark for Floe" = "跟随 Mac 的系统外观，或为 Floe 选择浅色或深色";
 "Follows system appearance" = "跟随系统外观";
 "About Floe" = "关于 Floe";
 "Drag icons to organize your menu bar" = "拖动图标，整理你的菜单栏";

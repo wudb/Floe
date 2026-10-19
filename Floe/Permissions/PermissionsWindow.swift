@@ -13,6 +13,7 @@ struct PermissionsWindow: Scene {
         Window(L10n.string("Permissions"), id: Constants.permissionsWindowID) {
             PermissionsView()
                 .appLanguage()
+                .appAppearance()
                 .readWindow { window in
                     guard let window else {
                         return

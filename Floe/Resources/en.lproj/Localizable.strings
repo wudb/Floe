@@ -353,6 +353,10 @@
 "Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide." = "Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide.";
 
 /* V2 settings design */
+"Appearance" = "Appearance";
+"Light" = "Light";
+"Dark" = "Dark";
+"Follow your Mac's appearance, or choose Light or Dark for Floe" = "Follow your Mac's appearance, or choose Light or Dark for Floe";
 "Follows system appearance" = "Follows system appearance";
 "About Floe" = "About Floe";
 "Drag icons to organize your menu bar" = "Drag icons to organize your menu bar";

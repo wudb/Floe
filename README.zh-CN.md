@@ -28,6 +28,10 @@ xattr -d com.apple.quarantine /Applications/Floe.app
 
 Floe 的应用标识为 `com.wudb.Floe`，与上游 Ice 的偏好设置和隐私授权相互独立。配置 Floe 自己的更新源和签名公钥之前，自动更新保持关闭。
 
+## 外观
+
+打开 **设置 → 通用 → 外观**，选择 **跟随系统**（默认）、**浅色** 或 **深色**。选择会保存并立即生效；跟随系统时会继续响应 Mac 的明暗切换。该选项控制 Floe 的界面外观，不修改 macOS 系统设置。侧栏底部会同步显示当前选择。
+
 ## 语言
 
 打开 **设置 → 通用 → 语言**（英文界面为 **Settings → General → Language**），选择：

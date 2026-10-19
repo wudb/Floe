@@ -401,6 +401,7 @@ private final class FloeBarHostingView: NSHostingView<AnyView> {
         super.init(
             rootView: FloeBarContentView(screen: screen, section: section, closePanel: closePanel)
                 .appLanguage()
+                .appAppearance()
                 .environmentObject(appState)
                 .environmentObject(appState.imageCache)
                 .environmentObject(appState.itemManager)
@@ -589,19 +590,12 @@ private struct FloeBarContentView: View {
             menuBarManager.presentationController.fullscreenState(on: screen) != true
     }
 
-    /// 截取的菜单栏图像可能为白色图标；玻璃明暗跟随采样，避免亮壁纸与系统主题不一致时丢失对比。
-    private var glassColorScheme: ColorScheme {
-        guard let brightness = colorManager.colorInfo?.color.brightness else { return colorScheme }
-        return brightness > 0.67 ? .light : .dark
-    }
-
     @ViewBuilder
     private func styledBar<Content: View>(_ content: Content) -> some View {
         if usesGlassSurface {
             content
                 .foregroundStyle(.primary)
-                .floeGlassSurface(in: barShape)
-                .environment(\.colorScheme, glassColorScheme)
+                .floeFloatingBarSurface(in: barShape)
         } else {
             content
                 .layoutBarStyle(appState: appState, averageColorInfo: colorManager.colorInfo, tintOpacity: barTintOpacity, useLiveBlur: isSplitPill, isFullscreen: menuBarManager.presentationController.fullscreenState(on: screen) == true)
@@ -624,7 +618,9 @@ private struct FloeBarContentView: View {
                 )
                 .overlay(splitBorderOverlay)
                 .clipShape(clipShape)
-                .shadow(color: usesGlassSurface ? .black.opacity(0.14) : barShadowColor, radius: usesGlassSurface ? 5 : barShadowRadius, y: usesGlassSurface ? 2 : 0)
+                // 先合成为整条轮廓，外部投影不再逐个叠加到半透明图标上。
+                .compositingGroup()
+                .shadow(color: usesGlassSurface ? .black.opacity(colorScheme == .light ? 0.09 : 0.14) : barShadowColor, radius: usesGlassSurface ? (colorScheme == .light ? 3 : 5) : barShadowRadius, y: usesGlassSurface ? (colorScheme == .light ? 1 : 2) : 0)
 
                 if configuration.current.hasBorder, !isSplitPill {
                     clipShape
@@ -827,7 +823,7 @@ private struct FloeBarContentView: View {
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {
                     ForEach(items, id: \.windowID) { item in
-                        FloeBarItemView(item: item, closePanel: closePanel)
+                        FloeBarItemView(item: item, adaptsImageAppearance: usesGlassSurface, closePanel: closePanel)
                     }
                 }
             }
@@ -1088,6 +1084,7 @@ private struct FloeBarItemView: View {
     @EnvironmentObject var itemManager: MenuBarItemManager
 
     let item: MenuBarItem
+    let adaptsImageAppearance: Bool
     let closePanel: () -> Void
 
     private var leftClickAction: () -> Void {
@@ -1130,9 +1127,20 @@ private struct FloeBarItemView: View {
         return NSImage(cgImage: image, size: size)
     }
 
+    private var displayImage: NSImage? {
+        guard let image else { return nil }
+        guard adaptsImageAppearance,
+              let source = imageCache.images[item.windowID],
+              let mask = FloeBarImageAppearance.templateImage(for: source)
+        else { return image }
+        return NSImage(cgImage: mask, size: image.size)
+    }
+
     var body: some View {
-        if let image {
+        if let image = displayImage {
             Image(nsImage: image)
+                // 只让透明底的单色字形随主题变色；彩色图标和用户自定义浮栏保留原始截图。
+                .renderingMode(adaptsImageAppearance && imageCache.images[item.windowID].map(FloeBarImageAppearance.isTemplate) == true ? .template : .original)
                 .contentShape(Rectangle())
                 .overlay {
                     FloeBarItemClickView(item: item, leftClickAction: leftClickAction, rightClickAction: rightClickAction)

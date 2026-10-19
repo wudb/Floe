@@ -99,6 +99,7 @@ private final class MenuBarAppearanceEditorPopover: NSPopover {
             .environmentObject(appState)
             .environmentObject(appState.appearanceManager)
             .appLanguage()
+            .appAppearance()
         }
     }
 
