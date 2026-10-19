@@ -33,6 +33,9 @@ struct MenuBarLayoutSettingsPane: View {
     @State private var moveFailed = false
     @State private var searchText = ""
     @FocusState private var focusedItemID: String?
+    @State private var hoveredItemID: String?
+    // 只持有控制器，不在页面订阅逐像素的指针更新；提示层独立响应这些变化。
+    @State private var tooltip = FloeTooltipController()
     /// IDs of icons currently being moved in the background: the UI updates
     /// optimistically right away, with a small badge on each icon showing
     /// it's syncing, so the whole list doesn't freeze.
@@ -76,12 +79,18 @@ struct MenuBarLayoutSettingsPane: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Menu Bar Icons")
-                    .font(.title)
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Menu Bar Layout")
+                        .font(.system(size: 24, weight: .bold))
+                    Text("Drag icons to organize your menu bar")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                .layoutPriority(1)
                 Text("\(totalCount)")
-                    .font(.callout)
+                    .font(.callout.monospacedDigit())
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 2)
@@ -102,36 +111,45 @@ struct MenuBarLayoutSettingsPane: View {
                     }
                 }
                 .buttonStyle(FloeButtonStyle())
+                .labelStyle(.iconOnly)
+                .help("Refresh")
                 .disabled(isRefreshing || isMoving)
+
+                HStack(spacing: 6) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                    TextField("Search menu bar items", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .onExitCommand { searchText = "" }
+                }
+                .padding(9)
+                .frame(width: 190)
+                .floeCardSurface()
             }
 
-            NewItemRulesView(rules: appState.itemManager.newItemRules, manager: appState.itemManager)
-            TextField("Search menu bar items", text: $searchText)
-                .textFieldStyle(.roundedBorder)
-                .onExitCommand { searchText = "" }
+            menuBarPreview
             if moveFailed {
                 Text("Could not move the menu bar item. Its actual position is shown; try again after closing menus.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
-            if sections.isEmpty {
-                if !hasAccessibilityPermission {
-                    accessibilityPrompt
-                } else if !hasScreenRecordingPermission {
-                    permissionPrompt
-                } else if appState.itemManager.isItemDiscoveryUnavailable {
-                    discoveryUnavailable
-                } else {
-                    ContentUnavailableView(
-                        "No menu bar items",
-                        systemImage: "rectangle.topthird.inset.filled",
-                        description: Text("Waiting for menu bar items to appear…")
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-            } else {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    if sections.isEmpty {
+                        if !hasAccessibilityPermission {
+                            accessibilityPrompt
+                        } else if !hasScreenRecordingPermission {
+                            permissionPrompt
+                        } else if appState.itemManager.isItemDiscoveryUnavailable {
+                            discoveryUnavailable
+                        } else {
+                            ContentUnavailableView(
+                                "No menu bar items",
+                                systemImage: "rectangle.topthird.inset.filled",
+                                description: Text("Waiting for menu bar items to appear…")
+                            )
+                        }
+                    } else {
                         ForEach(visibleMetas, id: \.kind) { meta in
                             sectionView(meta: meta, items: filteredItems(in: meta.kind))
                         }
@@ -141,11 +159,28 @@ struct MenuBarLayoutSettingsPane: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
+
+                    NewItemRulesView(rules: appState.itemManager.newItemRules, manager: appState.itemManager)
+                        .padding(14)
+                        .floeCardSurface()
+
+                    HStack(spacing: 6) {
+                        Image(systemName: "hand.draw")
+                        // 底部只保留操作说明，图标名称由页面覆盖层即时显示。
+                        Text("Hover to see names · Drag to change section and order")
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .scrollIndicators(.hidden)
+                .padding(.trailing, 4)
+                .padding(.bottom, 4)
             }
+            .scrollIndicators(.automatic)
+            .floeTooltipViewport("layout-icons")
         }
-        .padding(20)
+        .padding(24)
+        .floeTooltips(tooltip, isEnabled: !isMoving && dropTargetID == nil)
         .task {
             pageGeneration += 1
             isPageVisible = true
@@ -185,6 +220,26 @@ struct MenuBarLayoutSettingsPane: View {
         }
     }
 
+    /// 预览只使用当前发现的可见项目，不用示例图标冒充用户的真实菜单栏。
+    private var menuBarPreview: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "apple.logo")
+            Text("Floe").fontWeight(.semibold)
+            Spacer(minLength: 12)
+            if !hasUnknownMembership {
+                ForEach(Array((sections[.visible] ?? []).suffix(8))) { item in
+                    compactIcon(item)
+                        .floeTooltip(item.title)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .frame(height: 44)
+        .floeGlassSurface(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("Menu bar preview"))
+    }
+
     /// 名称、宿主和标识均可检索；不改变真实分区和排序快照。
     private func filteredItems(in kind: MenuBarItemAXDiscovery.SectionKind) -> [RowItem] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -200,127 +255,127 @@ struct MenuBarLayoutSettingsPane: View {
     }
 
     private func sectionView(meta: SectionMeta, items: [RowItem]) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Image(systemName: meta.icon)
                 Text(LocalizedStringKey(hasUnknownMembership && meta.kind == .visible ? "Unclassified icons" : meta.title))
                     .font(.headline)
+                Text("\(items.count)")
+                    .font(.caption.monospacedDigit())
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 2)
+                    .background(.quaternary, in: Capsule())
+                Spacer(minLength: 0)
+            }
+            VStack(alignment: .leading, spacing: 10) {
                 Text(LocalizedStringKey(hasUnknownMembership ? "Section boundaries are unavailable; membership has not been confirmed." : meta.subtitle))
-                    .font(.callout)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-            }
-            FlowLayout(spacing: 8) {
-
-                if items.isEmpty {
-                    Text(LocalizedStringKey(hasUnknownMembership ? "Section membership is unknown. This does not mean the section is empty." : meta.emptyHint))
-                        .font(.callout)
-                        .foregroundStyle(.tertiary)
-                        .padding(.vertical, 8)
-                } else {
-                    ForEach(items) { item in
-                        itemView(item, pending: pendingMoves.contains(item.id), isDropTarget: dropTargetID == item.id)
-                    }
-                }
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .onDrop(of: [.text], isTargeted: .constant(false), perform: { providers in
-                // When hovering an icon, let that item handle the drop (positional
-                // insert); the section only handles drops into empty space (append to the group's end).
-                guard dropTargetID == nil, !isMoving, let provider = providers.first else {
-                    return false
-                }
-                let generation = pageGeneration
-                _ = provider.loadObject(ofClass: NSString.self) { string, _ in
-                    guard let id = string as? String else {
-                        return
-                    }
-                    Task { @MainActor in
-                        guard isPageVisible, pageGeneration == generation, !isMoving, moveTask == nil else { return }
-                        moveTask = Task {
-                            await drop(itemID: id, to: meta.kind)
-                            moveTask = nil
+                FlowLayout(spacing: 4) {
+                    if items.isEmpty {
+                        Text(LocalizedStringKey(hasUnknownMembership ? "Section membership is unknown. This does not mean the section is empty." : meta.emptyHint))
+                            .font(.callout)
+                            .foregroundStyle(.tertiary)
+                            .padding(.vertical, 8)
+                    } else {
+                        ForEach(items) { item in
+                            itemView(item, pending: pendingMoves.contains(item.id), isDropTarget: dropTargetID == item.id)
                         }
                     }
                 }
-                return true
-            })
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .padding(14)
+        .floeCardSurface()
+        .onDrop(of: [.text], isTargeted: .constant(false), perform: { providers in
+            // When hovering an icon, let that item handle the drop (positional
+            // insert); the section only handles drops into empty space (append to the group's end).
+            guard dropTargetID == nil, !isMoving, let provider = providers.first else {
+                return false
+            }
+            let generation = pageGeneration
+            _ = provider.loadObject(ofClass: NSString.self) { string, _ in
+                guard let id = string as? String else {
+                    return
+                }
+                Task { @MainActor in
+                    guard isPageVisible, pageGeneration == generation, !isMoving, moveTask == nil else { return }
+                    moveTask = Task {
+                        await drop(itemID: id, to: meta.kind)
+                        moveTask = nil
+                    }
+                }
+            }
+            return true
+        })
+    }
+
+    private func compactIcon(_ item: RowItem) -> some View {
+        Group {
+            if let systemName = item.systemImage {
+                Image(systemName: systemName)
+                    .font(.system(size: 18))
+            } else if let icon = item.appIcon {
+                Image(nsImage: icon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 22, height: 22)
+            } else {
+                Image(systemName: "app.dashed")
+                    .font(.system(size: 18))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(width: 24, height: 24)
     }
 
     private func itemVisual(_ item: RowItem) -> some View {
-        VStack(spacing: 3) {
-            ZStack(alignment: .topTrailing) {
-                Group {
-                    if let systemName = item.systemImage {
-                        Image(systemName: systemName)
-                            .font(.system(size: 17))
-                            .frame(width: 40, height: 30)
-                    } else if let icon = item.appIcon {
-                        Image(nsImage: icon)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 26, height: 26)
-                            .frame(width: 40, height: 30)
-                    } else {
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(.quaternary)
-                            .frame(width: 40, height: 30)
-                    }
-                }
-                // System icons (com.apple.* bundles) get an extra Apple logo badge
-                // at the top-right corner for distinction, as in the mock.
-                if item.isSystem {
-                    Image(systemName: "apple.logo")
-                        .font(.system(size: 7, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .frame(width: 14, height: 14)
-                        .background(.regularMaterial, in: Circle())
-                        .offset(x: 5, y: -5)
-                }
+        // 图像保持小尺寸，独立保留 36 点命中区域，兼顾高密度与拖拽操作。
+        compactIcon(item)
+            .frame(width: 36, height: 36)
+            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .background {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(.blue.opacity(hoveredItemID == item.id || focusedItemID == item.id ? 0.1 : 0))
             }
-            Text(item.title)
-                .font(.caption)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .frame(maxWidth: 68)
-        }
-        .frame(width: 68)
+            .onHover { hovering in
+                if hovering { hoveredItemID = item.id } else if hoveredItemID == item.id { hoveredItemID = nil }
+            }
     }
 
     private func accessibleItem(_ item: RowItem) -> some View {
         itemVisual(item)
-        .focusable()
-        .focused($focusedItemID, equals: item.id)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(item.title)
-        .accessibilityValue(layoutDescription(for: item.id))
-        .accessibilityHint(Text(LocalizedStringKey(item.isMovable ? "Use the actions menu to move this icon or change its section." : "This system item cannot be moved.")))
-        .accessibilityAction(named: "Move to Visible") { moveWithKeyboard(item.id, to: .visible) }
-        .accessibilityAction(named: "Move to Hidden") { moveWithKeyboard(item.id, to: .hidden) }
-        .accessibilityAction(named: "Move to Always Hidden") { moveWithKeyboard(item.id, to: .alwaysHidden) }
-        .accessibilityAction(named: "Move earlier") { reorderWithKeyboard(item.id, offset: -1) }
-        .accessibilityAction(named: "Move later") { reorderWithKeyboard(item.id, offset: 1) }
-        .onKeyPress(characters: CharacterSet(charactersIn: "123")) { press in
-            guard press.modifiers.intersection([.command, .control, .option]) == .command else { return .ignored }
-            let kind: MenuBarItemAXDiscovery.SectionKind = press.characters == "1" ? .visible : press.characters == "2" ? .hidden : .alwaysHidden
-            moveWithKeyboard(item.id, to: kind)
-            return .handled
-        }
-        .onKeyPress(keys: [.leftArrow, .rightArrow]) { press in
-            guard press.modifiers.isDisjoint(with: [.control, .option]) else { return .ignored }
-            let offset = press.key == .leftArrow ? -1 : 1
-            if press.modifiers.contains(.command) {
-                reorderWithKeyboard(item.id, offset: offset)
-            } else {
-                let ids = visibleMetas.flatMap { filteredItems(in: $0.kind).map(\.id) }
-                if let index = ids.firstIndex(of: item.id), ids.indices.contains(index + offset) {
-                    focusedItemID = ids[index + offset]
-                }
+            .focusable()
+            .focused($focusedItemID, equals: item.id)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(item.title)
+            .accessibilityValue(layoutDescription(for: item.id))
+            .accessibilityHint(Text(LocalizedStringKey(item.isMovable ? "Use the actions menu to move this icon or change its section." : "This system item cannot be moved.")))
+            .accessibilityAction(named: "Move to Visible") { moveWithKeyboard(item.id, to: .visible) }
+            .accessibilityAction(named: "Move to Hidden") { moveWithKeyboard(item.id, to: .hidden) }
+            .accessibilityAction(named: "Move to Always Hidden") { moveWithKeyboard(item.id, to: .alwaysHidden) }
+            .accessibilityAction(named: "Move earlier") { reorderWithKeyboard(item.id, offset: -1) }
+            .accessibilityAction(named: "Move later") { reorderWithKeyboard(item.id, offset: 1) }
+            .onKeyPress(characters: CharacterSet(charactersIn: "123")) { press in
+                guard press.modifiers.intersection([.command, .control, .option]) == .command else { return .ignored }
+                let kind: MenuBarItemAXDiscovery.SectionKind = press.characters == "1" ? .visible : press.characters == "2" ? .hidden : .alwaysHidden
+                moveWithKeyboard(item.id, to: kind)
+                return .handled
             }
-            return .handled
-        }
+            .onKeyPress(keys: [.leftArrow, .rightArrow]) { press in
+                guard press.modifiers.isDisjoint(with: [.control, .option]) else { return .ignored }
+                let offset = press.key == .leftArrow ? -1 : 1
+                if press.modifiers.contains(.command) {
+                    reorderWithKeyboard(item.id, offset: offset)
+                } else {
+                    let ids = visibleMetas.flatMap { filteredItems(in: $0.kind).map(\.id) }
+                    if let index = ids.firstIndex(of: item.id), ids.indices.contains(index + offset) {
+                        focusedItemID = ids[index + offset]
+                    }
+                }
+                return .handled
+            }
     }
 
     @ViewBuilder
@@ -346,41 +401,48 @@ struct MenuBarLayoutSettingsPane: View {
 
     private func itemView(_ item: RowItem, pending: Bool, isDropTarget: Bool) -> some View {
         accessibleItem(item)
-        .contextMenu { itemActions(item) }
-        .help(pending ? L10n.string("%@ — moving…", item.subtitle ?? item.title) : (item.subtitle ?? item.title))
-        .opacity(pending ? 0.7 : 1)
-        .overlay {
-            // Blue outline on drag hover: releasing inserts before this icon.
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .strokeBorder(isDropTarget ? .blue : .clear, lineWidth: 2)
-                .frame(width: 52, height: 56)
-        }
-        .onDrag {
-            NSItemProvider(object: item.id as NSString)
-        }
-        .onDrop(
-            of: [.text],
-            isTargeted: dropTargetBinding(for: item.id),
-            perform: { providers in
-                guard !isMoving, let provider = providers.first else {
-                    return false
+            .contextMenu { itemActions(item) }
+            .floeTooltip(pending ? L10n.string("%@ — moving…", item.title) : item.title, viewport: "layout-icons")
+            .opacity(pending ? 0.7 : 1)
+            .overlay {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .strokeBorder(isDropTarget || focusedItemID == item.id ? .blue : .clear, lineWidth: 2)
+                    .allowsHitTesting(false)
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if pending {
+                    ProgressView().controlSize(.mini).scaleEffect(0.6)
+                        .frame(width: 12, height: 12)
+                        .allowsHitTesting(false)
                 }
-                let generation = pageGeneration
-                _ = provider.loadObject(ofClass: NSString.self) { string, _ in
-                    guard let id = string as? String else {
-                        return
+            }
+            .onDrag {
+                tooltip.dismiss()
+                return NSItemProvider(object: item.id as NSString)
+            }
+            .onDrop(
+                of: [.text],
+                isTargeted: dropTargetBinding(for: item.id),
+                perform: { providers in
+                    guard !isMoving, let provider = providers.first else {
+                        return false
                     }
-                    Task { @MainActor in
-                        guard isPageVisible, pageGeneration == generation, !isMoving, moveTask == nil else { return }
-                        moveTask = Task {
-                            await drop(itemID: id, onto: item.id)
-                            moveTask = nil
+                    let generation = pageGeneration
+                    _ = provider.loadObject(ofClass: NSString.self) { string, _ in
+                        guard let id = string as? String else {
+                            return
+                        }
+                        Task { @MainActor in
+                            guard isPageVisible, pageGeneration == generation, !isMoving, moveTask == nil else { return }
+                            moveTask = Task {
+                                await drop(itemID: id, onto: item.id)
+                                moveTask = nil
+                            }
                         }
                     }
+                    return true
                 }
-                return true
-            }
-        )
+            )
     }
 
     /// Hover binding for one icon: dragging over it shows the blue outline, and
@@ -1067,7 +1129,6 @@ struct MenuBarLayoutSettingsPane: View {
                         subtitle: item.subtitle,
                         systemImage: systemImage,
                         appIcon: appIcon,
-                        isSystem: bundleID?.hasPrefix("com.apple.") == true,
                         quartzFrame: item.frame,
                         isMovable: item.isMovable,
                         canBeHidden: item.canBeHidden,
@@ -1102,7 +1163,6 @@ struct MenuBarLayoutSettingsPane: View {
                     subtitle: item.subtitle,
                     systemImage: systemImage,
                     appIcon: appIcon,
-                    isSystem: item.bundleID?.hasPrefix("com.apple.") == true,
                     quartzFrame: item.axFrame,
                     bundleID: item.bundleID
                 )
@@ -1291,8 +1351,6 @@ private struct RowItem: Identifiable {
     let subtitle: String?
     let systemImage: String?
     let appIcon: NSImage?
-    /// true for com.apple.* bundles: attaches the Apple logo badge as in the mock.
-    let isSystem: Bool
     /// Frame in Quartz coordinates (top-left origin, same system as `CGEvent`),
     /// used as the start point for a Command-drag.
     let quartzFrame: CGRect?
@@ -1314,14 +1372,13 @@ private struct SectionMeta {
     static let all = [
         SectionMeta(kind: .visible, title: "Visible", icon: "eye", subtitle: "Always in the menu bar", emptyHint: "No visible icons"),
         SectionMeta(kind: .hidden, title: "Hidden", icon: "eye.slash", subtitle: "A hover or click away — or ⌘-drag icons left of the chevron", emptyHint: "No hidden icons — drop icons here to hide them"),
-        SectionMeta(kind: .alwaysHidden, title: "Always Hidden", icon: "moon", subtitle: "Out of sight until you double-click or ⌥-click the chevron", emptyHint: "No always-hidden icons — drop icons here to hide them"),
+        SectionMeta(kind: .alwaysHidden, title: "Always Hidden", icon: "lock", subtitle: "Out of sight until you double-click or ⌥-click the chevron", emptyHint: "No always-hidden icons — drop icons here to hide them"),
     ]
 }
 
 // MARK: - FlowLayout
 
-/// Lay out subviews into multiple rows, wrapping when out of space.
-/// Right-align each row to match the real menu bar (icons packed against the right edge).
+/// 紧凑图标从左向右按真实顺序排列，宽度不足时换行，不压缩命中区域。
 private struct FlowLayout: Layout {
     var spacing: CGFloat = 8
 
@@ -1336,7 +1393,7 @@ private struct FlowLayout: Layout {
             for (position, index) in row.indices.enumerated() {
                 let size = subviews[index].sizeThatFits(.unspecified)
                 subviews[index].place(
-                    at: CGPoint(x: bounds.minX + row.x[position] + row.trailingOffset, y: bounds.minY + row.y),
+                    at: CGPoint(x: bounds.minX + row.x[position], y: bounds.minY + row.y),
                     proposal: ProposedViewSize(size)
                 )
             }
@@ -1348,9 +1405,6 @@ private struct FlowLayout: Layout {
         var indices = [Int]()
         var y: CGFloat = 0
         var height: CGFloat = 0
-        /// Offset that packs the row against the right edge (= the remaining space).
-        var trailingOffset: CGFloat = 0
-        var width: CGFloat = 0
     }
 
     private func arrange(proposal: ProposedViewSize, subviews: Subviews) -> [Row] {
@@ -1360,10 +1414,6 @@ private struct FlowLayout: Layout {
         var x: CGFloat = 0
         var y: CGFloat = 0
         func finishRow() {
-            // Push incomplete rows fully right to match the menu bar.
-            if maxWidth.isFinite {
-                current.trailingOffset = max(0, maxWidth - current.width)
-            }
             rows.append(current)
             y += current.height + spacing
             current = Row()
@@ -1379,7 +1429,6 @@ private struct FlowLayout: Layout {
             current.height = max(current.height, size.height)
             current.y = y
             x += size.width + spacing
-            current.width = x - spacing
         }
         if !current.indices.isEmpty {
             finishRow()

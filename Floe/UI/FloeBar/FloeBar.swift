@@ -429,9 +429,7 @@ private final class FloeBarHostingView: NSHostingView<AnyView> {
 
 // MARK: - SplitPillShape
 
-/// Stadium pill mirroring the split-shape trailing pill geometry in
-/// `shapePath` (rect body + oval/square end caps), so the Floe Bar clips and
-/// borders exactly like the menu bar pill.
+/// 沿用菜单栏的端帽配置，但只生成一条闭合外轮廓，供填充、裁剪和描边共用。
 private struct SplitPillShape: InsettableShape {
     var leadingEndCap: MenuBarEndCap
     var trailingEndCap: MenuBarEndCap
@@ -444,34 +442,18 @@ private struct SplitPillShape: InsettableShape {
             return Path()
         }
         let factor = CGFloat(cornerRadiusFactor).clamped(to: 0...1)
-        // Partial rounding: per-side radii via uneven rounded rect.
-        if factor < 0.999 {
-            let radius = r.height / 2 * factor
-            let leadingRadius: CGFloat = leadingEndCap == .round ? radius : 0
-            let trailingRadius: CGFloat = trailingEndCap == .round ? radius : 0
-            return UnevenRoundedRectangle(
-                topLeadingRadius: leadingRadius,
-                bottomLeadingRadius: leadingRadius,
-                bottomTrailingRadius: trailingRadius,
-                topTrailingRadius: trailingRadius,
-                style: .circular
-            ).path(in: r)
-        }
-        var path = Path()
-        path.addRect(CGRect(x: r.minX + r.height / 2, y: r.minY, width: max(0, r.width - r.height), height: r.height))
-        switch leadingEndCap {
-        case .square:
-            path.addRect(CGRect(origin: r.origin, size: CGSize(width: r.height, height: r.height)))
-        case .round:
-            path.addEllipse(in: CGRect(origin: r.origin, size: CGSize(width: r.height, height: r.height)))
-        }
-        switch trailingEndCap {
-        case .square:
-            path.addRect(CGRect(x: r.maxX - r.height, y: r.minY, width: r.height, height: r.height))
-        case .round:
-            path.addEllipse(in: CGRect(x: r.maxX - r.height, y: r.minY, width: r.height, height: r.height))
-        }
-        return path
+        // 不能用 addRect/addEllipse 拼接：它只追加子路径，玻璃边缘和描边会显露内部圆弧。
+        // 同时限制圆角不超过短边的一半，单个图标形成窄浮栏时也不会越界。
+        let radius = min(r.width, r.height) / 2 * factor
+        let leadingRadius: CGFloat = leadingEndCap == .round ? radius : 0
+        let trailingRadius: CGFloat = trailingEndCap == .round ? radius : 0
+        return UnevenRoundedRectangle(
+            topLeadingRadius: leadingRadius,
+            bottomLeadingRadius: leadingRadius,
+            bottomTrailingRadius: trailingRadius,
+            topTrailingRadius: trailingRadius,
+            style: .circular
+        ).path(in: r)
     }
 
     func inset(by amount: CGFloat) -> SplitPillShape {
@@ -484,6 +466,7 @@ private struct SplitPillShape: InsettableShape {
 // MARK: - FloeBarContentView
 
 private struct FloeBarContentView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var colorManager: FloeBarColorManager
     @EnvironmentObject var itemManager: MenuBarItemManager
@@ -510,11 +493,11 @@ private struct FloeBarContentView: View {
     }
 
     private var horizontalPadding: CGFloat {
-        configuration.hasRoundedShape ? 7 : 5
+        configuration.hasRoundedShape ? 12 : 8
     }
 
     private var verticalPadding: CGFloat {
-        screen.hasNotch ? 0 : 2
+        6
     }
 
     private var contentHeight: CGFloat? {
@@ -542,8 +525,7 @@ private struct FloeBarContentView: View {
         if preferences.layout != .icons || reorder.isEditing {
             return AnyInsettableShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
-        // Same stadium shape as the split's trailing pill: rectangular body
-        // plus 2 oval/rectangular end caps (mirror `shapePath`).
+        // 两端的圆角/直角与菜单栏配置一致，轮廓内部不保留端帽接缝。
         let trailing = configuration.splitShapeInfo.trailing
         if isSplitPill {
             return AnyInsettableShape(
@@ -601,6 +583,32 @@ private struct FloeBarContentView: View {
         configuration.current.hasShadow ? 0.5 : 0.33
     }
 
+    /// 默认外观使用 V2 玻璃材质；用户显式设置的色调、边框和全屏策略继续生效。
+    private var usesGlassSurface: Bool {
+        configuration.current == .defaultConfiguration &&
+            menuBarManager.presentationController.fullscreenState(on: screen) != true
+    }
+
+    /// 截取的菜单栏图像可能为白色图标；玻璃明暗跟随采样，避免亮壁纸与系统主题不一致时丢失对比。
+    private var glassColorScheme: ColorScheme {
+        guard let brightness = colorManager.colorInfo?.color.brightness else { return colorScheme }
+        return brightness > 0.67 ? .light : .dark
+    }
+
+    @ViewBuilder
+    private func styledBar<Content: View>(_ content: Content) -> some View {
+        if usesGlassSurface {
+            content
+                .foregroundStyle(.primary)
+                .floeGlassSurface(in: barShape)
+                .environment(\.colorScheme, glassColorScheme)
+        } else {
+            content
+                .layoutBarStyle(appState: appState, averageColorInfo: colorManager.colorInfo, tintOpacity: barTintOpacity, useLiveBlur: isSplitPill, isFullscreen: menuBarManager.presentationController.fullscreenState(on: screen) == true)
+                .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
+        }
+    }
+
     var body: some View {
         VStack(spacing: 4) {
             // 日常展示只保留图标栏，整理时才显示操作和反馈。
@@ -608,15 +616,15 @@ private struct FloeBarContentView: View {
                 toolbar
             }
             ZStack {
-                content
-                    .frame(height: preferences.layout == .icons ? contentHeight : nil)
-                    .padding(.horizontal, horizontalPadding)
-                    .padding(.vertical, verticalPadding)
-                    .layoutBarStyle(appState: appState, averageColorInfo: colorManager.colorInfo, tintOpacity: barTintOpacity, useLiveBlur: isSplitPill, isFullscreen: menuBarManager.presentationController.fullscreenState(on: screen) == true)
-                    .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
-                    .overlay(splitBorderOverlay)
-                    .clipShape(clipShape)
-                    .shadow(color: barShadowColor, radius: barShadowRadius)
+                styledBar(
+                    content
+                        .frame(height: preferences.layout == .icons ? contentHeight : nil)
+                        .padding(.horizontal, horizontalPadding)
+                        .padding(.vertical, verticalPadding)
+                )
+                .overlay(splitBorderOverlay)
+                .clipShape(clipShape)
+                .shadow(color: usesGlassSurface ? .black.opacity(0.14) : barShadowColor, radius: usesGlassSurface ? 5 : barShadowRadius, y: usesGlassSurface ? 2 : 0)
 
                 if configuration.current.hasBorder, !isSplitPill {
                     clipShape
@@ -626,7 +634,7 @@ private struct FloeBarContentView: View {
                 }
             }
         }
-        .padding(5)
+        .padding(8)
         .contextMenu {
             Button(LocalizedStringKey(reorder.isEditing ? "Done" : "Reorder")) {
                 toggleReordering()
@@ -658,7 +666,7 @@ private struct FloeBarContentView: View {
                 Button(LocalizedStringKey(reorder.isEditing ? "Done" : "Reorder")) {
                     toggleReordering()
                 }
-                    .disabled(reorder.isMoving)
+                .disabled(reorder.isMoving)
                 Button(LocalizedStringKey(preferences.fixedPosition ? "Unpin position" : "Pin position")) {
                     menuBarManager.floeBarPanel.toggleFixedPosition()
                 }

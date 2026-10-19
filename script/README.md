@@ -88,6 +88,7 @@ the main thread, return value snapshots, and finish without deadlocking.
 ```bash
 swift script/tests/item-discovery.swift
 swift script/tests/floe-bar-position.swift
+swift script/tests/floe-bar-pill-shape.swift
 swift script/tests/ax-item-press.swift
 swift script/tests/ax-activation.swift
 ```
@@ -97,6 +98,12 @@ source with controlled WindowServer and screen inputs. They cover missing
 dividers, retries with unchanged window IDs, and positioning without a window
 ID. They need Xcode's Swift toolchain, but no privacy grants or running Floe app.
 They do not replace testing Accessibility discovery and icon clicks in the app.
+
+The pill-shape check exercises 240 combinations of end caps, corner rounding,
+widths and insets against the production path. It requires one closed contour
+and verifies that narrow bars stay inside their bounds. An offscreen outline
+preview is saved to `/tmp/Floe-pill-after.png`; it does not replace checking
+Liquid Glass on macOS 26 or later.
 
 The AX check executes the discovery and press implementation against an in-memory
 Accessibility tree. It verifies selection for anonymous or identically named
@@ -169,6 +176,24 @@ not manipulate real menu items or replace mixed desktop/fullscreen, hotplug and
 notched MacBook acceptance. See [M5 third-batch status](../docs/m5-c-status.json).
 
 ## Layout icon merge and native movement
+
+Compact settings layout regression:
+
+```bash
+swift script/tests/settings-compact-layout.swift
+swift script/tests/layout-immediate-tooltip.swift
+```
+
+Renders the production icons and wrapping layout with up to 100 long-named items
+at 240/360/600 pt content widths. Checks that 36 pt hit targets remain intact and
+writes light/dark offscreen previews to `/tmp/Floe-V2-compact-*.png`. It does not
+request screen recording or replace native drag-and-drop and Liquid Glass checks
+on macOS 26 or later.
+
+The immediate-tooltip check covers synchronous pointer state changes, drag
+suppression, viewport clipping and edge positioning. It renders the production
+tooltip layer at controlled pointer locations to `/tmp/Floe-tooltip-*.png`;
+these are offscreen view checks, not live mouse-event acceptance.
 
 ```bash
 swift script/tests/layout-cache-fallback.swift

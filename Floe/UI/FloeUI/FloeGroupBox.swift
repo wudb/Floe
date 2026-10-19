@@ -11,10 +11,6 @@ struct FloeGroupBox<Header: View, Content: View, Footer: View>: View {
     private let footer: Footer
     private let padding: CGFloat
 
-    private var backgroundShape: some InsettableShape {
-        RoundedRectangle(cornerRadius: 12, style: .continuous)
-    }
-
     init(
         padding: CGFloat = 10,
         @ViewBuilder header: () -> Header,
@@ -82,16 +78,13 @@ struct FloeGroupBox<Header: View, Content: View, Footer: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 8) {
             header
-            VStack {
+            VStack(spacing: 14) {
                 content
             }
-            .padding(padding)
-            .background {
-                backgroundShape
-                    .fill(.quinary)
-            }
+            .padding(max(padding, 14))
+            .floeCardSurface()
             footer
         }
     }

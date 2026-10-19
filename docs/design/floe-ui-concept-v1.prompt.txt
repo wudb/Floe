@@ -1,0 +1,27 @@
+Floe UI concept V1
+Generated with: built-in image_gen
+Purpose: visual design proposal for review; not an application screenshot or implementation guarantee.
+Reference: https://www.apple.com/os/macos/
+Reference: https://developer.apple.com/design/human-interface-guidelines/materials
+Source application code was not changed.
+
+Final generation prompt:
+
+Use-case: ui-mockup.
+Create a high fidelity design-review board for Floe, an existing native macOS menu bar organizer. Output a beautifully precise landscape image, preferably 2400x1600 or similar aspect ratio. This is a feasible native Mac application UI proposal, not a website or illustration. All UI labels are Simplified Chinese except app names. Render Chinese accurately and crisply.
+
+Design direction: current macOS 27 refined Liquid Glass language: highly readable charcoal/white typography, coherent native toolbar controls, edge-to-edge translucent sidebar, restrained optical highlights only on navigation/toolbar/floating surfaces. Content panels are calm and opaque enough to read; avoid transparent glass on every card, no neon, no futuristic HUD, no web dashboard, no oversized mobile toggles. Tight professional desktop utility density. Rounded corners, fine 1px separators, restrained system blue accent. SF Pro / PingFang SC typography. Realistic straight-on screenshot presentation.
+
+Board composition: a light cool neutral background with extremely subdued blue/lavender desktop wallpaper glow. Header at top left: "Floe" in strong clean type, next line "界面焕新 · Liquid Glass" and small "设计概念 V1". The board contains THREE clearly separated nonoverlapping UI views with enough whitespace. Main left panel occupies about 65% width and is a large light-mode macOS settings window, right column contains a smaller dark-mode general-settings window above, and a floating bar desktop detail below. Tiny unobtrusive board captions identify "01  菜单栏布局", "02  通用设置 · 深色", "03  Floe 浮栏". No giant marketing hero text.
+
+Main light window: native red yellow green traffic lights at upper left; sidebar 190pt-like proportional width with existing Floe white outlined ice-cube logo on blue rounded-square and "Floe". Keep logo identity faithful to existing Floe cube, do not invent a new mascot. Sidebar list uses small monochrome SF Symbols and labels in this order: "通用", "菜单栏布局" selected with subtle blue rounded pill, "菜单栏外观", "快捷键", "高级", separator, "关于 Floe". Bottom subtle text "跟随系统外观". Main content header "菜单栏布局", smaller supporting text "拖动图标，整理你的菜单栏", compact count badge "10", native toolbar round refresh button and search field "搜索图标或应用". Near top, a practical menu bar preview showing small monochrome status glyphs at right, simple Apple menu / Floe at left, no notch required. Below render THREE clear grouped icon organizer trays with visible app icon names under each icon:
+Tray 1 heading eye symbol + "可见" with badge "4" and subtitle "始终显示在菜单栏"; 4 tidy tiles for Wi-Fi, 声音, 电池, 控制中心.
+Tray 2 heading eye.slash + "隐藏" with badge "4" and subtitle "展开时显示"; four tiles for Notion, Dropbox, Raycast, Docker.
+Tray 3 heading lock + "始终隐藏" with badge "2" and subtitle "需要时手动展开"; two tiles for OneDrive, Adobe.
+Each tray white/near-white with thin neutral border and 14px corners, no elevated glass stacks. Realistic colorful app icons and restrained gray native status glyphs. Small drag grip or hover outline on one tile communicates rearranging. Counts match: 4+4+2=10. Bottom small native grouped preference row "新菜单栏图标" with trailing popup "隐藏区 · 末尾". Small unobtrusive helper "按住 ⌘ 并拖动可调整顺序". Preserve these actual capabilities; no analytics, account, subscription, sync, AI, or new product features.
+
+Right upper dark window: same visual identity, traffic lights and compact title "通用". Deep graphite content and softly translucent sidebar/toolbar. Compact grouped setting rows, labels readable: "登录时启动" on toggle, "语言" value "跟随系统", next group "隐藏区呈现" value "自适应", "自动收起" on toggle, "收起延迟" value "5 秒". A small horizontal menu bar icon spacing preview lower down and "图标间距" slider. Use blue enabled toggles. Enough spacing, this is macOS desktop UI.
+
+Right lower floating-bar detail: minimalist native macOS desktop snippet with a slim menu bar across top and six subtle status icons, then a single compact pill-like floating Floe bar below anchored near the right side. The floating bar has a restrained translucent pale glass surface with fine edge sheen and soft shadow, only one horizontal row of six colorful app icons (Notion, Dropbox, Raycast, Docker, OneDrive, Adobe), no everyday toolbar. Beneath outside the UI, small caption "轻量悬浮，按需展开". Large enough to show material quality.
+
+Keep all windows fully visible and aligned in a coherent review sheet, no overlapping windows hiding UI, no perspective distortions, no hardware device frames, no watermarks. Make it polished and plausibly implementable in SwiftUI/AppKit.

@@ -27,8 +27,8 @@ struct FloeForm<Content: View>: View {
 
     init(
         alignment: HorizontalAlignment = .center,
-        padding: CGFloat = 20,
-        spacing: CGFloat = 10,
+        padding: CGFloat = 24,
+        spacing: CGFloat = 16,
         @ViewBuilder content: () -> Content
     ) {
         self.init(
@@ -41,17 +41,13 @@ struct FloeForm<Content: View>: View {
     }
 
     var body: some View {
-        // ponytail: always scroll when allowed — switching ScrollView on/off
-        // from a measured height feedback-loops: content measures differently
-        // bounded vs unbounded and can straddle the threshold forever (pegged
-        // main at 100% opening Menu Bar Appearance). Overlay scrollers
-        // auto-hide, so always-scroll looks identical when content fits.
+        // 始终保留滚动容器，避免高度测量反复切换布局；长设置页可直接滚动。
         if isScrollEnabled {
             ScrollView {
                 contentStack
             }
             .scrollContentBackground(.hidden)
-            .scrollIndicators(.hidden)
+            .scrollIndicators(.automatic)
         } else {
             contentStack
         }
@@ -76,7 +72,7 @@ private struct FloeFormToggleStyle: ToggleStyle {
             }
             .labelsHidden()
             .toggleStyle(.switch)
-            .controlSize(.mini)
+            .controlSize(.small)
         } label: {
             configuration.label
         }

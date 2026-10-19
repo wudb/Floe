@@ -251,7 +251,7 @@
 
 "Show all current icons" = "显示所有当前图标";
 
-"Automatic placement requires menu bar item discovery. You can still arrange icons manually below." = "自动放置需要系统支持菜单栏项目发现。你仍可在下方手动整理图标。";
+"Automatic placement requires menu bar item discovery. You can still arrange icons manually." = "自动放置需要系统支持菜单栏项目发现。你仍可手动整理图标。";
 
 "Use the actions menu to move this icon or change its section." = "使用操作菜单移动此图标或更改所属分区。";
 
@@ -351,6 +351,14 @@
 "Display overrides" = "按显示器手动覆盖";
 "Rules change presentation, not which icons are hidden. Display overrides are remembered after reconnecting." = "规则只改变呈现方式，不改变隐藏哪些图标。重新连接显示器后仍保留手动覆盖。";
 "Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide." = "右键点击浮栏背景可固定位置或整理图标。固定位置不影响自动收起。";
+
+/* V2 settings design */
+"Follows system appearance" = "跟随系统外观";
+"About Floe" = "关于 Floe";
+"Drag icons to organize your menu bar" = "拖动图标，整理你的菜单栏";
+"Menu bar preview" = "菜单栏预览";
+"Hover to see names · Drag to change section and order" = "悬停查看名称 · 拖动调整分区与顺序";
+"Placement details" = "放置规则详情";
 
 /* Layout membership uncertainty */
 "Unclassified icons" = "分区未确认的图标";

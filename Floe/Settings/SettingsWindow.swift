@@ -17,12 +17,15 @@ struct SettingsWindow: Scene {
                     guard let window else {
                         return
                     }
+                    window.titlebarAppearsTransparent = true
+                    window.titlebarSeparatorStyle = .none
                     appState.assignSettingsWindow(window)
                 }
-                .frame(minWidth: 825, minHeight: 500)
+                .frame(minWidth: 860, minHeight: 600)
         }
+        .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
-        .defaultSize(width: 900, height: 625)
+        .defaultSize(width: 960, height: 720)
         .environmentObject(appState)
         .environmentObject(appState.navigationState)
     }

@@ -37,25 +37,44 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        // ponytail: plain HStack instead of NavigationSplitView — the sidebar
-        // is fixed-width and non-collapsible, so the split view only added
-        // an undeletable Liquid Glass divider pill.
-        // ponytail: no navigationTitle — like Pelmet, the titlebar shows
-        // only traffic lights instead of a long pane name over the sidebar.
+        // 保留固定导航，避免分栏折叠控件挤占紧凑设置窗口的空间。
         HStack(spacing: 0) {
             sidebar
                 .frame(width: sidebarWidth)
-            detailView
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                // ponytail: no Divider — like Pelmet, sidebar stays light and
-                // the content sits on a darker shade instead of a line.
-                .background(.black.opacity(0.2))
+                .background {
+                    VisualEffectView(material: .sidebar, blendingMode: .behindWindow)
+                }
+            VStack(alignment: .leading, spacing: 0) {
+                if navigationState.settingsNavigationIdentifier != .menuBarLayout {
+                    Text(navigationState.settingsNavigationIdentifier.localized)
+                        .font(.system(size: 24, weight: .bold))
+                        .padding(.horizontal, 24)
+                        .padding(.top, 22)
+                        .padding(.bottom, 4)
+                }
+                detailView
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(nsColor: .windowBackgroundColor))
         }
     }
 
     @ViewBuilder
     private var sidebar: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
+            VStack(spacing: 6) {
+                Image(nsImage: NSApp.applicationIconImage ?? NSImage())
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 64, height: 64)
+                    .accessibilityHidden(true)
+                Text("Floe")
+                    .font(.system(size: 20, weight: .semibold))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 20)
+            .padding(.bottom, 24)
+
             ForEach(mainIdentifiers, id: \.self) { identifier in
                 SettingsSidebarItem(
                     identifier: identifier,
@@ -81,18 +100,22 @@ struct SettingsView: View {
                     navigationState.settingsNavigationIdentifier = identifier
                 }
             }
+            Spacer(minLength: 24)
+            Label("Follows system appearance", systemImage: "circle.lefthalf.filled")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.bottom, 16)
         }
-        .padding(.horizontal, 8)
-        .padding(.top, 12)
-        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(.horizontal, 10)
+        .frame(maxHeight: .infinity)
     }
 
-    /// Primary items above the divider, mirroring Pelmet's General/Behavior/Menu Bar/Displays group.
+    /// 常用设置置于上组，关于信息单独放在分隔线下。
     private var mainIdentifiers: [SettingsNavigationIdentifier] {
         SettingsNavigationIdentifier.allCases.filter { $0 != .about }
     }
 
-    /// Secondary items below the divider, mirroring Pelmet's Thanks/About group.
     private var secondaryIdentifiers: [SettingsNavigationIdentifier] {
         [.about]
     }
@@ -127,8 +150,7 @@ struct SettingsView: View {
     }
 }
 
-/// A Pelmet-style sidebar row: gray icon + white text by default,
-/// translucent blue pill + blue icon/text when selected.
+/// 图标与文字共用选中反馈，亮色和深色模式均由系统语义色驱动。
 private struct SettingsSidebarItem: View {
     let identifier: SettingsNavigationIdentifier
     let icon: IconResource
@@ -145,7 +167,7 @@ private struct SettingsSidebarItem: View {
                 icon.view
                     .frame(width: 18, height: 18)
                     .foregroundStyle(isSelected ? .blue : .secondary)
-                Text(identifier.localized)
+                Text(identifier == .about ? LocalizedStringKey("About Floe") : identifier.localized)
                     .font(.system(size: fontSize, weight: isSelected ? .semibold : .regular))
                     .foregroundStyle(isSelected ? .blue : .primary)
                     .lineLimit(1)
@@ -156,7 +178,7 @@ private struct SettingsSidebarItem: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .frame(height: rowHeight)
             .background {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(
                         isSelected
                             ? .blue.opacity(0.16)

@@ -1,0 +1,73 @@
+Floe V2 界面实现与验证记录
+日期：2026-10-19
+
+设计依据
+- ../floe-ui-concept-v2.png：用户确认的 V2 设计图，保留原始图片。
+- ../floe-ui-concept-v2.prompt.txt：该设计图的生成提示词。
+
+已实现
+- 设置窗口加入应用标识、磨砂侧栏、统一页面标题、选中状态与系统明暗模式适配。
+- 表单分组使用实色内容层、14 点圆角与细边框，保留全部现有设置及数据绑定。
+- 菜单栏布局页应用图标为 22 点，系统符号为 18 点，点击区域均为 36×36 点。
+- 图标间距 4 点，从左到右按现有真实顺序排列；宽度不足时换行，内容过多时滚动。
+- 名称通过图标附近的即时提示覆盖层和原有 VoiceOver 标签提供；键盘焦点保留描边反馈。
+- 保留搜索、刷新、分区拖拽、插入排序、右键菜单及键盘移动操作。
+- 预览条使用已发现的可见项目，未确认分区归属时不展示推测的可见图标。
+- 新图标默认分区和插入位置保留在布局页底部；详细规则及批量显示操作可展开。
+- 浮栏默认外观采用玻璃材质；自定义色调、边框、形状和全屏策略沿用原有路径。
+- macOS 26 及以上使用系统 glassEffect；macOS 14/15 使用原生磨砂回退。
+- 系统减少透明度开启时，玻璃表面回退为实色；浮栏玻璃明暗兼顾采样图标的对比度。
+- 新增文案同时维护英语、简体中文资源，不修改系统语言或用户设置默认值。
+
+已通过
+- Xcode Debug 构建。
+- Xcode Release 构建。
+- SwiftLint strict（无缓存）、git diff --check、两份 Localizable.strings 的 plutil 检查。
+- swift script/tests/app-language.swift
+- swift script/tests/layout-keyboard-actions.swift
+- swift script/tests/layout-drop-order.swift
+- swift script/tests/layout-refresh-state.swift
+- swift script/tests/layout-cache-fallback.swift
+- swift script/tests/layout-native-move.swift
+- swift script/tests/floe-bar-content-height.swift
+- swift script/tests/floe-bar-image-scale.swift
+- swift script/tests/floe-bar-position.swift
+- swift script/tests/floe-bar-layout.swift
+- swift script/tests/settings-compact-layout.swift
+
+预览证据及边界
+- 验证主机：macOS 15.8.1，Xcode 26.3，macOS SDK 26.2。
+- layout-light-zh.png、layout-dark-zh.png：960×720 点视图的中文明暗模式离屏渲染。
+- layout-narrow-en.png：860×600 点视图的英文窄窗口离屏渲染。
+- 完整页面图复用生产 SettingsView、布局页视图正文、分组和图标视图源码，使用 44 个样例项目。
+  项目发现、移动操作和其他设置页使用隔离替身；这些图片不是已运行 Floe 的桌面截图。
+- compact-100-light.png、compact-100-dark.png：生产 FlowLayout 和图标视图渲染 100 个长名称项目。
+  测试另外覆盖 240/360/600 点内容宽度，验证点击区域不会压缩、换行后高度正确。
+- 原生窗口自动检查未获得工具对 Floe 的访问授权，未用这些离屏图片替代真实应用交互验收。
+- macOS 26/27 的动态玻璃、实际窗口标题栏与实时明暗切换、真实第三方图标拖拽及浮栏菜单激活仍需现场检查。
+
+构建产物
+/tmp/Floe-V2-build/Build/Products/Debug/Floe.app
+/tmp/Floe-V2-build/Build/Products/Release/Floe.app
+
+未安装或替换 /Applications 中的应用。
+
+浮栏两端接缝修复（2026-10-19）
+- 截图中的内圈来自 SplitPillShape：addRect/addEllipse 追加了三个闭合子路径，描边会显露内部接缝。
+- 改为单一 UnevenRoundedRectangle 外轮廓；两端圆角/直角、圆角程度和内缩继续生效。
+- 半径限制在短边的一半，避免单图标窄浮栏的端帽超出边界。
+- swift script/tests/floe-bar-pill-shape.swift：240 组端帽、圆角、宽度及内缩组合通过。
+- 生产路径基线为 3 条闭合轮廓，修复后为 1 条；额外检查窄条边界、圆角覆盖和过度内缩。
+- pill-contour-before.png、pill-contour-after.png 为生产路径的离屏描边对比，复现并消除了两端圆弧和竖线。
+- 动态 Liquid Glass 的实际窗口效果仍需对应系统现场确认；这些图片不是用户桌面的截图。
+
+即时悬停提示修正（2026-10-19）
+- 布局图标与顶部预览不再使用系统 help；由 onContinuousHover 直接更新提示层的指针状态。
+- 提示层独立订阅位置变化，避免整个布局页随逐像素移动反复计算。
+- 提示不接收鼠标事件，不会因遮住图标而反复触发移入/移出，也不会拦截点击和拖拽。
+- 提示绘制在滚动区域外，并按真实图标锚点定位；匹配目标时排除已被滚动视口裁掉的区域。
+- 靠近左右边界时自动收进页面，底部空间不足时显示在图标上方。
+- 移出、开始拖拽、页面消失或应用切到后台时清除提示；底部始终保留固定操作说明。
+- swift script/tests/layout-immediate-tooltip.swift：生产控制器的 1000 组同步移入/切换/移出/拖拽状态序列通过；视口裁剪和边缘定位检查通过。
+- tooltip-chatgpt.png、tooltip-long-name.png、tooltip-outside.png 为生产提示层在受控指针位置下的离屏渲染。
+- 验证覆盖控制状态、定位与渲染；没有通过系统鼠标事件验证真实 Floe 窗口的悬停表现。

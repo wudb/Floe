@@ -251,7 +251,7 @@
 
 "Show all current icons" = "Show all current icons";
 
-"Automatic placement requires menu bar item discovery. You can still arrange icons manually below." = "Automatic placement requires menu bar item discovery. You can still arrange icons manually below.";
+"Automatic placement requires menu bar item discovery. You can still arrange icons manually." = "Automatic placement requires menu bar item discovery. You can still arrange icons manually.";
 
 "Use the actions menu to move this icon or change its section." = "Use the actions menu to move this icon or change its section.";
 
@@ -351,6 +351,14 @@
 "Display overrides" = "Display overrides";
 "Rules change presentation, not which icons are hidden. Display overrides are remembered after reconnecting." = "Rules change presentation, not which icons are hidden. Display overrides are remembered after reconnecting.";
 "Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide." = "Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide.";
+
+/* V2 settings design */
+"Follows system appearance" = "Follows system appearance";
+"About Floe" = "About Floe";
+"Drag icons to organize your menu bar" = "Drag icons to organize your menu bar";
+"Menu bar preview" = "Menu bar preview";
+"Hover to see names · Drag to change section and order" = "Hover to see names · Drag to change section and order";
+"Placement details" = "Placement details";
 
 /* Layout membership uncertainty */
 "Unclassified icons" = "Unclassified icons";

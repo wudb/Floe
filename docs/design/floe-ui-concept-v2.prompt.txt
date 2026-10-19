@@ -1,0 +1,23 @@
+Floe UI concept V2 — compact menu bar layout
+Generated with: built-in image_gen (image edit)
+Input: docs/design/floe-ui-concept-v1.png
+Purpose: visual proposal. Icons/counts are illustrative, not runtime data.
+Requested change: preserve approved visual direction; reduce layout-editor icon size to accommodate many items.
+Suggested implementation dimensions: 20–24 pt icon glyph; 36 pt hit target; wrapping layout, scrolling as needed; names on hover or keyboard focus.
+Application code was not modified.
+
+Final edit prompt:
+
+Use case: precise-object-edit (ui-mockup revision).
+Input image 1 is the EDIT TARGET: the existing Floe Liquid Glass design review board. Preserve its overall composition, palette, typography, window sizes, desktop background, header, sidebar, right-hand dark general settings window and lower-right Floe floating bar. User approved the overall style and only wants the icons WITHIN THE MAIN MENU BAR LAYOUT CONTENT significantly smaller and more space-efficient because there may be many items.
+
+Edit only the MAIN LEFT WINDOW'S ORGANIZER CONTENT and board version:
+- Change "设计概念 V1" to "设计概念 V2".
+- Replace the oversized icon-and-label rectangular tiles inside the three organizer sections with COMPACT icon-only grids, like native macOS menu bar status symbols. Each icon glyph is only 20–24 logical points, about 24 image pixels on this board. Each mouse target is about 36x36, with center-to-center spacing around 40 pixels. No large individual cards, no persistent application names under icons, no drag grip on every icon. The icons must look far smaller than in V1, closer to the toolbar/status glyph size. Keep a small subtle blue 36px rounded-square hover/focus highlight around ONE icon only.
+- Use the gained space to show a realistic high-density collection of many menu bar utility icons across each row, about 12–15 icons per row. Show a total of 44 sample items across the three groups. Header total becomes "44"; "可见" count "12" with 12 compact icons in one row; "隐藏" count "24" with 24 compact icons wrapping across two dense rows; "始终隐藏" count "8" with 8 compact icons in one row. Symbols may include Wi-Fi, sound, battery, keyboard input, Bluetooth, VPN, time, cloud storage, clipboard, package, Docker, Dropbox, Notion, Raycast, OneDrive, Adobe, temperature, microphone, display, network, sync and utility app marks. They are illustration sample items, not an assertion of current app state.
+- Keep each group as one calm near-white rounded container with its existing heading, count badge and small supporting explanation. Reduce excessive tray height/padding to fit the compact icons. Keep all three groups neatly stacked near top with deliberate whitespace below, rather than stretching tiny icon rows into huge empty cards. Use a subtle scroll indicator at the right edge of the organizer area to indicate scalability.
+- Include ONE small unobtrusive native tooltip "Raycast" near the hovered icon to demonstrate names appear on hover, not permanently beneath all icons.
+- Keep the bottom "新菜单栏图标" row and current trailing value. Replace the helper text below it with "悬停查看名称 · 拖动调整分区与顺序". Position the footer naturally below the group content, not far away.
+- Keep the main top preview strip, search field, refresh control, sidebar selection and everything else faithful to V1. The Floe app logo in sidebar stays its current size. The six app icons in the separate lower-right floating bar also stay their current size: user only requested smaller icons in menu bar layout editor.
+- Optional tiny board caption next to "01 菜单栏布局": "紧凑图标 · 支持换行".
+Maintain crisp readable Simplified Chinese, restrained native Mac utility styling, fine separators, refined glass materials and existing hierarchy. No additional product features, no decorative charts, no new app navigation. This is a targeted density refinement of the approved V1 design, not a redesign. Output the complete edited board at the same 3:2 landscape aspect ratio.

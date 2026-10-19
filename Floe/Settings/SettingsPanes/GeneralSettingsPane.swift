@@ -90,13 +90,12 @@ struct GeneralSettingsPane: View {
     var body: some View {
         FloeForm {
             FloeSection {
+                launchAtLogin
+                Divider()
                 FloeLabeledContent("Language") {
                     AppLanguagePicker(selection: $languageManager.selection)
                 }
                 .annotation("Follow your system language, or choose a language for Floe")
-            }
-            FloeSection {
-                launchAtLogin
             }
             FloeSection {
                 floeIconOptions
@@ -244,7 +243,7 @@ struct GeneralSettingsPane: View {
                 BetaBadge()
             }
         }
-            .annotation("Show hidden menu bar items in a separate bar below the menu bar")
+        .annotation("Show hidden menu bar items in a separate bar below the menu bar")
     }
 
     @ViewBuilder
