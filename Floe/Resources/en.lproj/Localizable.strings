@@ -351,3 +351,8 @@
 "Display overrides" = "Display overrides";
 "Rules change presentation, not which icons are hidden. Display overrides are remembered after reconnecting." = "Rules change presentation, not which icons are hidden. Display overrides are remembered after reconnecting.";
 "Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide." = "Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide.";
+
+/* Layout membership uncertainty */
+"Unclassified icons" = "Unclassified icons";
+"Section boundaries are unavailable; membership has not been confirmed." = "Section boundaries are unavailable; membership has not been confirmed.";
+"Section membership is unknown. This does not mean the section is empty." = "Section membership is unknown. This does not mean the section is empty.";

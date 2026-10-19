@@ -92,6 +92,13 @@ precondition(!truncated.contains { $0.title == "Truncated root" })
 precondition(truncated.contains { $0.title == "Later App" })
 applications = [:]
 print("PASS: production AX discovery isolates node/time budgets and never turns a truncated root into an icon")
+let asset = FixtureAXUIElement("AXImage", title: "rounded_menu_asset")
+let button = FixtureAXUIElement("AXButton", title: "Status button", children: [asset])
+application.attributes["AXExtrasMenuBar"] = FixtureAXUIElement("AXMenuBar", children: [button])
+let buttonItems = MenuBarItemAXDiscovery.discoverItems(in: [.current])
+precondition(buttonItems.count == 1 && buttonItems[0].title == "Status button")
+precondition(buttonItems[0].element == button)
+print("PASS: AX status button retains its actionable wrapper and excludes image resource names")
 var failures = 0
 func check(_ name: String, title: String? = nil, identifier: String? = nil, changedTitle: Bool = false,
            stale: Bool = false, permission: Bool = true) {

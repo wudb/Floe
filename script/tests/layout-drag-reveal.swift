@@ -40,7 +40,12 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
     var sources = [CGPoint]()
     func applySnapshotFromCache() {}
     func refresh() async { await rescanAfterDrag() }
-    func refreshAfterDrop() async { await rescanAfterDrag() }
+    var pauseFinalRead = false
+    var finalRead: CheckedContinuation<Void, Never>?
+    func refreshAfterDrop() async {
+        if pauseFinalRead { await withCheckedContinuation { finalRead = $0 } }
+        await rescanAfterDrag()
+    }
     func rescanAfterDrag() async {
         let revealed = appState.menuBarManager.sections.allSatisfy { $0.controlItem.state == .showItems }
         let row = RowItem(id: "a", quartzFrame: CGRect(x: revealed ? 100 : -10000, y: 0, width: 20, height: 20))
@@ -51,6 +56,10 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
             if let row = rows.first(where: { $0.id == id }) { sections[kind] = []; return (row, kind) }
         }
         return nil
+    }
+    func performLayoutMove(_ item: RowItem, to kind: MenuBarItemAXDiscovery.SectionKind, destination: CGPoint?) async -> Bool {
+        guard let frame = item.quartzFrame, let destination else { return false }
+        return await performDrag(from: CGPoint(x: frame.midX, y: frame.midY), to: destination)
     }
     func destinationPoint(for kind: MenuBarItemAXDiscovery.SectionKind) -> CGPoint? { CGPoint(x: 200, y: 10) }
     func performDrag(from: CGPoint, to: CGPoint) async -> Bool {
@@ -69,6 +78,13 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
         precondition(pane.sources.count == 1 && pane.sources[0].x > 0)
         precondition(!pane.isMoving && !pane.appState.itemManager.isEditingLayout && pane.appState.itemManager.records == 1)
         precondition(pane.appState.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems && $0.writes == 0 })
+        let finishing = Pane()
+        finishing.pauseFinalRead = true
+        let finishingTask = Task { await finishing.drop(itemID: "a", to: .visible) }
+        while finishing.finalRead == nil { await Task.yield() }
+        precondition(finishing.isMoving && finishing.appState.itemManager.isEditingLayout, "final scan must retain ownership against background refresh")
+        finishing.finalRead?.resume(); await finishingTask.value
+        precondition(!finishing.isMoving && !finishing.appState.itemManager.isEditingLayout)
         let cancelled = Pane()
         let task = Task { await cancelled.drop(itemID: "a", to: .visible) }
         while !cancelled.isMoving { await Task.yield() }

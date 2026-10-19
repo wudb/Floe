@@ -30,8 +30,9 @@ enum MenuBarItemAXDiscovery {
     struct AXMenuBarItem { let id: Int; var axFrame: CGRect? = nil; var pid: pid_t = 42; var title: String? = nil }
     static var trusted = true
     static func isTrusted() -> Bool { trusted }
-    static var discovered = [AXMenuBarItem(id: 99)]
-    static func discoverItems(in: [Int]) -> [AXMenuBarItem] { discovered }
+    static var discovered = [AXMenuBarItem(id: 99, pid: 43)]
+    static var scans = 0
+    static func discoverItems(in: [Int]) -> [AXMenuBarItem] { scans += 1; return discovered }
 }
 @MainActor final class Cache { var allItems: [MenuBarItem] = [] }
 @MainActor final class ItemManager {
@@ -79,13 +80,19 @@ enum MenuBarItemAXDiscovery {
         let cached = MenuBarItem(id: 20, owningApplication: Application(bundleIdentifier: "foreign"), frame: frame, ownerPID: 10, title: "Status")
         let duplicate = MenuBarItemAXDiscovery.AXMenuBarItem(id: 21, axFrame: frame, pid: 99, title: "Different proxy title")
         let sibling = MenuBarItemAXDiscovery.AXMenuBarItem(id: 22, axFrame: frame.offsetBy(dx: 30, dy: 0), pid: 10, title: "Status")
-        precondition(pane.supplementalAXItems([duplicate, sibling], cached: [cached]).map(\.id) == [22])
+        precondition(pane.supplementalAXItems([duplicate, sibling], cached: [cached]).map(\.id).isEmpty)
+        let inset = MenuBarItemAXDiscovery.AXMenuBarItem(id: 26, axFrame: frame.insetBy(dx: 3, dy: 4).offsetBy(dx: 2, dy: 0), pid: 10, title: "asset_name")
+        precondition(pane.supplementalAXItems([inset, sibling], cached: [cached]).map(\.id).isEmpty, "inset AX image and CGS padded window are one physical icon")
+        let lowInset = MenuBarItemAXDiscovery.AXMenuBarItem(id: 28, axFrame: CGRect(x: 203, y: 14, width: 14, height: 10), pid: 10, title: "asset_name")
+        precondition(pane.supplementalAXItems([lowInset], cached: [cached]).isEmpty, "asymmetric vertical padding is still one icon")
+        let insetSibling = MenuBarItemAXDiscovery.AXMenuBarItem(id: 27, axFrame: inset.axFrame!.offsetBy(dx: 30, dy: 0), pid: 10, title: "asset_name")
+        precondition(pane.supplementalAXItems([inset, insetSibling], cached: [cached]).map(\.id).isEmpty, "AX asset nodes from a CGS-backed host must not create duplicate rows")
         let nameless = MenuBarItemAXDiscovery.AXMenuBarItem(id: 23)
         precondition(pane.supplementalAXItems([nameless], cached: [cached]).map(\.id) == [23])
         let identified = MenuBarItemAXDiscovery.AXMenuBarItem(id: 24, pid: 10, title: "Status")
         precondition(pane.supplementalAXItems([identified], cached: [cached]).isEmpty)
         let ambiguous = MenuBarItemAXDiscovery.AXMenuBarItem(id: 25, pid: 10, title: "Status")
-        precondition(pane.supplementalAXItems([identified, ambiguous], cached: [cached]).map(\.id) == [24, 25])
+        precondition(pane.supplementalAXItems([identified, ambiguous], cached: [cached]).map(\.id).isEmpty)
         let own = MenuBarItem(id: 1, owningApplication: Application(bundleIdentifier: "com.wudb.Floe"))
         let foreign = MenuBarItem(id: 2, owningApplication: Application(bundleIdentifier: "foreign.app"))
         pane.appState.itemManager.itemCache.allItems = [own]
@@ -99,6 +106,9 @@ enum MenuBarItemAXDiscovery {
         pane.appState.itemManager.itemCache.allItems = [own, foreign]
         await pane.scanAndApply()
         precondition(pane.sections == ["visible": [2, 99]], "usable CGS items retain preference and exclude own items")
+        let scansBeforeNativeRead = MenuBarItemAXDiscovery.scans
+        await pane.rescanAfterDrag()
+        precondition(MenuBarItemAXDiscovery.scans == scansBeforeNativeRead, "native move readback must not rescan all application AX trees")
         pane.appState.itemManager.itemCache.allItems = []
         await pane.scanAndApply()
         precondition(pane.sections == ["visible": [99]])

@@ -88,7 +88,7 @@ struct Logger {
     func info(_ message: String) {}
 }
 @MainActor final class Content {
-    let section = Section.Name.hidden
+    var section = Section.Name.hidden
     let menuBarManager = MenuBarManager()
     let appState = AppState()
     let screen = Screen()
@@ -103,8 +103,9 @@ struct Logger {
     }
     func divider(_ x: CGFloat?) -> CGRect? { x.map { CGRect(x: $0, y: 0, width: 20, height: 24) } }
     func check(_ name: String, hidden: CGFloat?, always: CGFloat?, width: CGFloat? = nil,
-               fullscreen: Bool? = false, nativeHidden: CGFloat? = nil, expected: [String]) async {
+               fullscreen: Bool? = false, nativeHidden: CGFloat? = nil, wanted: Section.Name = .hidden, expected: [String]) async {
         let content = Content()
+        content.section = wanted
         content.menuBarManager.presentationController.fullscreen = fullscreen
         content.menuBarManager.hidden.controlItem.window = divider(nativeHidden).map { Window(frame: $0) }
         MenuBarItemAXDiscovery.dividers = (divider(hidden), divider(always))
@@ -122,7 +123,8 @@ struct Logger {
     }
     await cancelledScan.value
     expect("cancelled AX scan does not publish rows", cancelledContent.axRows.isEmpty)
-    await check("known dividers exclude visible items", hidden: 800, always: 500, expected: ["400", "600"])
+    await check("hidden bar excludes always-hidden and visible items", hidden: 800, always: 500, expected: ["600"])
+    await check("always-hidden bar shows only its own section", hidden: 800, always: 500, wanted: .alwaysHidden, expected: ["400"])
     await check("missing always-hidden divider retains hidden items", hidden: 800, always: nil, expected: ["400", "600"])
     await check("missing hidden boundary does not discard unknown items", hidden: nil, always: 500, expected: ["400", "600", "1000", "unframed"])
     await check("partial geometry uses the visible-region fallback", hidden: nil, always: 500, width: 200, expected: ["400", "600"])
@@ -130,7 +132,7 @@ struct Logger {
     await check("missing geometry without a visible region retains all items", hidden: nil, always: nil, expected: ["400", "600", "1000", "unframed"])
     await check("unknown display Space does not discard icons", hidden: nil, always: 500, width: 200, fullscreen: nil, expected: ["400", "600", "1000", "unframed"])
     await check("fullscreen ignores stale visible-region geometry", hidden: nil, always: 500, width: 200, fullscreen: true, expected: ["400", "600", "1000", "unframed"])
-    await check("native hidden-divider fallback retains classification", hidden: nil, always: 500, nativeHidden: 800, expected: ["400", "600"])
+    await check("native hidden-divider fallback retains classification", hidden: nil, always: 500, nativeHidden: 800, expected: ["600"])
     await check("parking-spacer geometry is not a hidden boundary", hidden: 7, always: 500, width: 200, expected: ["400", "600"])
     await check("zero visible width is ignored", hidden: nil, always: 500, width: 0, expected: ["400", "600", "1000", "unframed"])
     await check("oversized visible width is ignored", hidden: nil, always: 500, width: 1400, expected: ["400", "600", "1000", "unframed"])

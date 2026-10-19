@@ -1022,11 +1022,11 @@ private struct FloeBarContentView: View {
         var icons = [pid_t: NSImage]()
         var rows = [AXRowItem]()
         for item in ordered {
-            // The bar currently merges hidden + alwaysHidden (excluding visible): dividers
-            // while the spacer is expanding aren't reliable enough to split the 2 sections,
-            // and the user intent is a single bar for all hidden apps.
-            if !hiddenBoundaryMissing, kind(centerX: item.axFrame?.midX) == .visible {
-                continue
+            // 与布局页分区一一对应；普通隐藏浮栏不混入始终隐藏项。
+            if !hiddenBoundaryMissing {
+                let actual = kind(centerX: item.axFrame?.midX)
+                let matches = wantedSection == .alwaysHidden ? actual == .alwaysHidden : actual == .hidden
+                if !matches { continue }
             }
             // Same icon selection as Menu Bar Layout: familiar system extras
             // use SF Symbols (a PID-based icon would yield the generic MenuBarAgent icon).

@@ -416,14 +416,8 @@ final class ControlItem {
             let visibleImage = reversed ? icon.hidden : icon.visible
             // Closed points right like a collapsed disclosure; open points
             // left toward the revealed items, matching the section dividers.
-            // The arrow mirrors the always-hidden section while it is enabled;
-            // otherwise it mirrors this section.
-            let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden)
-            let showsOpenArrow = if alwaysHiddenSection?.isEnabled == true {
-                alwaysHiddenSection?.controlItem.state == .showItems
-            } else {
-                state == .showItems
-            }
+            // 普通点击控制隐藏区，始终隐藏区保留给 Option 点击。
+            let showsOpenArrow = state == .showItems
             button.image = showsOpenArrow ? hiddenImage.nsImage(for: appState) : visibleImage.nsImage(for: appState)
             if
                 case .custom = icon.name,
@@ -487,15 +481,6 @@ final class ControlItem {
                 let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden),
                 alwaysHiddenSection.isEnabled
             {
-                alwaysHiddenSection.toggle()
-            } else if
-                identifier == .floeIcon,
-                let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden),
-                alwaysHiddenSection.isEnabled
-            {
-                // The Floe icon drives the always-hidden section, leaving the
-                // hidden section untouched (it is driven by click/hover/scroll
-                // on empty menu bar space, its divider, or its hotkey).
                 alwaysHiddenSection.toggle()
             } else {
                 section?.toggle()

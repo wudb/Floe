@@ -382,7 +382,8 @@ enum MenuBarItemAXDiscovery {
             return
         }
 
-        if role == "AXMenuBarItem" {
+        // 状态按钮本身才是拖拽/激活目标；不能下钻到其图片资源并把资源名当成额外图标。
+        if role == "AXMenuBarItem" || role == "AXButton" {
             record(element, pid: pid, appName: appName, bundleID: bundleID, into: &result, recordNameless: true)
             return
         }

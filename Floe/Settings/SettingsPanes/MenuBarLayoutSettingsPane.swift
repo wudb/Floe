@@ -19,6 +19,7 @@ struct MenuBarLayoutSettingsPane: View {
     @State private var anchorY: CGFloat = 0
     /// Guards against overlapping Refreshes: stacked AX + CGS scans cause stutter.
     @State private var isRefreshing = false
+    @State private var isManualRefresh = false
     /// 异步扫描只能发布最新请求；离开页面后丢弃迟到结果。
     @State private var scanGeneration = 0
     /// CGS 无可展示项时保留最近 AX 快照，供缓存更新和分隔符重分类使用。
@@ -93,7 +94,7 @@ struct MenuBarLayoutSettingsPane: View {
                         await refresh()
                     }
                 } label: {
-                    if isRefreshing {
+                    if isManualRefresh {
                         ProgressView()
                             .controlSize(.small)
                     } else {
@@ -101,7 +102,7 @@ struct MenuBarLayoutSettingsPane: View {
                     }
                 }
                 .buttonStyle(FloeButtonStyle())
-                .disabled(isRefreshing)
+                .disabled(isRefreshing || isMoving)
             }
 
             NewItemRulesView(rules: appState.itemManager.newItemRules, manager: appState.itemManager)
@@ -152,7 +153,7 @@ struct MenuBarLayoutSettingsPane: View {
             // keeps pumping itemCache), then reconcile with a background scan —
             // opening the tab shows icons right away, no Refresh tap needed.
             applySnapshotFromCache()
-            await refresh()
+            await refresh(showProgress: false)
             // AX-only 系统不会发布新的 CGS 项；页面可见期间持续发现新启动/退出的应用。
             while !Task.isCancelled {
                 do {
@@ -160,11 +161,11 @@ struct MenuBarLayoutSettingsPane: View {
                 } catch {
                     return
                 }
-                guard !isMoving else { continue }
-                await refresh()
+                guard !isMoving, displayableCachedItems.isEmpty else { continue }
+                await refresh(showProgress: false)
             }
         }
-        .onReceive(appState.itemManager.$itemCache) { _ in
+        .onReceive(appState.itemManager.$itemCache.receive(on: DispatchQueue.main)) { _ in
             // When the cache changes (background timer, newly opened app,
             // finished drag), the UI follows. While dragging, keep the
             // optimistic UI and let reconcile overwrite it.
@@ -193,20 +194,25 @@ struct MenuBarLayoutSettingsPane: View {
         }
     }
 
+    /// AX-only 且边界缺失时只能列出发现项，不能宣称这些项都可见或隐藏区为空。
+    private var hasUnknownMembership: Bool {
+        displayableCachedItems.isEmpty && hiddenDividerX == nil && isHiddenDividerExpected()
+    }
+
     private func sectionView(meta: SectionMeta, items: [RowItem]) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 Image(systemName: meta.icon)
-                Text(LocalizedStringKey(meta.title))
+                Text(LocalizedStringKey(hasUnknownMembership && meta.kind == .visible ? "Unclassified icons" : meta.title))
                     .font(.headline)
-                Text(LocalizedStringKey(meta.subtitle))
+                Text(LocalizedStringKey(hasUnknownMembership ? "Section boundaries are unavailable; membership has not been confirmed." : meta.subtitle))
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
             FlowLayout(spacing: 8) {
 
                 if items.isEmpty {
-                    Text(LocalizedStringKey(meta.emptyHint))
+                    Text(LocalizedStringKey(hasUnknownMembership ? "Section membership is unknown. This does not mean the section is empty." : meta.emptyHint))
                         .font(.callout)
                         .foregroundStyle(.tertiary)
                         .padding(.vertical, 8)
@@ -349,15 +355,6 @@ struct MenuBarLayoutSettingsPane: View {
                 .strokeBorder(isDropTarget ? .blue : .clear, lineWidth: 2)
                 .frame(width: 52, height: 56)
         }
-        .overlay(alignment: .topTrailing) {
-            if pending {
-                ProgressView()
-                    .controlSize(.mini)
-                    .padding(4)
-                    .background(.regularMaterial, in: Circle())
-                    .offset(x: 6, y: -6)
-            }
-        }
         .onDrag {
             NSItemProvider(object: item.id as NSString)
         }
@@ -455,9 +452,43 @@ struct MenuBarLayoutSettingsPane: View {
         guard !Task.isCancelled, !MenuInteractionGuard.isInteracting,
               !appState.itemManager.isMovingItem
         else { return false }
+        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        while NSEvent.pressedMouseButtons != 0 || !NSEvent.modifierFlags.isDisjoint(with: [.command, .control, .option, .shift]) {
+            guard !Task.isCancelled, ContinuousClock.now < deadline else { return false }
+            do { try await Task.sleep(for: .milliseconds(30)) } catch { return false }
+        }
         appState.eventManager.stopAll()
         defer { appState.eventManager.startAll() }
         return await MenuBarItemAXMover.commandDrag(from: source, to: destination)
+    }
+
+    /// 有 CGS 身份时沿用原生移动接口，避免空分区的几何落点命中分隔符。
+    /// AX-only 项才使用屏内坐标；移动是否成功仍由后续新快照确认。
+    private func performLayoutMove(_ item: RowItem, to kind: MenuBarItemAXDiscovery.SectionKind, anchorID: String? = nil, destination: CGPoint?) async -> Bool {
+        guard !Task.isCancelled, !MenuInteractionGuard.isInteracting else { return false }
+        if item.id.hasPrefix("cgs:"), let id = CGWindowID(item.id.dropFirst(4)),
+           anchorID == nil || anchorID?.hasPrefix("cgs:") == true {
+            let items = MenuBarItem.getMenuBarItems(onScreenOnly: false, activeSpaceOnly: true)
+            guard let source = items.first(where: { $0.windowID == id }), source.isMovable,
+                  item.bundleID == nil || source.owningApplication?.bundleIdentifier == item.bundleID else { return false }
+            let anchor: MenuBarItem?
+            if let anchorID {
+                guard anchorID.hasPrefix("cgs:"), let targetID = CGWindowID(anchorID.dropFirst(4)) else { return false }
+                anchor = items.first { $0.windowID == targetID }
+            } else {
+                anchor = items.first { $0.info == (kind == .alwaysHidden ? .alwaysHiddenControlItem : .hiddenControlItem) }
+            }
+            guard let anchor, source.windowID != anchor.windowID else { return false }
+            do {
+                let target: MenuBarItemManager.MoveDestination = anchorID == nil && kind == .visible ? .rightOfItem(anchor) : .leftOfItem(anchor)
+                try await appState.itemManager.move(item: source, to: target)
+                return true
+            } catch { return false }
+        }
+        guard let frame = item.quartzFrame, let destination,
+              let screen = NSScreen.screens.first(where: { CGDisplayBounds($0.displayID).contains(CGPoint(x: frame.midX, y: frame.midY)) }),
+              CGDisplayBounds(screen.displayID).contains(destination), abs(frame.midY - destination.y) <= 8 else { return false }
+        return await performDrag(from: CGPoint(x: frame.midX, y: frame.midY), to: destination)
     }
 
     /// Drop an item into a new group: each attempt re-reads live positions
@@ -516,14 +547,11 @@ struct MenuBarLayoutSettingsPane: View {
                 // then re-scan so the UI is truth, not the optimistic append.
                 sections[kind, default: []].append(item)
                 pendingMoves.remove(itemID)
-                isMoving = false
                 await refreshAfterDrop()
                 return
             }
-            guard
-                let destination = destinationPoint(for: kind),
-                let sourceFrame = item.quartzFrame
-            else {
+            let destination = destinationPoint(for: kind)
+            guard item.id.hasPrefix("cgs:") || (destination != nil && item.quartzFrame != nil) else {
                 // No drop target known — re-scan for the real positions.
                 sections = snapshotBeforeDrag
                 moveFailed = true
@@ -533,10 +561,7 @@ struct MenuBarLayoutSettingsPane: View {
             withAnimation(.easeInOut(duration: 0.2)) {
                 sections[kind, default: []].append(item)
             }
-            let posted = await performDrag(
-                from: CGPoint(x: sourceFrame.midX, y: sourceFrame.midY),
-                to: destination
-            )
+            let posted = await performLayoutMove(item, to: kind, destination: destination)
             sections = snapshotBeforeDrag
             guard !Task.isCancelled else { return }
             await rescanAfterDrag()
@@ -548,7 +573,6 @@ struct MenuBarLayoutSettingsPane: View {
                 // trusting this snapshot. Otherwise the UI sometimes stays
                 // wrong until the user hits Refresh by hand.
                 pendingMoves.remove(itemID)
-                isMoving = false
                 await refreshAfterDrop()
                 appState.itemManager.recordLayoutChoice()
                 return
@@ -557,7 +581,6 @@ struct MenuBarLayoutSettingsPane: View {
         }
         moveFailed = true
         pendingMoves.remove(itemID)
-        isMoving = false
         await refreshAfterDrop()
     }
 
@@ -627,8 +650,7 @@ struct MenuBarLayoutSettingsPane: View {
             applySnapshotFromCache()
             guard
                 let (item, fromKind, fromIndex) = findItem(id: itemID),
-                let target = findItem(id: targetID),
-                let sourceFrame = item.quartzFrame
+                let target = findItem(id: targetID)
             else {
                 await refresh()
                 return
@@ -657,7 +679,8 @@ struct MenuBarLayoutSettingsPane: View {
             }
             let leftFrame = insertIndex > 0 ? toItems[max(0, insertIndex - 1)].quartzFrame : nil
             let rightFrame = insertIndex < toItems.count ? toItems[insertIndex].quartzFrame : nil
-            guard let destination = reorderDestination(for: toKind, leftFrame: leftFrame, rightFrame: rightFrame) else {
+            let destination = reorderDestination(for: toKind, leftFrame: leftFrame, rightFrame: rightFrame)
+            guard item.id.hasPrefix("cgs:") || destination != nil else {
                 sections = snapshotBeforeDrag
                 moveFailed = true
                 await refresh()
@@ -666,10 +689,7 @@ struct MenuBarLayoutSettingsPane: View {
             withAnimation(.easeInOut(duration: 0.2)) {
                 sections[toKind, default: []].insert(item, at: min(insertIndex, toItems.count))
             }
-            let posted = await performDrag(
-                from: CGPoint(x: sourceFrame.midX, y: sourceFrame.midY),
-                to: destination
-            )
+            let posted = await performLayoutMove(item, to: toKind, anchorID: targetID, destination: destination)
             sections = snapshotBeforeDrag
             guard !Task.isCancelled else { return }
             await rescanAfterDrag()
@@ -679,7 +699,6 @@ struct MenuBarLayoutSettingsPane: View {
                 // Same as section drops: one settled re-scan after landing,
                 // don't trust the immediate post-drag snapshot.
                 pendingMoves.remove(itemID)
-                isMoving = false
                 dropTargetID = nil
                 await refreshAfterDrop()
                 appState.itemManager.recordLayoutChoice()
@@ -689,7 +708,6 @@ struct MenuBarLayoutSettingsPane: View {
         }
         moveFailed = true
         pendingMoves.remove(itemID)
-        isMoving = false
         dropTargetID = nil
         await refreshAfterDrop()
     }
@@ -852,13 +870,15 @@ struct MenuBarLayoutSettingsPane: View {
     }
 
     /// Manual scan from the Refresh button: shows the spinner, blocks overlapping taps.
-    private func refresh() async {
+    private func refresh(showProgress: Bool = true) async {
         // Guard against overlapping scans when Refresh is tapped repeatedly.
         guard !isRefreshing else {
             return
         }
         isRefreshing = true
+        isManualRefresh = showProgress
         defer {
+            isManualRefresh = false
             isRefreshing = false
         }
         await scanAndApply()
@@ -869,16 +889,8 @@ struct MenuBarLayoutSettingsPane: View {
     /// running), otherwise the UI stays on the pre-drag snapshot until the
     /// user hits Refresh by hand.
     private func refreshAfterDrop() async {
-        for _ in 0..<30 where isRefreshing {
-            try? await Task.sleep(for: .milliseconds(100))
-        }
-        if isRefreshing {
-            // A scan is stuck (divider wait); run one anyway so the post-drag
-            // truth is painted instead of leaving the optimistic UI behind.
-            await scanAndApply()
-        } else {
-            await refresh()
-        }
+        // 拖动只需读回实时窗口/分区；不再等待或触发一轮遍历所有应用的 AX 扫描。
+        await rescanAfterDrag()
     }
 
     /// Rebuild post-drag truth without trusting the optimistic SwiftUI state.
@@ -895,8 +907,8 @@ struct MenuBarLayoutSettingsPane: View {
         hiddenDividerX = hiddenX
         alwaysHiddenDividerX = alwaysHiddenX
 
-        var axFallback = [MenuBarItemAXDiscovery.AXMenuBarItem]()
-        if MenuBarItemAXDiscovery.isTrusted() {
+        var axFallback = axSnapshot
+        if displayableCachedItems.isEmpty, MenuBarItemAXDiscovery.isTrusted() {
             let apps = NSWorkspace.shared.runningApplications
             axFallback = await Task.detached(priority: .userInitiated) {
                 MenuBarItemAXDiscovery.discoverItems(in: apps)
@@ -968,20 +980,40 @@ struct MenuBarLayoutSettingsPane: View {
         _ axItems: [MenuBarItemAXDiscovery.AXMenuBarItem],
         cached: [MenuBarItem]
     ) -> [MenuBarItemAXDiscovery.AXMenuBarItem] {
-        axItems.filter { axItem in
-            !cached.contains { item in
+        return axItems.filter { axItem in
+            // 完整 CGS 宿主快照已包含真实状态窗口，不再混入该宿主的 AX 图片/代理节点。
+            // AX 仅补充 CGS 尚未发现的宿主；不能把不同坐标系下的两份宿主列表叠加。
+            if cached.contains(where: { $0.ownerPID == axItem.pid }) { return false }
+            let candidates = cached.indices.filter { index in
+                let item = cached[index]
                 if let frame = axItem.axFrame, !frame.isEmpty {
-                    return abs(frame.midX - item.frame.midX) <= 1 &&
-                        abs(frame.midY - item.frame.midY) <= 1 &&
-                        abs(frame.width - item.frame.width) <= 2 &&
-                        abs(frame.height - item.frame.height) <= 2
+                    let other = item.frame
+                    let intersection = frame.intersection(other)
+                    let area = min(frame.width * frame.height, other.width * other.height)
+                    // AX 常返回内部按钮/图片边框，CGS 返回带留白的窗口边框。
+                    // 允许内缩但不能靠同名或仅同一进程吞掉相邻的真实图标。
+                    let tolerance: CGFloat = axItem.pid == item.ownerPID ? 6 : 1
+                    return area > 0 && !intersection.isNull &&
+                        intersection.width * intersection.height >= area * 0.8 &&
+                        abs(frame.midX - other.midX) <= tolerance &&
+                        abs(frame.midY - other.midY) <= (axItem.pid == item.ownerPID ? max(6, max(frame.height, other.height) / 2) : tolerance)
                 }
                 guard let title = axItem.title, !title.isEmpty else { return false }
-                guard axItem.pid == item.ownerPID, title == item.title else { return false }
-                // 无坐标时只合并双方都唯一的身份；同一宿主的多个同名图标不能被吞掉。
-                return axItems.filter { $0.pid == axItem.pid && $0.title == title }.count == 1 &&
+                return axItem.pid == item.ownerPID && title == item.title &&
+                    axItems.filter { $0.pid == axItem.pid && $0.title == title }.count == 1 &&
                     cached.filter { $0.ownerPID == item.ownerPID && $0.title == title }.count == 1
             }
+            return candidates.count != 1
+        }
+    }
+
+    /// 分区已由项目管理器在完整窗口快照中确认；不能因 UI 的 AX 分隔符缺失而降级为全部可见。
+    private func cachedKind(for item: MenuBarItem, hiddenX: CGFloat?, alwaysHiddenX: CGFloat?) -> MenuBarItemAXDiscovery.SectionKind {
+        switch appState.itemManager.itemCache.section(for: item) {
+        case .visible: return .visible
+        case .hidden: return .hidden
+        case .alwaysHidden: return .alwaysHidden
+        case nil: return MenuBarItemAXDiscovery.classify(centerX: item.frame.midX, hiddenDividerX: hiddenX, alwaysHiddenDividerX: alwaysHiddenX)
         }
     }
 
@@ -1027,7 +1059,8 @@ struct MenuBarLayoutSettingsPane: View {
                         appIcon = icon
                     }
                 }
-                grouped[kind(centerX: item.frame.midX), default: []].append(
+                let section = cachedKind(for: item, hiddenX: hiddenX, alwaysHiddenX: alwaysHiddenX)
+                grouped[section, default: []].append(
                     RowItem(
                         id: stableID(for: "cgs:\(item.windowID)"),
                         title: item.displayName,
@@ -1162,7 +1195,7 @@ struct MenuBarLayoutSettingsPane: View {
         // would be misclassified as Visible. Prefer fast AX, waiting at most ~2s
         // when an expected divider is still missing, instead of making the user hit Refresh repeatedly.
         var (hiddenX, alwaysHiddenX) = resolveDividers()
-        if isMissingExpectedDivider(hiddenX: hiddenX, alwaysHiddenX: alwaysHiddenX) {
+        if displayableCachedItems.isEmpty, isMissingExpectedDivider(hiddenX: hiddenX, alwaysHiddenX: alwaysHiddenX) {
             for _ in 0..<20 {
                 try? await Task.sleep(for: .milliseconds(100))
                 guard generation == scanGeneration, !Task.isCancelled else { return }

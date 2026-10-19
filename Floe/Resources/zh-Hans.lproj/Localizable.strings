@@ -351,3 +351,8 @@
 "Display overrides" = "按显示器手动覆盖";
 "Rules change presentation, not which icons are hidden. Display overrides are remembered after reconnecting." = "规则只改变呈现方式，不改变隐藏哪些图标。重新连接显示器后仍保留手动覆盖。";
 "Right-click the Floe Bar background to pin its position or reorder icons. Pinning does not prevent automatic rehide." = "右键点击浮栏背景可固定位置或整理图标。固定位置不影响自动收起。";
+
+/* Layout membership uncertainty */
+"Unclassified icons" = "分区未确认的图标";
+"Section boundaries are unavailable; membership has not been confirmed." = "暂时无法获取分区边界，尚未确认图标所属分区。";
+"Section membership is unknown. This does not mean the section is empty." = "分区归属暂未确认，不代表此区域没有图标。";

@@ -167,3 +167,28 @@ combined display scopes, missing measurements, notch capacity, hysteresis,
 pointer targeting, deferred cleanup and reconnect persistence. These checks do
 not manipulate real menu items or replace mixed desktop/fullscreen, hotplug and
 notched MacBook acceptance. See [M5 third-batch status](../docs/m5-c-status.json).
+
+## Layout icon merge and native movement
+
+```bash
+swift script/tests/layout-cache-fallback.swift
+swift script/tests/layout-native-move.swift
+swift script/tests/layout-drag-reveal.swift
+swift script/tests/layout-refresh-state.swift
+```
+
+Compiles production merge and movement methods with controlled services. Checks
+inset AX geometry, separate same-name icons, native divider insertion for empty
+groups, stale-owner rejection and on-screen AX fallback. Real third-party icon
+movement remains a separate acceptance step; see the [layout fix](../docs/layout-icon-merge-fix.md).
+
+Layout click routing and readback checks:
+
+```bash
+swift script/tests/control-item-click.swift
+swift script/tests/ax-row-filter.swift
+swift script/tests/layout-cache-fallback.swift
+```
+
+Checks normal versus Option-click sections, exact AX section filtering, and that
+CGS move readback does not rescan all application AX trees.
