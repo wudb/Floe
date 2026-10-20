@@ -8,7 +8,7 @@
   <p><a href="https://github.com/wudb/Floe/releases">Download</a> · <a href="https://github.com/wudb/Floe/issues">Report an issue</a> · <a href="LICENSE">GPL-3.0</a></p>
 </div>
 
-**macOS 14 Sonoma or later** · **English and Simplified Chinese** · **Current source version: 1.0.0**
+**macOS 14 Sonoma or later** · **English and Simplified Chinese** · **Current source version: 1.0.1**
 
 ## A clearer view of your menu bar
 

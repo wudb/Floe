@@ -8,7 +8,7 @@
   <p><a href="https://github.com/wudb/Floe/releases">下载应用</a> · <a href="https://github.com/wudb/Floe/issues">反馈问题</a> · <a href="LICENSE">GPL-3.0 许可证</a></p>
 </div>
 
-**macOS 14 Sonoma 及以上** · **英语 / 简体中文** · **当前源码版本：1.0.0**
+**macOS 14 Sonoma 及以上** · **英语 / 简体中文** · **当前源码版本：1.0.1**
 
 ## 重新整理你的菜单栏
 
