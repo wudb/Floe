@@ -1,168 +1,131 @@
-[English](README.md) | [简体中文](README.zh-CN.md)
+[English](README.md) · [简体中文](README.zh-CN.md)
 
 <div align="center">
-    <img src="Floe/Assets.xcassets/AppIcon.appiconset/icon_256x256.png" width=200 height=200>
-    <h1>Floe — Free & Open-Source Menu Bar Manager for macOS</h1>
-    <p>Hide and organize menu bar icons on your Mac to keep your menu bar tidy.</p>
+  <img src="Floe/Assets.xcassets/AppIcon.appiconset/icon_256x256.png" alt="Floe icon" width="112" height="112">
+  <h1>Floe</h1>
+  <p>A tidier menu bar. Your icons, where you want them.</p>
+  <p>Free and open-source menu bar management for macOS.</p>
+  <p><a href="https://github.com/wudb/Floe/releases">Download</a> · <a href="https://github.com/wudb/Floe/issues">Report an issue</a> · <a href="LICENSE">GPL-3.0</a></p>
 </div>
 
-![Floe menu bar manager for macOS — hide and organize menu bar icons](./Resources/Image/banner.png)
+**macOS 14 Sonoma or later** · **English and Simplified Chinese** · **Current source version: 1.0.0**
 
-<div align="center">
+## A clearer view of your menu bar
 
-[![Download](https://img.shields.io/badge/download-latest-brightgreen?style=flat-square)](https://github.com/wudb/Floe/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/wudb/Floe/total?style=flat-square)](https://github.com/wudb/Floe/releases)
-![Platform](https://img.shields.io/badge/platform-macOS-blue?style=flat-square)
-![Requirements](https://img.shields.io/badge/requirements-macOS%2014%2B-fa4e49?style=flat-square)
-[![GitHub stars](https://img.shields.io/github/stars/wudb/Floe?style=flat-square)](https://github.com/wudb/Floe/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/wudb/Floe?style=flat-square)](https://github.com/wudb/Floe/network/members)
-[![Repository](https://img.shields.io/badge/Repository-GitHub-015FBA?style=flat-square)](https://github.com/wudb/Floe)
-[![License](https://img.shields.io/github/license/wudb/Floe?style=flat-square)](LICENSE)
-[![Sponsor](https://img.shields.io/badge/Sponsor%20%E2%9D%A4%EF%B8%8F-8A2BE2?style=flat-square)](https://ko-fi.com/calvados)
+Keep everyday icons visible, tuck away occasional tools, and bring them back when you need them. Floe combines a compact layout editor, a separate floating bar, and appearance controls in one settings window.
 
-<br>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/design/v2-implementation/dark-surfaces-settings.png">
+  <img src="docs/design/v2-implementation/light-surfaces-settings.png" alt="Floe Menu Bar Layout with sidebar navigation, search, and Visible, Hidden and Always Hidden groups" width="960">
+</picture>
 
-<a href="https://ko-fi.com/calvados" target="_blank">
-    <img src="https://storage.ko-fi.com/cdn/kofi5.png?v=6" alt="Support upstream on Ko-fi" style="height: 60px !important;width: 217px !important;">
-</a>
+[Light preview](docs/design/v2-implementation/light-surfaces-settings.png) · [Dark preview](docs/design/v2-implementation/dark-surfaces-settings.png)
 
-</div>
+*Previews are rendered from Floe's current UI components with sample icons. The interface shown uses Simplified Chinese; English is also available.*
 
-> [!NOTE]
-> Floe is in active development. Grab the latest build from the [releases page](https://github.com/wudb/Floe/releases/latest).
+## Get started
 
-Floe requires macOS 14 Sonoma or later. See the [issues milestones](docs/issues_milestone.md) for macOS 26/27 compatibility work and validation scope.
+1. Download `Floe.zip` from [Releases](https://github.com/wudb/Floe/releases), extract it, and move `Floe.app` to **Applications**.
+2. Open Floe and follow the permission prompts. In **System Settings → Privacy & Security**, grant Floe **Accessibility** to manage menu bar items and **Screen Recording** to display captured icons and use appearance features. You can grant permissions later; available features depend on those grants.
+3. Right-click Floe's menu bar icon, choose **Floe Settings…**, and open **Menu Bar Layout** to arrange your icons. Set your preferred appearance, language and launch-at-login behavior in **General**.
 
-## Install
-
-**Manual:**
-
-1. Download `Floe.zip` from the [latest release](https://github.com/wudb/Floe/releases/latest).
-2. Unzip it and move `Floe.app` into `/Applications`.
-3. Clear the quarantine flag — releases are ad-hoc signed and not notarized, so Gatekeeper would otherwise block the first launch:
+The current release workflow uses ad-hoc signing without notarization. If macOS blocks the first launch of a downloaded build, remove its quarantine attribute and open it again:
 
 ```bash
 xattr -d com.apple.quarantine /Applications/Floe.app
 ```
 
-Then open Floe and grant **Accessibility** and **Screen Recording** in System Settings (see [local development instructions](script/README.md#after-installing-a-build)).
+Updates are currently installed manually from [Releases](https://github.com/wudb/Floe/releases).
 
-For local development, open `Floe.xcodeproj` and select the `Floe` scheme, or see [script/README.md](script/README.md).
+## Organize your icons
 
-Floe uses the bundle identifier `com.wudb.Floe`, with separate preferences and privacy permissions from Ice. Grant Accessibility and Screen Recording to Floe on first launch. Automatic updates are disabled until Floe has its own update feed and signing key.
+The **Menu Bar Layout** page shows a menu bar preview and three groups:
 
-## Appearance
+| Group | Behavior |
+| --- | --- |
+| **Visible** | Icons stay in the menu bar. |
+| **Hidden** | Icons appear when you reveal the hidden section. |
+| **Always Hidden** | Icons use a separate reveal action. Enable this section in **Advanced**. |
 
-Open **Settings → General → Appearance** and choose **Follow System** (default),
-**Light**, or **Dark**. Your selection is saved and applies immediately. Follow
-System continues to track your Mac's light/dark appearance. This preference
-changes Floe's interface without changing macOS system settings.
+Drag icons between groups or change their order. Hover to see an icon's name, and use search to find an item or application. Context menus provide movement actions and an **Always show this app** rule. Some protected system items cannot be moved.
 
-## Language
+At the bottom of the page, choose the destination and beginning/end position for **new menu bar items**. Existing items retain their saved placement. Expand **Placement details** for more information and **Show all current icons**.
 
-Open **Settings → General → Language** and choose **Follow System**, **English**,
-or **简体中文**. The default follows the system's primary preferred language.
-Simplified Chinese is supported; unsupported languages (including Traditional
-Chinese) fall back to English. Your selection is saved and applies immediately
-without restarting Floe.
+In **General**, you can enable click, hover or scroll to reveal hidden icons, and configure automatic rehide. In **Hotkeys**, assign shortcuts for revealing sections, searching items and toggling Floe Bar.
 
-## Permissions
+For a separate item search window, choose **Search menu bar items** from Floe's context menu or use its configured shortcut.
 
-In System Settings → Privacy & Security, grant Accessibility and Screen Recording
-to `Floe.app`. Existing grants for Ice do not apply to Floe. After rebuilding an
-ad-hoc signed app, use `./script/fix-permissions.sh /path/to/Floe.app` if its
-previous grants no longer match the new signature.
+## Choose how hidden icons appear
 
-## Uninstall
+In **General**, set the presentation for **Hidden** and **Always Hidden** separately:
 
-**Manual:** quit Floe, then drag `Floe.app` out of `/Applications` to the Trash. To also remove preferences, delete `~/Library/Preferences/com.wudb.Floe.plist`.
+| Mode | Behavior |
+| --- | --- |
+| **Native menu bar** | Reveal icons in the system menu bar. |
+| **Floe Bar** | Open a separate floating bar below the menu bar. |
+| **Follow Use Floe Bar** | Follow the **Use Floe Bar** switch. |
+| **Adaptive** | Choose a presentation using display, full-screen and available-space rules. |
 
+Floe Bar supports **horizontal icons**, a **names list**, and an **icon grid**. Lists and grids scroll when needed. Grid columns can be set from 2 to 12 and adapt to narrow displays.
 
-## Gallery
+Right-click the floating bar's background to **Reorder** icons. Outside Reorder mode, drag the background to move the bar, then choose **Pin position** to remember its location for that display. Pinning keeps its position while automatic rehide continues to work.
 
-These demonstrations come from the upstream project. Some images still show the upstream name or an older interface.
+Expand **Adaptive presentation rules** to choose display types, connected display counts, reserved menu bar space, full-screen behavior and per-display overrides. These rules control how sections open; your icon groups stay the same. Revealing Always Hidden in the native menu bar also exposes Hidden because the sections share one row.
 
-**Always-Hidden section demo — hide menu bar icons and reveal on hover**
+## Make Floe yours
 
-![Demo of Floe always-hidden menu bar section on macOS](Resources/vid/demo-ah.gif)
+The sidebar keeps each set of controls in a dedicated page:
 
-**Show and hide menu bar icons demo**
+| Page | What you can configure |
+| --- | --- |
+| **General** | Launch at login, app appearance, language, Floe icon, reveal behavior, Floe Bar and icon spacing. |
+| **Menu Bar Layout** | Icon groups, ordering, search and default placement for new items. |
+| **Menu Bar Appearance** | Menu bar shape, rounded ends, tint, gradients, blur, borders and shadow. |
+| **Hotkeys** | Shortcuts for sections, search, Floe Bar and other menu bar actions. |
+| **Advanced** | Always Hidden, section dividers, reveal delays and additional behavior. |
+| **About Floe** | App version and project links. |
 
-![Demo showing and hiding Mac menu bar icons with Floe](Resources/vid/demo.gif)
+**App appearance:** choose **Follow System**, **Light** or **Dark** in **General → Appearance**. The choice is saved and applied immediately to Floe's windows and default floating bar. Menu bar styling has its own controls in **Menu Bar Appearance**.
 
-**Fullscreen settings**
+**Language:** choose **Follow System**, **English** or **简体中文** in **General → Language**. Changes apply without restarting. Unsupported system languages fall back to English.
 
-![Floe fullscreen settings window on macOS](Resources/Image/fullscreen.png)
+**Menu bar spacing:** apply changes in General. On macOS versions that require it, Floe prompts you to log out and back in before the new spacing takes effect.
 
+## Keyboard controls
 
-| Floe Bar — second menu bar for notched MacBooks                                                   | Drag-and-drop menu bar layout                                                                   |
-| ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| ![Floe Bar second menu bar for MacBook notch](https://github.com/user-attachments/assets/f1429589-6186-4e1b-8aef-592219d49b9b) | ![Drag and drop menu bar layout editor](./Resources/Image/MenuBarLayout.png) |
+| Where | Keys | Action |
+| --- | --- | --- |
+| Layout editor | `Tab`, then `←` / `→` | Focus and select icons. |
+| Layout editor | `⌘←` / `⌘→` | Move the focused icon earlier or later. |
+| Layout editor | `⌘1` / `⌘2` / `⌘3` | Move the icon to Visible / Hidden / Always Hidden. |
+| Item search | `↑` / `↓` or `Control-P` / `Control-N` | Select a result. |
+| Item search | `Return` / `Escape` | Open the selected result / close search. |
 
-| Menu bar appearance and theme settings                                                                  | Menu bar item spacing                                                                                       |
-| ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| ![Menu bar appearance theme settings](./Resources/Image/MenuBarAppearance.png) | ![Menu bar icon spacing settings](https://github.com/user-attachments/assets/b196aa7e-184a-4d4c-b040-502f4aae40a6) |
+The layout editor also exposes movement actions through context menus and VoiceOver.
 
+## Help
 
-If you need a similar tool for macOS 13 Ventura or earlier, check out [Ice 0.11.x](https://github.com/jordanbaird/Ice/releases).
+- **An icon is missing:** confirm Floe's permissions in System Settings, then refresh Menu Bar Layout. Items that macOS does not expose or allow moving may have limited controls.
+- **The Floe icon is missing:** reopen Floe from Applications, then use **General → Restore Floe icon**.
+- **Permissions stopped working after a rebuild or update:** check Floe's grants again. Development signing and permission troubleshooting are covered in the [script guide](script/README.md).
+- **To uninstall:** quit Floe and move `Floe.app` from Applications to the Trash.
 
+For a [bug report](https://github.com/wudb/Floe/issues), include your Floe and macOS versions, display setup, steps to reproduce, and a screenshot when useful.
 
-## Contributing
+## Build and contribute
 
-Contributions are welcome! Please read the [contribution guidelines](./Resources/document/CONTRIBUTING.md) before submitting a pull request.
+Use **Xcode 26 or later**. The deployment target is macOS 14; Liquid Glass is used on macOS 26 and later, with fallback materials on earlier systems.
 
-Maintain new visible strings in both `Floe/Resources/en.lproj/Localizable.strings` and `Floe/Resources/zh-Hans.lproj/Localizable.strings`. Use localization keys in SwiftUI and `L10n.string` for native menus and alerts; keep persisted identifiers, application names, and upstream links unchanged.
+```bash
+git clone https://github.com/wudb/Floe.git
+cd Floe
+open Floe.xcodeproj
+```
 
-## Support Upstream
+Select the **Floe** scheme and configure your development signing team before running. See the [script guide](script/README.md) for local builds, release packaging and regression checks.
 
-<a href="https://ko-fi.com/calvados" target="_blank">
-    <img src="https://storage.ko-fi.com/cdn/kofi5.png?v=6" alt="Support upstream on Ko-fi" style="height: 36px !important;width: 130px !important;">
-</a>
-
-<a href="https://www.paypal.com/paypalme/nnkhanh29" target="_blank">
-    <img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/PP_logo_h_200x51.png" alt="Donate with PayPal" style="height: 36px !important;">
-</a>
-
-Open **Edit Menu Bar Layout…** directly from the context menu in an empty menu bar area. Search accepts item and application names; use Up/Down or Control-N/Control-P to select a result, Return to open the selected result, and Escape to close.
-
-In Menu Bar Layout, Tab focuses icons, Left/Right changes focus, Command-Left/Right reorders an icon, and Command-1/2/3 moves it to Visible/Hidden/Always Hidden. The context menu and VoiceOver actions expose the same operations. Protected system items cannot be moved or hidden where macOS disallows it.
-
-Choose a destination and beginning/end position for **new menu bar items**. On first use, Floe keeps the current layout; changing this setting does not rearrange existing items. **Show all current icons** explicitly moves identifiable current items to Visible. If Always Hidden is disabled, new items assigned there use Hidden instead. Previously saved placement takes precedence over the default for new items. In an icon's context menu, **Always show this app** overrides its saved section until that rule is removed; removing the rule keeps the current placement and allows manual changes.
-
-Automatic placement waits for menus to close and the pointer to stop moving. It requires supported item discovery and unique identities; ambiguous items keep their position. Temporary reveals do not become new placement choices. Confirmed manual layout changes and automatic placement choices are saved for later restoration.
-
-If the Floe icon was removed, reopen Floe from Applications, then choose **Restore Floe icon** in General settings. Reopening intentionally keeps access to settings available even when the menu bar icon is missing.
-
-## Floe Bar layouts and placement
-
-In General settings, choose **Native menu bar**, **Floe Bar**, **Follow Use Floe Bar**, or **Adaptive** separately for Hidden and Always Hidden. Follow preserves the existing global switch and shortcut. For example, Hidden can stay in the native row while Always Hidden opens in the Floe Bar. Native Always Hidden still reveals Hidden because both sections share the same row.
-
-Choose horizontal icons, a names list, or a grid. The grid supports 2–12 requested columns and reduces the column count on narrow displays; list and grid content scroll vertically and stay within the display's available area. Names and activation use the same discovered items as the existing bar, including the Accessibility fallback.
-
-Right-click the bar background and choose **Reorder**, drag an icon onto another to insert it before that icon, or onto **Drop at end**. Click Done to return to normal menu activation. The actual native order is read back after a move; a rejected or stale move shows an error instead of saving a visual-only order. Closing the bar cancels the edit session. Protected items and missing/offscreen Accessibility frames cannot be forced into a new position.
-
-After leaving Reorder mode, move the bar by its background, then right-click its background and choose **Pin position** to save the current position for that display. While pinned, later background drags update that display's position. Positions are stored relatively, so resizing or changing display scale does not reuse old pixel coordinates. An unfamiliar display starts at the available area's top-right. **Unpin position** restores the normal location rule. Pinning fixes placement; it does not keep the bar open or disable automatic rehide.
-
-## Adaptive presentation
-
-Select **Adaptive** for either hidden section in General settings, then expand **Adaptive presentation rules**. Choose the target display type (all, built-in, external or notched) and connected display count (any, one or multiple). Both scope conditions must match. Outside this scope, the section opens in the native menu bar.
-
-By default, matching displays use Floe Bar only when the native row lacks continuous space beside application menus and the notch. Widths use logical points, including the visible and hidden icons that a native reveal would expose. Set the reserved space, or turn off the space condition to always use Floe Bar within the scope. Missing measurements and system menu bar auto-hide favor Floe Bar. A 48-point exit margin reduces repeated switching near the boundary.
-
-Fixed section choices take priority. For Adaptive sections, a saved per-display override takes priority over full-screen rules, followed by display scope and space. Full-screen options are follow rules, native, Floe Bar, or do not reveal. Full-screen status belongs to the target display; unavailable Space metadata stays unknown. Normal use shows only the icon bar; the toolbar appears during Reorder.
-
-Rules refresh after display/Space/frontmost-app changes and on a one-second measurement cycle. Outdated presentations close safely after menus, temporary reveals or reordering finish. The next user trigger chooses the new presentation; rules do not automatically show all icons or change saved visibility. Display overrides use persistent display UUIDs. This provides presentation rules, not independent native icon sets for every display.
-
-## Acknowledgments
-
-Floe is forked from [cavaldos/Ice](https://github.com/cavaldos/Ice), which is forked from [jordanbaird/Ice](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird). Thanks to both upstream projects.
+Contributions are welcome through [issues](https://github.com/wudb/Floe/issues) and [pull requests](https://github.com/wudb/Floe/pulls). Keep English and Simplified Chinese resources in sync when changing visible text.
 
 ## License
 
-[GPL-3.0](LICENSE) — Floe is and will always remain open-source and free.
-
-## Star History
-
-<a href="https://star-history.com/#wudb/Floe&Date">
-    <img src="https://api.star-history.com/svg?repos=wudb/Floe&type=Date" alt="Star History Chart" width="500">
-</a>
+Floe is distributed under the [GNU General Public License v3.0](LICENSE).
