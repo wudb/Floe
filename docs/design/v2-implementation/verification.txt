@@ -113,3 +113,8 @@ Floe V2 界面实现与验证记录
 - Debug 与 Release 的 MARKETING_VERSION 均为 1.0.0；构建号保持 1117。
 - 最终 Release（arm64/x86_64）构建通过，读取产物 Info.plist 确认 CFBundleShortVersionString 为 1.0.0、CFBundleVersion 为 1117。
 - SwiftLint strict、app-language.swift、工程与双语资源 plutil 校验及 git diff --check 通过。
+
+README 英文界面预览（2026-10-20）
+- light-surfaces-settings-en.png、dark-surfaces-settings-en.png：当前生产设置页组件以 en 语言环境、960×720 点尺寸配合 44 个示例项目离屏渲染。
+- 已逐一查看标题、导航、分组、搜索框、放置规则和外观状态，确认使用英语；这些图片不是实际桌面或第三方图标的截图。
+- 英文 README 使用英文浅色/深色图片，简体中文 README 继续使用对应中文图片。

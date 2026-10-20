@@ -15,13 +15,13 @@
 Keep everyday icons visible, tuck away occasional tools, and bring them back when you need them. Floe combines a compact layout editor, a separate floating bar, and appearance controls in one settings window.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/design/v2-implementation/dark-surfaces-settings.png">
-  <img src="docs/design/v2-implementation/light-surfaces-settings.png" alt="Floe Menu Bar Layout with sidebar navigation, search, and Visible, Hidden and Always Hidden groups" width="960">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/design/v2-implementation/dark-surfaces-settings-en.png">
+  <img src="docs/design/v2-implementation/light-surfaces-settings-en.png" alt="Floe Menu Bar Layout with sidebar navigation, search, and Visible, Hidden and Always Hidden groups" width="960">
 </picture>
 
-[Light preview](docs/design/v2-implementation/light-surfaces-settings.png) · [Dark preview](docs/design/v2-implementation/dark-surfaces-settings.png)
+[Light preview](docs/design/v2-implementation/light-surfaces-settings-en.png) · [Dark preview](docs/design/v2-implementation/dark-surfaces-settings-en.png)
 
-*Previews are rendered from Floe's current UI components with sample icons. The interface shown uses Simplified Chinese; English is also available.*
+*Previews show the English interface rendered from Floe's current UI components with sample icons.*
 
 ## Get started
 
@@ -129,3 +129,7 @@ Contributions are welcome through [issues](https://github.com/wudb/Floe/issues) 
 ## License
 
 Floe is distributed under the [GNU General Public License v3.0](LICENSE).
+
+## Star History
+
+[![Floe Star History](https://api.star-history.com/svg?repos=wudb/Floe&type=Date)](https://star-history.com/#wudb/Floe&Date)

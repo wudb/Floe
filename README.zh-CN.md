@@ -129,3 +129,7 @@ open Floe.xcodeproj
 ## 许可证
 
 Floe 采用 [GNU General Public License v3.0](LICENSE) 许可证。
+
+## Star 历史
+
+[![Floe Star 历史](https://api.star-history.com/svg?repos=wudb/Floe&type=Date)](https://star-history.com/#wudb/Floe&Date)
