@@ -60,7 +60,7 @@ struct Cache {
     let layoutStore = LayoutStoreStub()
     func reconcileLayout() async { await layoutStore.restoreIfNeeded(manager: self) }
     var isCachingItems = false
-    var needsForcedCache = false
+    var cacheReadGeneration = 0
     var waitDelay = false
     var isItemDiscoveryUnavailable = false
     var itemCache = Cache()
@@ -128,14 +128,26 @@ let tests = #"""
         let first = Task { await coalesced.cacheItemsIfNeeded() }
         while !coalesced.isCachingItems { await Task.yield() }
         for _ in 0..<50 { await coalesced.cacheItemsIfNeeded() }
-        await coalesced.cacheItemsIfNeeded(force: true)
-        expect(MenuBarItem.scans == 0, "reentrant triggers do not overlap an in-flight scan")
+        var forceReturned = false
+        let forced = Task { await coalesced.cacheItemsIfNeeded(force: true); forceReturned = true }
+        let otherForced = Task { await coalesced.cacheItemsIfNeeded(force: true) }
+        try? await Task.sleep(for: .milliseconds(5))
+        expect(!forceReturned && MenuBarItem.scans == 0, "forced caller waits instead of reading the old in-flight snapshot")
         await first.value
-        for _ in 0..<100 {
-            if MenuBarItem.scans == 2 { break }
-            try? await Task.sleep(for: .milliseconds(5))
-        }
-        expect(MenuBarItem.scans == 2, "forced refresh is coalesced and runs after the in-flight scan")
+        await forced.value
+        await otherForced.value
+        expect(MenuBarItem.scans == 2, "forced callers await and share one new non-overlapping scan")
+
+        let cancelling = Manager()
+        cancelling.waitDelay = true
+        MenuBarItem.scans = 0
+        let active = Task { await cancelling.cacheItemsIfNeeded() }
+        while !cancelling.isCachingItems { await Task.yield() }
+        let waiting = Task { await cancelling.cacheItemsIfNeeded(force: true) }
+        try? await Task.sleep(for: .milliseconds(5))
+        waiting.cancel(); await waiting.value
+        await active.value
+        expect(MenuBarItem.scans == 1 && !cancelling.isCachingItems, "cancelling a waiting forced caller stops its scan without cancelling the active caller")
         exit(failures == 0 ? 0 : 1)
     }
 }

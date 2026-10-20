@@ -20,11 +20,13 @@ enum MouseCursor {
     }
 
     /// Hides the mouse cursor and increments the hide cursor count.
-    static func hide() {
+    @discardableResult
+    static func hide() -> Bool {
         let result = CGDisplayHideCursor(CGMainDisplayID())
         if result != .success {
             Logger.mouseCursor.error("CGDisplayHideCursor failed with error \(result.logString)")
         }
+        return result == .success
     }
 
     /// Decrements the hide cursor count and shows the mouse cursor if the count is `0`.

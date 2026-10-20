@@ -106,9 +106,9 @@ final class MenuBarItemManager: ObservableObject {
     /// regardless of how many other windows the server still returns.
     @Published private(set) var isItemDiscoveryUnavailable = false
 
-    /// 扫描跨 await 可能重入；每次只允许一轮扫描，拖拽要求的强制刷新合并后补做。
+    /// 扫描跨 await 可能重入；普通触发合并，强制读回必须等待自己的新快照。
     private var isCachingItems = false
-    private var needsForcedCache = false
+    private var cacheReadGeneration = 0
 
     /// The shared app state.
     private(set) weak var appState: AppState?
@@ -382,20 +382,27 @@ extension MenuBarItemManager {
     ///   window IDs, so without this the post-drag reconcile would classify
     ///   pre-drag frames and the icon would look like it "snapped back".
     func cacheItemsIfNeeded(force: Bool = false) async {
-        guard !isCachingItems else {
-            needsForcedCache = needsForcedCache || force
-            return
-        }
-        isCachingItems = true
-        defer {
-            isCachingItems = false
-            if needsForcedCache {
-                needsForcedCache = false
-                Task { await self.cacheItemsIfNeeded(force: true) }
+        // 拖拽后的 await 不能提前返回，否则调用者会把移动前的缓存当成确认结果。
+        // 等待时让出主线程；普通后台触发仍直接合并，不额外排队扫描。
+        let requestedGeneration = cacheReadGeneration
+        while isCachingItems {
+            guard force else { return }
+            do {
+                try await Task.sleep(for: .milliseconds(10))
+            } catch {
+                return
             }
         }
+        guard !Task.isCancelled else { return }
+        // 等待期间若另一个请求已启动并完成新一轮读取，直接共享该结果。
+        if force, cacheReadGeneration != requestedGeneration { return }
+        isCachingItems = true
+        cacheReadGeneration += 1
+        defer { isCachingItems = false }
         do {
             try await waitForItemsToStopMoving(timeout: .seconds(1))
+        } catch is CancellationError {
+            return
         } catch is TaskTimeoutError {
             logSkippingCache(reason: "an item is currently being moved")
             return
@@ -1155,7 +1162,14 @@ extension MenuBarItemManager {
     /// - Parameters:
     ///   - item: A menu bar item to move.
     ///   - destination: A destination to move the menu bar item.
-    func move(item: MenuBarItem, to destination: MoveDestination) async throws {
+    ///   - maxAttempts: Maximum physical attempts; layout editing supplies one.
+    ///   - beforePostingEvents: Called after input waits, immediately before the pointer transaction.
+    func move(
+        item: MenuBarItem,
+        to destination: MoveDestination,
+        maxAttempts: Int = 5,
+        beforePostingEvents: (() -> Void)? = nil
+    ) async throws {
         if try itemHasCorrectPosition(item: item, for: destination) {
             Logger.itemManager.debug("\(item.logString) is already in the correct position")
             return
@@ -1164,8 +1178,15 @@ extension MenuBarItemManager {
         do {
             // Order of these waiters matters, as the modifiers could be released
             // while the mouse is still moving.
-            try await waitForNoModifiersPressed()
-            try await waitForMouseToStopMoving()
+            repeat {
+                // 等待期间仍允许前台排队；若用户又按下鼠标，继续让出执行器，不能抢发 mouseUp。
+                while NSEvent.pressedMouseButtons != 0 {
+                    try await Task.sleep(for: .milliseconds(10))
+                }
+                try await waitForNoModifiersPressed()
+                try await waitForMouseToStopMoving()
+            } while NSEvent.pressedMouseButtons != 0
+            try Task.checkCancellation()
         } catch {
             throw EventError(code: .couldNotComplete, item: item)
         }
@@ -1187,13 +1208,21 @@ extension MenuBarItemManager {
             appState.eventManager.startAll()
         }
 
+        // 系统移动会先把指针送到屏外；隐藏这段合成轨迹，归位后再显示。
+        // 计数覆盖重试和清理，避免下一次用户拖拽与未归位的鼠标重叠。
+        beforePostingEvents?()
+        itemMoveCount += 1
+        let didHideCursor = MouseCursor.hide()
         defer {
             MouseCursor.warp(to: cursorLocation)
+            if didHideCursor { MouseCursor.show() }
+            itemMoveCount -= 1
         }
 
-        // Item movement can occasionally fail. Retry up to a total of 5 attempts,
-        // throwing the last attempt's error if it fails.
-        for n in 1...5 {
+        // 自动恢复保留有界重试；设置页只发一次，避免多层重试反复抢占用户指针。
+        let attempts = max(1, maxAttempts)
+        for n in 1...attempts {
+            try Task.checkCancellation()
             do {
                 try await moveItemWithoutRestoringMouseLocation(item, to: destination)
                 guard let newFrame = getCurrentFrame(for: item) else {
@@ -1205,7 +1234,7 @@ extension MenuBarItemManager {
                 } else {
                     throw EventError(code: .couldNotComplete, item: item)
                 }
-            } catch where n < 5 {
+            } catch where n < attempts && !Task.isCancelled {
                 Logger.itemManager.warning("Attempt \(n) to move \(item.logString) failed (error: \(error))")
                 try await wakeUpItem(item)
                 Logger.itemManager.info("Retrying move of \(item.logString)")

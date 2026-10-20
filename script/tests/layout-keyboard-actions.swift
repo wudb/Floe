@@ -36,6 +36,7 @@ final class AppState { let settingsManager = Settings() }
         guard !Task.isCancelled else { return }
         actions.append("before:\(itemID):\(onto)"); await Task.yield()
     }
+    func startLayoutMoveQueue() {}
     func finish() async { while moveTask != nil { await Task.yield() } }
     __PRODUCTION__
 }

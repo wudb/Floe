@@ -21,6 +21,7 @@ final class Recorder: @unchecked Sendable {
     let lock = NSLock()
     var events: [(CGEventType, CGEventFlags)] = []
     var warps = 0
+    var hides = 0, shows = 0
     var failDrag = false
     func record(_ type: CGEventType, _ flags: CGEventFlags) { lock.lock(); defer { lock.unlock() }; events.append((type, flags)) }
     var snapshot: [(CGEventType, CGEventFlags)] { lock.lock(); defer { lock.unlock() }; return events }
@@ -37,6 +38,10 @@ final class CGEvent {
         type = mouseType; location = mouseCursorPosition
     }
     func post(tap: Tap) { recorder.record(type, flags) }
+}
+enum MouseCursor {
+    static func hide() -> Bool { recorder.lock.lock(); defer { recorder.lock.unlock() }; recorder.hides += 1; return true }
+    static func show() { recorder.lock.lock(); defer { recorder.lock.unlock() }; precondition(recorder.warps == recorder.hides); recorder.shows += 1 }
 }
 func fixtureWarp(_ point: CGPoint) { recorder.lock.lock(); defer { recorder.lock.unlock() }; recorder.warps += 1 }
 __PRODUCTION__
@@ -55,7 +60,7 @@ __PRODUCTION__
         precondition(!cancelled && !MenuBarItemAXMover.isDragging)
         precondition(recorder.snapshot.contains(where: { $0.0 == .leftMouseUp }))
         precondition(recorder.snapshot.last?.0 == .flagsChanged && recorder.snapshot.last?.1.isEmpty == true)
-        precondition(recorder.warps == 1)
+        precondition(recorder.warps == 1 && recorder.hides == 1 && recorder.shows == 1)
         recorder.events.removeAll(); recorder.failDrag = true
         let failed = await MenuBarItemAXMover.commandDrag(from: source, to: destination)
         precondition(!failed && !MenuBarItemAXMover.isDragging)
@@ -63,7 +68,7 @@ __PRODUCTION__
         precondition(recorder.snapshot.last?.1.isEmpty == true && recorder.warps == 2)
         recorder.events.removeAll(); recorder.failDrag = false
         let normal = await MenuBarItemAXMover.commandDrag(from: source, to: destination)
-        precondition(normal && !MenuBarItemAXMover.isDragging && recorder.warps == 3)
+        precondition(normal && !MenuBarItemAXMover.isDragging && recorder.warps == 3 && recorder.hides == 3 && recorder.shows == 3)
         precondition(recorder.snapshot.filter { $0.0 == .leftMouseDragged }.count == 15)
         print("PASS: production AX drag rejects overlap/invalid points, releases mouse and Command on cancel/failure, restores cursor and remains reusable")
     }

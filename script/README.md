@@ -246,13 +246,27 @@ Symbols with production mask preparation and surface modifiers.
 ```bash
 swift script/tests/layout-cache-fallback.swift
 swift script/tests/layout-native-move.swift
+swift script/tests/layout-native-pointer.swift
 swift script/tests/layout-drag-reveal.swift
+swift script/tests/layout-drag-session.swift
 swift script/tests/layout-refresh-state.swift
 ```
 
 Compiles production merge and movement methods with controlled services. Checks
 inset AX geometry, separate same-name icons, native divider insertion for empty
-groups, stale-owner rejection and on-screen AX fallback. Real third-party icon
+groups, stale-owner rejection and on-screen AX fallback. The drag check also
+verifies immediate previews isolated from confirmed positions, one readback on
+the normal native path, delayed-frame polling without repeated physical drags,
+same-group no-ops, failure rollback, collapse readback and cancellation cleanup.
+The discovery check verifies that concurrent forced readers await and share a
+new scan instead of returning a stale snapshot. The layout drag-session check
+uses native NSItemProvider payloads to verify immediate projections of queued
+drops during readback, serial execution, failure rebasing, duplicate/stale callback
+rejection and page-close cancellation. Input waits do not lock the drag source;
+only the actual pointer transaction does. Native pointer checks verify one physical
+attempt per layout operation, restoration before cursor display, balanced hide/show
+and event ownership on success, failure and cancellation. The AX cancellation check
+also covers cursor cleanup. These checks do not inject real input. Real third-party icon
 movement remains a separate acceptance step; see the [layout fix](../docs/layout-icon-merge-fix.md).
 
 Layout click routing and readback checks:

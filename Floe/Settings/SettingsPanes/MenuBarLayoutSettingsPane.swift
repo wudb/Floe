@@ -26,8 +26,15 @@ struct MenuBarLayoutSettingsPane: View {
     @State private var axSnapshot = [MenuBarItemAXDiscovery.AXMenuBarItem]()
     /// Guards against overlapping drags: two concurrent Command-drags would fight over the mouse.
     @State private var isMoving = false
+    /// 仅实际发送鼠标事件时暂停拖拽；扫描和落点确认期间仍接受下一次操作。
+    @State private var isPostingMove = false
+    /// 后续拖拽按用户放下顺序执行，预览独立于系统确认快照。
+    @State private var moveQueue = [(itemID: String, kind: MenuBarItemAXDiscovery.SectionKind, targetID: String?)]()
+    @State private var queuedMovePreview: [MenuBarItemAXDiscovery.SectionKind: [RowItem]]?
     /// 页面关闭时取消拖拽，迟到的 provider 回调不能再次占用鼠标。
     @State private var moveTask: Task<Void, Never>?
+    /// 每次原生拖拽独立持有来源，消费后失效，防止晚到的 provider 回调重复移动。
+    @State private var activeDrag: (token: String, itemID: String)?
     @State private var isPageVisible = false
     @State private var pageGeneration = 0
     @State private var moveFailed = false
@@ -40,6 +47,8 @@ struct MenuBarLayoutSettingsPane: View {
     /// optimistically right away, with a small badge on each icon showing
     /// it's syncing, so the whole list doesn't freeze.
     @State private var pendingMoves = Set<String>()
+    /// 只用于拖拽中的即时显示；系统读回写入 sections，不能拿预览位置验证移动成功。
+    @State private var movePreview: [MenuBarItemAXDiscovery.SectionKind: [RowItem]]?
     /// Icon hovered during a drag: the blue outline shows dropping here inserts
     /// before it. Also lets the section know this drop already has an item
     /// handling it (so item and section don't both handle the same drop).
@@ -66,6 +75,10 @@ struct MenuBarLayoutSettingsPane: View {
 
     private var totalCount: Int {
         sections.values.reduce(0) { $0 + $1.count }
+    }
+
+    private var displayedSections: [MenuBarItemAXDiscovery.SectionKind: [RowItem]] {
+        queuedMovePreview ?? movePreview ?? sections
     }
 
     /// Displayed groups: with "Enable always-hidden section" off in
@@ -213,6 +226,7 @@ struct MenuBarLayoutSettingsPane: View {
             pageGeneration += 1
             isPageVisible = false
             moveTask?.cancel()
+            activeDrag = nil
             scanGeneration += 1
             // Stop the divider poll + icon retry when leaving the tab.
             dividerPollGeneration += 1
@@ -227,7 +241,7 @@ struct MenuBarLayoutSettingsPane: View {
             Text("Floe").fontWeight(.semibold)
             Spacer(minLength: 12)
             if !hasUnknownMembership {
-                ForEach(Array((sections[.visible] ?? []).suffix(8))) { item in
+                ForEach(Array((displayedSections[.visible] ?? []).suffix(8))) { item in
                     compactIcon(item)
                         .floeTooltip(item.title)
                 }
@@ -243,7 +257,7 @@ struct MenuBarLayoutSettingsPane: View {
     /// 名称、宿主和标识均可检索；不改变真实分区和排序快照。
     private func filteredItems(in kind: MenuBarItemAXDiscovery.SectionKind) -> [RowItem] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        return (sections[kind] ?? []).filter {
+        return (displayedSections[kind] ?? []).filter {
             query.isEmpty || $0.title.localizedStandardContains(query) ||
                 ($0.subtitle?.localizedStandardContains(query) ?? false)
         }
@@ -279,7 +293,7 @@ struct MenuBarLayoutSettingsPane: View {
                             .padding(.vertical, 8)
                     } else {
                         ForEach(items) { item in
-                            itemView(item, pending: pendingMoves.contains(item.id), isDropTarget: dropTargetID == item.id)
+                            itemView(item, pending: pendingMoves.contains(item.id) || moveQueue.contains(where: { $0.itemID == item.id }), isDropTarget: dropTargetID == item.id)
                         }
                     }
                 }
@@ -290,24 +304,9 @@ struct MenuBarLayoutSettingsPane: View {
         .floeCardSurface()
         .onDrop(of: [.text], isTargeted: .constant(false), perform: { providers in
             // When hovering an icon, let that item handle the drop (positional
-            // insert); the section only handles drops into empty space (append to the group's end).
-            guard dropTargetID == nil, !isMoving, let provider = providers.first else {
-                return false
-            }
-            let generation = pageGeneration
-            _ = provider.loadObject(ofClass: NSString.self) { string, _ in
-                guard let id = string as? String else {
-                    return
-                }
-                Task { @MainActor in
-                    guard isPageVisible, pageGeneration == generation, !isMoving, moveTask == nil else { return }
-                    moveTask = Task {
-                        await drop(itemID: id, to: meta.kind)
-                        moveTask = nil
-                    }
-                }
-            }
-            return true
+            // insert); the section only handles drops into empty space (move to that group).
+            guard dropTargetID == nil else { return false }
+            return acceptLayoutDrop(providers, to: meta.kind)
         })
     }
 
@@ -411,38 +410,107 @@ struct MenuBarLayoutSettingsPane: View {
             }
             .overlay(alignment: .bottomTrailing) {
                 if pending {
-                    ProgressView().controlSize(.mini).scaleEffect(0.6)
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .font(.system(size: 8, weight: .semibold))
+                        .foregroundStyle(.secondary)
                         .frame(width: 12, height: 12)
                         .allowsHitTesting(false)
                 }
             }
             .onDrag {
-                tooltip.dismiss()
-                return NSItemProvider(object: item.id as NSString)
+                dragProvider(for: item)
             }
             .onDrop(
                 of: [.text],
                 isTargeted: dropTargetBinding(for: item.id),
                 perform: { providers in
-                    guard !isMoving, let provider = providers.first else {
-                        return false
-                    }
-                    let generation = pageGeneration
-                    _ = provider.loadObject(ofClass: NSString.self) { string, _ in
-                        guard let id = string as? String else {
-                            return
-                        }
-                        Task { @MainActor in
-                            guard isPageVisible, pageGeneration == generation, !isMoving, moveTask == nil else { return }
-                            moveTask = Task {
-                                await drop(itemID: id, onto: item.id)
-                                moveTask = nil
-                            }
-                        }
-                    }
-                    return true
+                    acceptLayoutDrop(providers, onto: item.id)
                 }
             )
+            // 只在系统事件注入期间保护指针；确认快照时可继续拖动并排队。
+            .allowsHitTesting(isLayoutDragSourceEnabled)
+    }
+
+    private var isLayoutDragSourceEnabled: Bool {
+        !isPostingMove
+    }
+
+    private var canStartLayoutDrag: Bool {
+        isPageVisible && isLayoutDragSourceEnabled &&
+            !appState.itemManager.isMovingItem && !MenuBarItemAXMover.isDragging && !MenuInteractionGuard.isInteracting
+    }
+
+    private func dragProvider(for item: RowItem) -> NSItemProvider {
+        guard canStartLayoutDrag, item.isMovable else { return NSItemProvider() }
+        tooltip.dismiss()
+        let token = UUID().uuidString
+        activeDrag = (token, item.id)
+        return NSItemProvider(object: token as NSString)
+    }
+
+    /// 图标与分区共用一次性会话；异步载荷只有仍属于当前拖拽时才能启动移动。
+    private func acceptLayoutDrop(
+        _ providers: [NSItemProvider],
+        to kind: MenuBarItemAXDiscovery.SectionKind? = nil,
+        onto targetID: String? = nil
+    ) -> Bool {
+        guard isPageVisible, let drag = activeDrag,
+              let provider = providers.first, provider.canLoadObject(ofClass: NSString.self) else { return false }
+        let generation = pageGeneration
+        _ = provider.loadObject(ofClass: NSString.self) { [self] string, _ in
+            guard let token = string as? String else { return }
+            Task { @MainActor in
+                guard isPageVisible, pageGeneration == generation,
+                      activeDrag?.token == drag.token, token == drag.token else { return }
+                activeDrag = nil
+                enqueueLayoutMove(itemID: drag.itemID, to: kind, before: targetID)
+            }
+        }
+        return true
+    }
+
+    /// 先更新所有待执行操作的投影，再由一个任务串行修改真实菜单栏。
+    private func enqueueLayoutMove(
+        itemID: String,
+        to requestedKind: MenuBarItemAXDiscovery.SectionKind?,
+        before targetID: String?
+    ) {
+        let layout = displayedSections
+        let kind = targetID.flatMap { id in layout.first(where: { $0.value.contains(where: { $0.id == id }) })?.key } ?? requestedKind
+        guard let kind, let source = layout.values.flatMap({ $0 }).first(where: { $0.id == itemID }),
+              source.isMovable, kind == .visible || source.canBeHidden,
+              kind != .alwaysHidden || appState.settingsManager.advancedSettingsManager.enableAlwaysHiddenSection,
+              itemID != targetID,
+              targetID != nil || !layout[kind, default: []].contains(where: { $0.id == itemID }),
+              let preview = makeMovePreview(itemID: itemID, to: kind, before: targetID, from: layout),
+              preview.mapValues({ $0.map(\.id) }) != layout.mapValues({ $0.map(\.id) }) else { return }
+        moveQueue.append((itemID, kind, targetID))
+        withAnimation(.easeInOut(duration: 0.15)) { queuedMovePreview = preview }
+        startLayoutMoveQueue()
+    }
+
+    /// 每次确认后从真实快照重算剩余预览；失败不会把错误位置传给下一次移动。
+    private func startLayoutMoveQueue() {
+        guard isPageVisible, moveTask == nil, !moveQueue.isEmpty else { return }
+        moveTask = Task {
+            defer {
+                moveQueue.removeAll()
+                queuedMovePreview = nil
+                moveTask = nil
+            }
+            while isPageVisible, !Task.isCancelled, let request = moveQueue.first {
+                await moveLayoutItem(itemID: request.itemID, to: request.kind, before: request.targetID)
+                guard !Task.isCancelled, isPageVisible else { return }
+                moveQueue.removeFirst()
+                var preview = sections
+                for pending in moveQueue {
+                    if let next = makeMovePreview(itemID: pending.itemID, to: pending.kind, before: pending.targetID, from: preview) {
+                        preview = next
+                    }
+                }
+                queuedMovePreview = moveQueue.isEmpty ? nil : preview
+            }
+        }
     }
 
     /// Hover binding for one icon: dragging over it shows the blue outline, and
@@ -495,6 +563,7 @@ struct MenuBarLayoutSettingsPane: View {
                 announceLayoutResult()
             }
             moveTask = nil
+            startLayoutMoveQueue()
         }
     }
 
@@ -503,7 +572,7 @@ struct MenuBarLayoutSettingsPane: View {
             ? L10n.string("Could not move the menu bar item. Its actual position is shown; try again after closing menus.")
             : L10n.string("Layout updated.")
         NSAccessibility.post(
-            element: NSApp,
+            element: NSApplication.shared,
             notification: .announcementRequested,
             userInfo: [.announcement: message, .priority: NSAccessibilityPriorityLevel.medium.rawValue]
         )
@@ -519,6 +588,8 @@ struct MenuBarLayoutSettingsPane: View {
             guard !Task.isCancelled, ContinuousClock.now < deadline else { return false }
             do { try await Task.sleep(for: .milliseconds(30)) } catch { return false }
         }
+        isPostingMove = true
+        defer { isPostingMove = false }
         appState.eventManager.stopAll()
         defer { appState.eventManager.startAll() }
         return await MenuBarItemAXMover.commandDrag(from: source, to: destination)
@@ -528,6 +599,14 @@ struct MenuBarLayoutSettingsPane: View {
     /// AX-only 项才使用屏内坐标；移动是否成功仍由后续新快照确认。
     private func performLayoutMove(_ item: RowItem, to kind: MenuBarItemAXDiscovery.SectionKind, anchorID: String? = nil, destination: CGPoint?) async -> Bool {
         guard !Task.isCancelled, !MenuInteractionGuard.isInteracting else { return false }
+        // NSItemProvider 的放下回调可能早于真实鼠标释放；原生路径也必须等待，
+        // 避免合成 mouseUp 和指针归位打断用户尚未结束的拖拽或下一次按下。
+        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        while NSEvent.pressedMouseButtons != 0 {
+            guard !Task.isCancelled, ContinuousClock.now < deadline else { return false }
+            do { try await Task.sleep(for: .milliseconds(10)) } catch { return false }
+        }
+        guard !Task.isCancelled else { return false }
         if item.id.hasPrefix("cgs:"), let id = CGWindowID(item.id.dropFirst(4)),
            anchorID == nil || anchorID?.hasPrefix("cgs:") == true {
             let items = MenuBarItem.getMenuBarItems(onScreenOnly: false, activeSpaceOnly: true)
@@ -543,7 +622,10 @@ struct MenuBarLayoutSettingsPane: View {
             guard let anchor, source.windowID != anchor.windowID else { return false }
             do {
                 let target: MenuBarItemManager.MoveDestination = anchorID == nil && kind == .visible ? .rightOfItem(anchor) : .leftOfItem(anchor)
-                try await appState.itemManager.move(item: source, to: target)
+                defer { isPostingMove = false }
+                try await appState.itemManager.move(item: source, to: target, maxAttempts: 1) {
+                    isPostingMove = true
+                }
                 return true
             } catch { return false }
         }
@@ -553,18 +635,30 @@ struct MenuBarLayoutSettingsPane: View {
         return await performDrag(from: CGPoint(x: frame.midX, y: frame.midY), to: destination)
     }
 
-    /// Drop an item into a new group: each attempt re-reads live positions
-    /// first (cached frames go stale — a drag changes no window IDs, so a
-    /// plain re-scan would reuse pre-drag frames), drags, then verifies the
-    /// icon really landed before counting it. Up to 3 physical drags; between
-    /// attempts the UI rebuilds from truth, so a miss never leaves a fake
-    /// optimistic position behind.
-    /// The `isMoving` guard blocks a second drag from fighting over the mouse.
+    /// 分区空白处的落点只改变分区；同区放下不重排已有图标。
     private func drop(itemID: String, to kind: MenuBarItemAXDiscovery.SectionKind) async {
-        guard !isMoving else {
+        await moveLayoutItem(itemID: itemID, to: kind)
+    }
+
+    /// 显示落点与系统快照分开：界面立即反馈，实际移动和确认仍串行执行。
+    private func moveLayoutItem(
+        itemID: String,
+        to kind: MenuBarItemAXDiscovery.SectionKind,
+        before targetID: String? = nil
+    ) async {
+        guard !isMoving, !Task.isCancelled, let original = findItem(id: itemID) else { return }
+        guard original.item.isMovable, kind == .visible || original.item.canBeHidden else {
+            moveFailed = true
             return
         }
-        guard !Task.isCancelled else { return }
+        if let targetID {
+            guard itemID != targetID, findItem(id: targetID)?.kind == kind else { return }
+            if original.kind == kind, isImmediatelyBefore(itemID: itemID, targetID: targetID, in: kind) { return }
+        } else if original.kind == kind {
+            return
+        }
+        guard let preview = makeMovePreview(itemID: itemID, to: kind, before: targetID) else { return }
+
         scanGeneration += 1
         dividerPollGeneration += 1
         iconRetryGeneration += 1
@@ -572,89 +666,114 @@ struct MenuBarLayoutSettingsPane: View {
         isMoving = true
         appState.itemManager.isEditingLayout = true
         pendingMoves.insert(itemID)
-        // 隐藏项可能处于屏外，不能向负坐标发送拖拽；先暂时展开再读取真实帧。
+        withAnimation(.easeInOut(duration: 0.15)) { movePreview = preview }
+
+        // 可见区内排序无需展开隐藏区；隐藏项或隐藏落点仍先展开以保证坐标安全。
+        let needsReveal = original.kind != .visible || kind != .visible
         let revealed = appState.menuBarManager.sections.compactMap { section -> (MenuBarSection, Int)? in
-            guard section.isEnabled, section.controlItem.state == .hideItems else { return nil }
+            guard needsReveal, section.isEnabled, section.controlItem.state == .hideItems else { return nil }
             section.setState(.showItems, persist: false)
             return (section, section.stateRevision)
         }
         defer {
-            for (section, revision) in revealed where section.stateRevision == revision {
-                section.setState(.hideItems, persist: false)
-            }
+            _ = restoreLayoutSections(revealed)
             appState.itemManager.isEditingLayout = false
             pendingMoves.remove(itemID)
+            movePreview = nil
             isMoving = false
+            dropTargetID = nil
         }
-        do { try await Task.sleep(for: .milliseconds(250)) } catch { return }
-        await rescanAfterDrag()
-        for _ in 0..<3 {
-            guard !Task.isCancelled else { return }
-            // Force bypasses the windowIDs equality skip so frames are re-read.
-            await appState.itemManager.cacheItemsIfNeeded(force: true)
-            guard !Task.isCancelled else { return }
-            applySnapshotFromCache()
-            let snapshotBeforeDrag = sections
-            guard let (item, fromKind) = removeItem(id: itemID) else {
-                await refresh()
-                return
-            }
-            guard item.isMovable, kind == .visible || item.canBeHidden else {
-                sections = snapshotBeforeDrag
-                moveFailed = true
-                return
-            }
-            guard fromKind != kind else {
-                // Already in the destination group; put it back where it was,
-                // then re-scan so the UI is truth, not the optimistic append.
-                sections[kind, default: []].append(item)
-                pendingMoves.remove(itemID)
-                await refreshAfterDrop()
-                return
-            }
-            let destination = destinationPoint(for: kind)
-            guard item.id.hasPrefix("cgs:") || (destination != nil && item.quartzFrame != nil) else {
-                // No drop target known — re-scan for the real positions.
-                sections = snapshotBeforeDrag
-                moveFailed = true
-                await refresh()
-                return
-            }
-            withAnimation(.easeInOut(duration: 0.2)) {
-                sections[kind, default: []].append(item)
-            }
-            let posted = await performLayoutMove(item, to: kind, destination: destination)
-            sections = snapshotBeforeDrag
-            guard !Task.isCancelled else { return }
-            await rescanAfterDrag()
-            guard !Task.isCancelled else { return }
-            if !posted { moveFailed = true; break }
-            if sections[kind]?.contains(where: { $0.id == itemID }) == true {
-                // Landed — but the frame right after a drag can still be
-                // settling, so always do one settled re-scan instead of
-                // trusting this snapshot. Otherwise the UI sometimes stays
-                // wrong until the user hits Refresh by hand.
-                pendingMoves.remove(itemID)
-                await refreshAfterDrop()
-                appState.itemManager.recordLayoutChoice()
-                return
-            }
-            do { try await Task.sleep(for: .milliseconds(400)) } catch { return }
+        if !revealed.isEmpty {
+            do { try await Task.sleep(for: .milliseconds(250)) } catch { return }
         }
-        moveFailed = true
-        pendingMoves.remove(itemID)
-        await refreshAfterDrop()
+
+        // CGS 原生移动按身份即时解析窗口，不需要事先重扫全表；AX 坐标路径才刷新帧。
+        let usesNativeMove = itemID.hasPrefix("cgs:") && (targetID == nil || targetID?.hasPrefix("cgs:") == true)
+        if !usesNativeMove { await rescanAfterDrag() }
+        guard !Task.isCancelled, let item = findItem(id: itemID)?.item else { return }
+        let destination: CGPoint?
+        if let targetID {
+            let items = (sections[kind] ?? []).filter { $0.id != itemID }
+            guard let index = items.firstIndex(where: { $0.id == targetID }) else { return }
+            let left = index > 0 ? items[index - 1].quartzFrame : nil
+            destination = reorderDestination(for: kind, leftFrame: left, rightFrame: items[index].quartzFrame)
+        } else {
+            destination = destinationPoint(for: kind)
+        }
+        let posted = await performLayoutMove(item, to: kind, anchorID: targetID, destination: destination)
+        guard !Task.isCancelled else { return }
+        // 一次操作只发一次系统移动；窗口尚未稳定时只读回，不重复抢占鼠标。
+        var confirmed = false
+        if posted { confirmed = await waitForDropResult(itemID: itemID, to: kind, before: targetID) }
+        guard !Task.isCancelled else { return }
+        let restored = restoreLayoutSections(revealed)
+        if confirmed, restored {
+            // 收起会再次改变窗口位置；收起后的确认也必须完成，不能留给手动刷新。
+            confirmed = await waitForDropResult(itemID: itemID, to: kind, before: targetID)
+        } else if !confirmed {
+            await refreshAfterDrop()
+        }
+        guard !Task.isCancelled else { return }
+        moveFailed = !confirmed
+        if confirmed { appState.itemManager.recordLayoutChoice() }
     }
 
-    /// Remove the item from its current group, returning the item and its old group.
-    private func removeItem(id: String) -> (RowItem, MenuBarItemAXDiscovery.SectionKind)? {
-        guard let found = findItem(id: id) else {
-            return nil
+    /// 预览仅移动指定项；图标落点按目标插入，分区落点匹配原生分隔符两侧的位置。
+    private func makeMovePreview(
+        itemID: String,
+        to kind: MenuBarItemAXDiscovery.SectionKind,
+        before targetID: String?,
+        from layout: [MenuBarItemAXDiscovery.SectionKind: [RowItem]]? = nil
+    ) -> [MenuBarItemAXDiscovery.SectionKind: [RowItem]]? {
+        var preview = layout ?? sections
+        guard let original = preview.first(where: { $0.value.contains(where: { $0.id == itemID }) }),
+              let item = original.value.first(where: { $0.id == itemID }) else { return nil }
+        preview[original.key]?.removeAll { $0.id == itemID }
+        var target = preview[kind] ?? []
+        if let targetID {
+            guard let index = target.firstIndex(where: { $0.id == targetID }) else { return nil }
+            target.insert(item, at: index)
+        } else if kind == .visible {
+            // 原生移动放在隐藏分隔符右侧，即可见区最左端。
+            target.insert(item, at: 0)
+        } else {
+            target.append(item)
         }
-        var updated = sections[found.kind] ?? []
-        updated.remove(at: found.index)
-        sections[found.kind] = updated
-        return (found.item, found.kind)
+        preview[kind] = target
+        return preview
+    }
+
+    /// 仅从系统读回判定成功；正常落点只读一次，帧尚未稳定时做有界的轻量重试。
+    private func waitForDropResult(
+        itemID: String,
+        to kind: MenuBarItemAXDiscovery.SectionKind,
+        before targetID: String?
+    ) async -> Bool {
+        for delay in [0, 80, 160, 320] {
+            guard !Task.isCancelled else { return false }
+            if delay > 0 {
+                do { try await Task.sleep(for: .milliseconds(delay)) } catch { return false }
+            }
+            await rescanAfterDrag()
+            guard !Task.isCancelled else { return false }
+            if let targetID {
+                if hasLanded(itemID: itemID, targetID: targetID, toKind: kind) { return true }
+            } else if findItem(id: itemID)?.kind == kind {
+                return true
+            }
+        }
+        return false
+    }
+
+    /// 只恢复本次临时展开且未被用户改动的分区；多次调用不会重复写入状态。
+    @discardableResult
+    private func restoreLayoutSections(_ revealed: [(MenuBarSection, Int)]) -> Bool {
+        var restored = false
+        for (section, revision) in revealed where section.stateRevision == revision {
+            section.setState(.hideItems, persist: false)
+            restored = true
+        }
+        return restored
     }
 
     /// Find an item by stable ID, returning the item + group + index within the group
@@ -668,110 +787,10 @@ struct MenuBarLayoutSettingsPane: View {
         return nil
     }
 
-    /// Drop one icon onto another: insert before the target icon (same zone
-    /// means reordering, different zone means moving zones at the right position).
-    /// Like section drops, each attempt re-reads live positions first, drags,
-    /// then verifies the landing — a missed drag is retried with fresh frames
-    /// instead of snapping back and forcing the user to redo it by hand.
+    /// 图标上的落点插入目标之前；分区、排序共用相同的预览和确认流程。
     private func drop(itemID: String, onto targetID: String) async {
-        guard !isMoving else {
-            return
-        }
-        guard itemID != targetID else {
-            return
-        }
-        guard !Task.isCancelled else { return }
-        scanGeneration += 1
-        dividerPollGeneration += 1
-        iconRetryGeneration += 1
-        moveFailed = false
-        isMoving = true
-        appState.itemManager.isEditingLayout = true
-        pendingMoves.insert(itemID)
-        // 隐藏项可能处于屏外，不能向负坐标发送拖拽；先暂时展开再读取真实帧。
-        let revealed = appState.menuBarManager.sections.compactMap { section -> (MenuBarSection, Int)? in
-            guard section.isEnabled, section.controlItem.state == .hideItems else { return nil }
-            section.setState(.showItems, persist: false)
-            return (section, section.stateRevision)
-        }
-        defer {
-            for (section, revision) in revealed where section.stateRevision == revision {
-                section.setState(.hideItems, persist: false)
-            }
-            appState.itemManager.isEditingLayout = false
-            pendingMoves.remove(itemID)
-            isMoving = false
-            dropTargetID = nil
-        }
-        do { try await Task.sleep(for: .milliseconds(250)) } catch { return }
-        await rescanAfterDrag()
-        for _ in 0..<3 {
-            guard !Task.isCancelled else { return }
-            await appState.itemManager.cacheItemsIfNeeded(force: true)
-            guard !Task.isCancelled else { return }
-            applySnapshotFromCache()
-            guard
-                let (item, fromKind, fromIndex) = findItem(id: itemID),
-                let target = findItem(id: targetID)
-            else {
-                await refresh()
-                return
-            }
-            let toKind = target.kind
-            guard item.isMovable, toKind == .visible || item.canBeHidden else {
-                moveFailed = true
-                return
-            }
-            if fromKind == toKind, isImmediatelyBefore(itemID: itemID, targetID: targetID, in: toKind) {
-                // Already in position — no drag needed.
-                return
-            }
-            let snapshotBeforeDrag = sections
-            // Remove the source first, then compute the insert position after
-            // compaction (dragging forward shifts the target index down by 1 because the array is now shorter).
-            var withoutSource = sections[fromKind] ?? []
-            withoutSource.remove(at: fromIndex)
-            sections[fromKind] = withoutSource
-            let toItems = sections[toKind] ?? []
-            let insertIndex: Int
-            if fromKind == toKind, fromIndex < target.index {
-                insertIndex = target.index - 1
-            } else {
-                insertIndex = toItems.firstIndex(where: { $0.id == targetID }) ?? toItems.count
-            }
-            let leftFrame = insertIndex > 0 ? toItems[max(0, insertIndex - 1)].quartzFrame : nil
-            let rightFrame = insertIndex < toItems.count ? toItems[insertIndex].quartzFrame : nil
-            let destination = reorderDestination(for: toKind, leftFrame: leftFrame, rightFrame: rightFrame)
-            guard item.id.hasPrefix("cgs:") || destination != nil else {
-                sections = snapshotBeforeDrag
-                moveFailed = true
-                await refresh()
-                return
-            }
-            withAnimation(.easeInOut(duration: 0.2)) {
-                sections[toKind, default: []].insert(item, at: min(insertIndex, toItems.count))
-            }
-            let posted = await performLayoutMove(item, to: toKind, anchorID: targetID, destination: destination)
-            sections = snapshotBeforeDrag
-            guard !Task.isCancelled else { return }
-            await rescanAfterDrag()
-            guard !Task.isCancelled else { return }
-            if !posted { moveFailed = true; break }
-            if hasLanded(itemID: itemID, targetID: targetID, toKind: toKind) {
-                // Same as section drops: one settled re-scan after landing,
-                // don't trust the immediate post-drag snapshot.
-                pendingMoves.remove(itemID)
-                dropTargetID = nil
-                await refreshAfterDrop()
-                appState.itemManager.recordLayoutChoice()
-                return
-            }
-            do { try await Task.sleep(for: .milliseconds(400)) } catch { return }
-        }
-        moveFailed = true
-        pendingMoves.remove(itemID)
-        dropTargetID = nil
-        await refreshAfterDrop()
+        guard let target = findItem(id: targetID) else { return }
+        await moveLayoutItem(itemID: itemID, to: target.kind, before: targetID)
     }
 
     /// True when the item already sits immediately before the target in its group.
@@ -1095,7 +1114,6 @@ struct MenuBarLayoutSettingsPane: View {
             idCounts[base] = n + 1
             return n == 0 ? base : "\(base)#\(n)"
         }
-        let ownBundleID = Bundle.main.bundleIdentifier
         var grouped = [MenuBarItemAXDiscovery.SectionKind: [RowItem]]()
         var quartzYs = [CGFloat]()
         // Both CGS and AX sort by ascending center X = left-to-right on the menu

@@ -6,11 +6,13 @@ let source = try String(contentsOf: repo.appendingPathComponent("Floe/Settings/S
 let start = source.range(of: "    private func performLayoutMove(")!.lowerBound
 let end = source.range(of: "\n    }", range: start..<source.endIndex)!.upperBound
 let method = String(source[start..<end]).replacingOccurrences(of: "private func", with: "func").replacingOccurrences(of: "CGDisplayBounds", with: "TestDisplayBounds")
+    .replacingOccurrences(of: "isPostingMove = true", with: "self.isPostingMove = true")
 let fixture = #"""
 import Foundation
 import CoreGraphics
 enum MenuBarItemAXDiscovery { enum SectionKind { case visible, hidden, alwaysHidden } }
 enum MenuInteractionGuard { static var isInteracting = false }
+@MainActor enum NSEvent { static var pressedMouseButtons = 0 }
 struct App { let bundleIdentifier: String? }
 struct MenuBarItem {
     enum Info { case other, hiddenControlItem, alwaysHiddenControlItem }
@@ -27,7 +29,9 @@ func TestDisplayBounds(_ id: UInt32) -> CGRect { CGRect(x: 0, y: 0, width: 1000,
 @MainActor final class MenuBarItemManager {
     enum MoveDestination { case leftOfItem(MenuBarItem), rightOfItem(MenuBarItem) }
     var moves = [String](), fail = false
-    func move(item: MenuBarItem, to destination: MoveDestination) async throws {
+    func move(item: MenuBarItem, to destination: MoveDestination, maxAttempts: Int, beforePostingEvents: (() -> Void)?) async throws {
+        beforePostingEvents?()
+        precondition(maxAttempts == 1)
         if fail { throw NSError(domain: "test", code: 1) }
         switch destination {
         case .leftOfItem(let anchor): moves.append("\(item.windowID)<\(anchor.windowID)")
@@ -38,6 +42,7 @@ func TestDisplayBounds(_ id: UInt32) -> CGRect { CGRect(x: 0, y: 0, width: 1000,
 @MainActor final class AppState { let itemManager = MenuBarItemManager() }
 @MainActor final class Pane {
     let appState = AppState()
+    var isPostingMove = false
     var syntheticDrags = 0
     func performDrag(from source: CGPoint, to destination: CGPoint) async -> Bool { syntheticDrags += 1; return true }
 __PRODUCTION__
@@ -45,6 +50,21 @@ __PRODUCTION__
 @main struct Checks {
     @MainActor static func main() async {
         let pane = Pane(), item = RowItem(id: "cgs:1")
+        NSEvent.pressedMouseButtons = 1
+        let waiting = Task { await pane.performLayoutMove(item, to: .hidden, destination: nil) }
+        try? await Task.sleep(for: .milliseconds(20))
+        precondition(pane.appState.itemManager.moves.isEmpty && pane.syntheticDrags == 0, "no synthetic input before real mouse release")
+        NSEvent.pressedMouseButtons = 0
+        let released = await waiting.value
+        precondition(released && pane.appState.itemManager.moves == ["1<2"])
+        pane.appState.itemManager.moves = []
+        NSEvent.pressedMouseButtons = 1
+        let cancelled = Task { await pane.performLayoutMove(item, to: .hidden, destination: nil) }
+        try? await Task.sleep(for: .milliseconds(20))
+        cancelled.cancel()
+        let cancelledResult = await cancelled.value
+        precondition(!cancelledResult && pane.appState.itemManager.moves.isEmpty)
+        NSEvent.pressedMouseButtons = 0
         // 目标分区完全为空、无几何坐标也可按原生分隔符身份移动。
         let hidden = await pane.performLayoutMove(item, to: .hidden, destination: nil)
         let visible = await pane.performLayoutMove(item, to: .visible, destination: nil)

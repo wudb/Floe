@@ -22,6 +22,7 @@ enum MenuBarItemAXMover {
         let operation = Task.detached(priority: .userInitiated) { () -> Bool in
             guard let eventSource = CGEventSource(stateID: .hidSystemState) else { return false }
             let originalLocation = CGEvent(source: nil)?.location
+            let didHideCursor = MouseCursor.hide()
             var location = source
             var didPressCommand = false
             var didPressMouse = false
@@ -48,6 +49,7 @@ enum MenuBarItemAXMover {
                 if didPressMouse { _ = post(.leftMouseUp, at: location, flags: []) }
                 if didPressCommand { _ = post(.flagsChanged, at: location, flags: []) }
                 if let originalLocation { CGWarpMouseCursorPosition(originalLocation) }
+                if didHideCursor { MouseCursor.show() }
             }
             do {
                 try Task.checkCancellation()
@@ -74,7 +76,6 @@ enum MenuBarItemAXMover {
                 try await Task.sleep(for: .milliseconds(150))
                 guard post(.flagsChanged, at: destination, flags: []) else { return false }
                 didPressCommand = false
-                try await Task.sleep(for: .milliseconds(350))
                 return true
             } catch {
                 return false
