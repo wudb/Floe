@@ -77,12 +77,10 @@ struct PermissionsView: View {
             Text("Permissions")
                 .font(.system(size: 36))
         } icon: {
-            if let nsImage = NSImage(named: NSImage.applicationIconName) {
-                Image(nsImage: nsImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 75, height: 75)
-            }
+            Image(nsImage: ApplicationIcon.image)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 75, height: 75)
         }
     }
 

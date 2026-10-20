@@ -69,12 +69,10 @@ struct AboutSettingsPane: View {
     private var appIconAndCopyrightSection: some View {
         FloeSection(options: .plain) {
             HStack(spacing: 10) {
-                if let nsImage = NSImage(named: NSImage.applicationIconName) {
-                    Image(nsImage: nsImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 225)
-                }
+                Image(nsImage: ApplicationIcon.image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 225)
 
                 VStack(alignment: .leading) {
                     Text("Floe")

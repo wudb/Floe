@@ -45,6 +45,24 @@ Recording again, then restarting the app. The scripts do not reset TCC grants.
 Release signing remains unchanged. Ad-hoc Release builds need
 `ENABLE_HARDENED_RUNTIME=NO` for the embedded Sparkle framework.
 
+After installation the development script refreshes Launch Services registration.
+Floe also loads its icon directly from the current app bundle and assigns it to
+the Dock at launch, so replacing a build at the same path does not leave the UI
+using the previous icon from the system cache.
+
+## App icon regression checks
+
+```bash
+swift script/tests/app-icon.swift
+```
+
+Builds an isolated app bundle with the current icon and seeds its application icon
+with a stale image. Checks that the production loader bypasses that image and
+supplies the bundled icon to AppKit for the Dock, including icon filenames with
+and without an extension and missing-resource handling. It does not install an
+app, restart Dock or change Floe's preferences; visible Dock behavior still needs
+checking in the running app.
+
 ## Language regression checks
 
 ```bash

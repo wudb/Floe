@@ -1,0 +1,7 @@
+Use case: precise-object-edit
+Asset type: final macOS app icon with transparent exterior.
+Edit target: the provided blue Floe F app icon.
+Change ONLY the tile's outside contour, padding and alpha matte. Keep the exact F slab silhouette, internal white material, visual identity, optical balance and blue/indigo palette.
+Refinement: make the squircle boundary exquisitely smooth and clean, with a continuous macOS superellipse curve. Remove every isolated pixel, ragged fringe, white speckle and blue external glow outside the tile. Use a genuinely transparent exterior with smooth antialiased alpha, NO exterior shadow. The outer margin should be balanced at approximately 8.5 percent of the square canvas on each side; scale the entire existing icon uniformly slightly inward to achieve this margin. Do not crop the tile. The edge highlight should stay within the tile contour.
+Preserve: the large bright white abstract F formed by rounded interface slabs; its geometry, proportions, placement relative to the tile, crisp open negative space, shallow frosted depth and clean blue gradient.
+No new objects, no lettering, no alternate symbol, no presentation board, no checkerboard painted into the image. Return only the single production-ready icon with alpha.

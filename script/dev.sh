@@ -73,6 +73,14 @@ BUILT_VERSION=$(defaults read "$DEV_APP/Contents/Info" CFBundleShortVersionStrin
 BUILT_BUILD=$(defaults read "$DEV_APP/Contents/Info" CFBundleVersion 2>/dev/null || echo "?")
 echo "→ Built version: $BUILT_VERSION ($BUILT_BUILD)"
 
+# 同一路径覆盖安装时通知 Launch Services 重新读取资源，避免 Finder 沿用旧图标。
+echo "→ Refreshing app registration and icon…"
+touch "$DEV_APP"
+LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+if [ -x "$LSREGISTER" ]; then
+    "$LSREGISTER" -f "$DEV_APP"
+fi
+
 echo "→ Opening new build…"
 open "$DEV_APP"
 sleep 2

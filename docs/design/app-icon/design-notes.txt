@@ -1,0 +1,42 @@
+Floe App Icon（2026-10-20）
+
+设计
+- 用户最终选择 C3：淡冰蓝圆角底板与三条错落排列的蓝色浮条。
+- 上、下浮条偏右，中间偏左，呼应菜单栏整理、排列与显隐功能。
+- 底色亮度介于原 C 的近白色与 C2 的冰蓝灰之间，保留轻盈的蓝色层次。
+- 外部保留透明背景，不改变已确认图案的形状、布局和颜色。
+
+生成与源文件
+- 使用内置 imagegen 生成 C，随后经过 C2、C3 两次底色调整。
+- floe-icon.prompt.txt：C 初始生成提示词。
+- candidates/c-organized-bars-v2.prompt.txt：C2 材质与底色调整提示词。
+- floe-icon-refinement.prompt.txt：C3 最终底色调整提示词。
+- floe-icon-master.png：最终 C3 母版，1254×1254 RGBA，与已确认的 candidates/c-organized-bars-v3.png 完全一致。
+- candidates/ 保留 A、B、C、D 及 C2、C3 的图片与提示词；B 保留此前的 F 方案。
+
+工程接入
+- 使用 macOS sips 按 AppIcon.appiconset/Contents.json 导出十个图标资源。
+- 像素尺寸覆盖 16、32、64、128、256、512、1024，重复尺寸分别对应不同点尺寸和倍率。
+- Dock、Finder、设置侧栏和关于页通过应用图标资源读取新标识；README 页首沿用对应资源引用。
+- 中英文 README 当前使用的浅色、深色设置页预览已同步为新标识；预览使用示例图标数据。
+
+验证
+- 检查十个图标槽位的尺寸、Alpha 通道与透明外角；主体保留母版原有的近不透明 Alpha（中心约 0.99）。
+- 不重新生成或重绘已确认的 C3；仅通过 sips 缩放导出工程资源。
+- 已查看 32、128 像素资源和从 AppIcon.icns 反向导出的 256 像素图标。
+- Debug（arm64）构建通过，构建日志为 /tmp/Floe-C3-app-icon-Debug.log。
+- 四份中英文、明暗设置页预览重新离屏渲染完成；已查看英文浅色和中文深色预览。
+- 预览使用生产 UI 组件与示例数据，不是运行中应用的桌面截图。
+- git diff --check 通过；未重新发布 GitHub Release。
+
+覆盖安装后的缓存修复（2026-10-20）
+- 用户反馈执行开发脚本后，设置侧栏和 Dock 仍显示立方体旧图标。
+- 排查确认 /Applications/Floe-Dev.app、默认 DerivedData 和本地验证构建的 AppIcon.icns 哈希相同，均已包含 C3；运行路径也为该开发应用。
+- 原设置页读取 NSApp.applicationIconImage，关于页、权限页读取命名系统图像，仍会受到系统旧图标缓存影响。
+- ApplicationIcon 直接按当前 Bundle 的 CFBundleIconFile 读取资源，供设置、关于和权限页共用；启动时赋给 NSApp.applicationIconImage。
+- dev.sh 在安装签名完成后 touch 应用包并刷新 Launch Services 注册；未重启 Dock 或清理全局缓存。
+- 使用主机原 Apple Development 证书运行 ./script/dev.sh：Debug 构建、安装、签名校验和进程启动通过。
+- swift script/tests/app-icon.swift：在独立应用包内预置旧图，验证生产加载器绕过缓存、向 Dock API 提交新图、带/不带扩展名和缺失资源处理。
+- bash -n script/dev.sh script/run.sh、SwiftLint strict 和 git diff --check 通过。
+- 中英文、明暗 README 预览改为使用生产 ApplicationIcon 加载器与已安装应用的图标文件重新渲染。
+- 原生界面检查工具未获 Floe 访问许可，未直接核对运行中窗口或 Dock 的显示效果；离屏图和 API 回归不替代这项现场确认。

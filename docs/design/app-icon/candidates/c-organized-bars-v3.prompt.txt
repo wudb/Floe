@@ -1,0 +1,6 @@
+Use case: precise-object-edit
+Asset type: Floe app icon, candidate C3.
+Input image 1 is the edit target, C2.
+Primary request: change ONLY the background tile color and its lighting. It is currently too dark and gray. Make the tile a luminous soft PALE ICE BLUE, midway between an almost-white tile and the current dull blue-gray tile. Target top/background approximately #DDEBF8 and lower area approximately #C6DCF1. Clearly light and fresh, gently blue-tinted, not pure white and not medium gray. Use a smooth, subtle satin gradient without dark gray corners or a heavy dark perimeter. Keep the edges lightly blue, no dark vignette.
+Invariants: preserve all THREE blue horizontal floating bars exactly: top-right / middle-left / bottom-right stagger, shape, size, position, spacing, blue colors and material. Preserve tile outline and overall composition, square canvas and transparent margins. Do not add or remove elements. Only lighten and freshen the tile. Keep bar shadows soft and localized so they do not turn the background gray.
+Clean alpha silhouette, no speckles or colored fragments outside the rounded-square tile. Actual transparency outside the icon. One usable app icon, no labels, text, watermark or mockup.

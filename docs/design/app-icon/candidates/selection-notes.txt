@@ -1,0 +1,24 @@
+Floe App Icon 候选方案
+
+A · 冰晶立方 / a-frosted-cube.png
+基于原有立方体图标调整材质、光影和边角，保留熟悉的轮廓。
+
+B · 悬浮 F / b-floating-f.png
+保留上一轮设计的 F 图标，直接复制 floe-icon-master.png，不重新生成。
+
+C · 秩序浮条 / c-organized-bars.png
+浅色底、三条错落的蓝色浮条，呼应菜单栏整理功能。
+
+D · 浮冰叠层 / d-floating-floe.png
+深靛底、两片悬浮冰片，呼应 Floe 名称与显隐层次。
+
+查看：index.html 提供四款对比、浅深背景切换和 32 / 64 px 预览。
+生成方式：内置 image_gen；A 为原图风格调整，C / D 为新设计，B 为已有结果。
+提示词：每个候选对应同名 .prompt.txt；B 另有 .refinement.prompt.txt。
+original-cube-reference.png 为当前 HEAD 中提取的原图参考。
+
+最终选择（2026-10-20）：用户确认 C3 / c-organized-bars-v3.png。
+C2 / c-organized-bars-v2.png：冰蓝灰底，用户认为偏暗。
+C3 / c-organized-bars-v3.png：淡冰蓝底，亮度介于原 C 与 C2 之间。
+正式母版为 ../floe-icon-master.png，AppIcon.appiconset 已按 C3 导出全部尺寸。
+index.html 保留最初四个候选的对比，作为设计过程记录。

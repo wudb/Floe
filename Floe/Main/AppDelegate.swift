@@ -12,6 +12,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: NSApplicationDelegate Methods
 
     func applicationWillFinishLaunching(_ notification: Notification) {
+        ApplicationIcon.apply()
+
         guard let appState else {
             Logger.appDelegate.warning("Missing app state in applicationWillFinishLaunching")
             return

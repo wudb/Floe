@@ -118,3 +118,18 @@ README 英文界面预览（2026-10-20）
 - light-surfaces-settings-en.png、dark-surfaces-settings-en.png：当前生产设置页组件以 en 语言环境、960×720 点尺寸配合 44 个示例项目离屏渲染。
 - 已逐一查看标题、导航、分组、搜索框、放置规则和外观状态，确认使用英语；这些图片不是实际桌面或第三方图标的截图。
 - 英文 README 使用英文浅色/深色图片，简体中文 README 继续使用对应中文图片。
+
+Floe 应用图标更新（2026-10-20）
+- 应用图标最终采用用户确认的 C3：淡冰蓝圆角底板与三条错落的蓝色浮条；母版、各候选与提示词保存在 docs/design/app-icon/。
+- 更新 AppIcon.appiconset 全部十个 macOS 图标槽位，检查尺寸和透明通道，并完成 Debug 编译。
+- light-surfaces-settings.png、dark-surfaces-settings.png 及对应 -en 版本使用新图标重新离屏渲染；其余历史验证图保持原有记录。
+- 最终 C3 母版与用户确认的候选逐字节一致；十个图标槽位的尺寸、Alpha 和透明外角检查通过，保留原图中心约 0.99 的 Alpha。
+- C3 的 Debug（arm64）构建通过，并从 AppIcon.icns 反向导出查看 256 像素图标；未安装应用或重新发布旧版本。
+
+应用图标缓存修复（2026-10-20）
+- 安装包中已包含 C3，但原界面读取系统应用图标缓存；包内资源相同不代表用户窗口或 Dock 已更新。
+- 新增 ApplicationIcon，直接读取当前 Bundle 的 CFBundleIconFile，设置页、关于页和权限页共用此图；启动时同步赋给 Dock 图标属性。
+- 开发脚本安装后刷新应用目录时间及 Launch Services 注册，保留原开发证书与固定安装路径。
+- 原 ./script/dev.sh 的 Debug 构建、安装与签名校验、进程启动通过；app-icon.swift、SwiftLint strict、shell 语法和 git diff --check 通过。
+- 四份 README 预览以生产加载器和已安装应用内的 AppIcon.icns 重新离屏渲染，保留示例数据边界。
+- 原生检查工具未获 Floe 访问许可，实际运行窗口及 Dock 显示仍需用户现场确认；未清理全局缓存或重启 Dock。

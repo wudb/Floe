@@ -64,7 +64,7 @@ struct SettingsView: View {
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 4) {
             VStack(spacing: 6) {
-                Image(nsImage: NSApp.applicationIconImage ?? NSImage())
+                Image(nsImage: ApplicationIcon.image)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 64, height: 64)
