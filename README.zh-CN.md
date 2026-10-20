@@ -1,7 +1,7 @@
 [English](README.md) · [简体中文](README.zh-CN.md)
 
 <div align="center">
-  <img src="Floe/Assets.xcassets/AppIcon.appiconset/icon_256x256.png" alt="Floe 图标" width="112" height="112">
+  <img src="docs/images/floe-icon-578a51b4.png" alt="Floe 图标" width="112" height="112">
   <h1>Floe</h1>
   <p>让菜单栏更清爽，让图标各就其位。</p>
   <p>免费开源的 macOS 菜单栏管理工具。</p>
@@ -15,11 +15,11 @@
 常用图标保持可见，偶尔使用的工具收进隐藏分区，需要时再展开。Floe 将紧凑的布局编辑器、独立浮栏和外观设置整合在同一个设置窗口中。
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/design/v2-implementation/dark-surfaces-settings.png">
-  <img src="docs/design/v2-implementation/light-surfaces-settings.png" alt="Floe 菜单栏布局：侧栏导航、搜索，以及可见、隐藏和始终隐藏分组" width="960">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/menu-bar-layout-dark-zh-c4f203fc.png">
+  <img src="docs/images/menu-bar-layout-light-zh-ba26e598.png" alt="Floe 菜单栏布局：侧栏导航、搜索，以及可见、隐藏和始终隐藏分组" width="960">
 </picture>
 
-[浅色预览](docs/design/v2-implementation/light-surfaces-settings.png) · [深色预览](docs/design/v2-implementation/dark-surfaces-settings.png)
+[浅色预览](docs/images/menu-bar-layout-light-zh-ba26e598.png) · [深色预览](docs/images/menu-bar-layout-dark-zh-c4f203fc.png)
 
 *预览由 Floe 当前界面组件渲染，使用示例图标。图中为简体中文界面，应用也支持英语。*
 

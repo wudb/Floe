@@ -1,7 +1,7 @@
 [English](README.md) · [简体中文](README.zh-CN.md)
 
 <div align="center">
-  <img src="Floe/Assets.xcassets/AppIcon.appiconset/icon_256x256.png" alt="Floe icon" width="112" height="112">
+  <img src="docs/images/floe-icon-578a51b4.png" alt="Floe icon" width="112" height="112">
   <h1>Floe</h1>
   <p>A tidier menu bar. Your icons, where you want them.</p>
   <p>Free and open-source menu bar management for macOS.</p>
@@ -15,11 +15,11 @@
 Keep everyday icons visible, tuck away occasional tools, and bring them back when you need them. Floe combines a compact layout editor, a separate floating bar, and appearance controls in one settings window.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/design/v2-implementation/dark-surfaces-settings-en.png">
-  <img src="docs/design/v2-implementation/light-surfaces-settings-en.png" alt="Floe Menu Bar Layout with sidebar navigation, search, and Visible, Hidden and Always Hidden groups" width="960">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/menu-bar-layout-dark-en-5fac44e3.png">
+  <img src="docs/images/menu-bar-layout-light-en-3005f716.png" alt="Floe Menu Bar Layout with sidebar navigation, search, and Visible, Hidden and Always Hidden groups" width="960">
 </picture>
 
-[Light preview](docs/design/v2-implementation/light-surfaces-settings-en.png) · [Dark preview](docs/design/v2-implementation/dark-surfaces-settings-en.png)
+[Light preview](docs/images/menu-bar-layout-light-en-3005f716.png) · [Dark preview](docs/images/menu-bar-layout-dark-en-5fac44e3.png)
 
 *Previews show the English interface rendered from Floe's current UI components with sample icons.*
 

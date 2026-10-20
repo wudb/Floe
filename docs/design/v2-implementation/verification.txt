@@ -133,3 +133,8 @@ Floe 应用图标更新（2026-10-20）
 - 原 ./script/dev.sh 的 Debug 构建、安装与签名校验、进程启动通过；app-icon.swift、SwiftLint strict、shell 语法和 git diff --check 通过。
 - 四份 README 预览以生产加载器和已安装应用内的 AppIcon.icns 重新离屏渲染，保留示例数据边界。
 - 原生检查工具未获 Floe 访问许可，实际运行窗口及 Dock 显示仍需用户现场确认；未清理全局缓存或重启 Dock。
+
+README 图片地址更新（2026-10-20）
+- GitHub main 的图标、四份中英文预览与本地 Git blob 一致，确认已推送 C3 内容；原 README 仍沿用旧图片地址。
+- README 图片改为 docs/images/ 下带内容摘要的文件名，并同步修改中英文页首图、明暗图片及预览链接，使 URL 随图片内容变化。
+- 新文件与 C3 图标、现有生产组件预览逐字节一致；未重新绘制图片，保留英文/中文、明暗对应关系及 Star History。
