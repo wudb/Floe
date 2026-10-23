@@ -128,6 +128,8 @@ struct SettingsView: View {
             GeneralSettingsPane()
         case .menuBarLayout:
             MenuBarLayoutSettingsPane()
+        case .layoutImport:
+            LayoutImportSettingsPane()
         case .menuBarAppearance:
             MenuBarAppearanceSettingsPane()
         case .hotkeys:
@@ -143,6 +145,7 @@ struct SettingsView: View {
         switch identifier {
         case .general: .systemSymbol("gearshape")
         case .menuBarLayout: .systemSymbol("rectangle.topthird.inset.filled")
+        case .layoutImport: .systemSymbol("square.and.arrow.down")
         case .menuBarAppearance: .systemSymbol("swatchpalette")
         case .hotkeys: .systemSymbol("keyboard")
         case .advanced: .systemSymbol("gearshape.2")

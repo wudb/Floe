@@ -57,6 +57,18 @@ For a separate item search window, choose **Search menu bar items** from Floe's 
 
 **Layout recovery:** The refresh button at the top rediscovers current items. **Layout Recovery → Restore Saved Layout** reapplies saved sections and order to available items, keeping positions for apps that are not running. You can cancel recovery; leaving the page also cancels it. Read failures, damaged records and unsupported modes are reported. Discovery through Accessibility alone does not yet support restoring layouts across restarts. Recovery preserves the saved layout; successful manual organization saves new choices.
 
+## Import an app layout (development build)
+
+Open **Import Layout** in Settings to preview app sections and order before applying them:
+
+- **Ice:** capture the currently running Ice layout using its original dividers, then quit Ice and refresh the preview. Its preferences plist does not contain per-icon layouts. Only readable items on that menu bar can be captured.
+- **Bartender:** read `ProfileSettings/activeProfile` (`Show`, `Hide`, `AlwaysHide`) from a preferences plist. Other readable exports use the assisted app-list selector; newer backup formats have not been validated.
+- **Barbee / ExtraBar:** assisted import of ordered app lists from JSON/plist exports with explicit bundle identifiers. Select a list and destination section; add further lists if needed. This does not claim compatibility with every vendor backup format. ExtraBar folders, links, scripts and widgets are omitted.
+
+Review or reverse the source order, change destinations, remove unwanted entries, and import selected items. Duplicates, ambiguous multi-icon apps, protected items and Always Visible rule conflicts are skipped. Imported apps appear first in each section; other apps retain their section and relative order. Unavailable apps and disabled Always Hidden sections keep pending positions. A persistent backup supports **Undo Last Import**. Quit other menu bar managers before applying or undoing an import.
+
+Import currently requires native menu bar discovery; Accessibility-only mode is not supported. Real exported files from Barbee and ExtraBar and end-to-end migration with all four tools still need validation. See [format and validation notes](docs/layout-import.md).
+
 ## Choose how hidden icons appear
 
 In **General**, set the presentation for **Hidden** and **Always Hidden** separately:
@@ -82,6 +94,7 @@ The sidebar keeps each set of controls in a dedicated page:
 | --- | --- |
 | **General** | Launch at login, app appearance, language, Floe icon, reveal behavior, Floe Bar and icon spacing. |
 | **Menu Bar Layout** | Icon groups, ordering, search and default placement for new items. |
+| **Import Layout** | Preview app sections/order from Ice, Bartender and assisted JSON/plist lists; undo the last import. |
 | **Menu Bar Appearance** | Menu bar shape, rounded ends, tint, gradients, blur, borders and shadow. |
 | **Hotkeys** | Shortcuts for sections, search, Floe Bar and other menu bar actions. |
 | **Advanced** | Always Hidden, section dividers, reveal delays and additional behavior. |

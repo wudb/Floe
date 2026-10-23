@@ -13,11 +13,22 @@ func managerMethod(_ marker: String) -> String {
     let end = managerSource.range(of: "\n    }", range: start..<managerSource.endIndex)!.upperBound
     return String(managerSource[start..<end]).replacingOccurrences(of: "private func", with: "func")
 }
+let importTypes = String(managerSource[managerSource.range(of: "    struct ImportSnapshot {")!.lowerBound..<managerSource.range(of: "    var hasLayoutImportBackup:")!.lowerBound])
+let importSources = try ["LayoutImportDocument", "LayoutImportPlan"].map {
+    try String(contentsOf: repo.appendingPathComponent("Floe/MenuBar/LayoutImport/\($0).swift"), encoding: .utf8)
+}.joined(separator: "\n")
 let recoveryMethods = [
+    "    private func checkImportAvailability()",
+    "    func layoutImportSnapshot()",
+    "    private func readImportSnapshot()",
+    "    func knownImportBundles(",
+    "    func captureIceLayout()",
+    "    func importLayout(",
+    "    func undoLayoutImport()",
     "    func restoreSavedLayout()",
     "    private func scheduleLayoutReconciliation()",
     "    private func invalidateLayoutEnvironment(",
-].map(managerMethod).joined(separator: "\n")
+].map(managerMethod).joined(separator: "\n") + "\n" + importTypes
 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("floe-persist-\(UUID().uuidString)")
 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 defer { try? FileManager.default.removeItem(at: directory) }
@@ -28,13 +39,18 @@ import CoreGraphics
 enum L10n { static func string(_ key: String, _ args: CVarArg...) -> String { String(format: key, arguments: args) } }
 @MainActor final class MemoryDefaults {
     static let shared = MemoryDefaults()
-    var value: Data?
-    func data(forKey: String) -> Data? { value }
-    func set(_ data: Data, forKey: String) { value = data }
+    var values = [String: Data]()
+    var value: Data? {
+        get { values["MenuBarLayoutChoices.v1"] }
+        set { values["MenuBarLayoutChoices.v1"] = newValue }
+    }
+    func data(forKey key: String) -> Data? { values[key] }
+    func set(_ data: Data, forKey key: String) { values[key] = data }
 }
 struct MenuBarItemInfo: Equatable {
     struct Namespace: Hashable { let rawValue: String; static let floe = Namespace(rawValue: "floe") }
     let namespace: Namespace; let title: String
+    var description: String { namespace.rawValue + ":" + title }
     static let hiddenControlItem = MenuBarItemInfo(namespace: .floe, title: "hidden")
     static let alwaysHiddenControlItem = MenuBarItemInfo(namespace: .floe, title: "alwaysHidden")
 }
@@ -58,6 +74,14 @@ struct MenuBarItem {
 }
 @MainActor final class AppState { let menuBarManager = BarManager() }
 @MainActor enum MenuInteractionGuard { static var isInteracting = false }
+@MainActor final class NSWorkspace {
+    static let shared = NSWorkspace()
+    func urlForApplication(withBundleIdentifier: String) -> URL? { nil }
+}
+@MainActor final class ImportRules {
+    var alwaysVisibleApplications = Set<String>()
+    func alwaysShows(_ bundle: String) -> Bool { alwaysVisibleApplications.contains(bundle) }
+}
 @MainActor final class MenuBarItemManager {
     struct ItemCache {
         var groups: [MenuBarSection.Name: [MenuBarItem]] = [:]
@@ -70,6 +94,7 @@ struct MenuBarItem {
     var appState: AppState? = AppState()
     var itemCache = ItemCache()
     let layoutStore = MenuBarLayoutStore()
+    let newItemRules = ImportRules()
     var isRecoveringLayout = false
     var layoutRecoveryStatus: String?
     var isLayoutRecoverySuspended = false
@@ -316,13 +341,106 @@ __PRODUCTION__
 
         print("PASS: cancelled recovery resumes, newer choices win, failed anchors stop the chain, PID reuse and missing dividers recover, explicit cancellation stops the batch, absent hosts retain order and damaged data is preserved")
 
+        // 导入整批提交，备份跨实例保留；无效输入不能覆盖主布局或撤销备份。
+        save([.init(key: "keep.a", section: "visible"), .init(key: "move.b", section: "hidden"), .init(key: "keep.c", section: "visible")])
+        let imported = MenuBarLayoutStore()
+        let original = MemoryDefaults.shared.value!
+        precondition(imported.importEntries([.init(key: "move.b", section: "visible"), .init(key: "offline.d", section: "hidden")]))
+        let afterImport = try! JSONDecoder().decode([MenuBarLayoutStore.Entry].self, from: MemoryDefaults.shared.value!)
+        precondition(afterImport.filter { $0.section == "visible" }.map(\.key) == ["move.b", "keep.a", "keep.c"])
+        let importedData = MemoryDefaults.shared.value!
+        precondition(!imported.importEntries([.init(key: "duplicate", section: "hidden"), .init(key: "duplicate", section: "visible")]))
+        precondition(!imported.importEntries([.init(key: "invalid", section: "unknown")]))
+        precondition(MemoryDefaults.shared.value == importedData)
+        let restart = MenuBarLayoutStore()
+        precondition(restart.hasImportBackup && restart.undoImport())
+        precondition(try! JSONDecoder().decode([MenuBarLayoutStore.Entry].self, from: MemoryDefaults.shared.value!) == JSONDecoder().decode([MenuBarLayoutStore.Entry].self, from: original))
+        print("PASS: atomic import preserves unmentioned app order, rejects duplicate/invalid batches and restores the previous layout across restart")
+        // 提交前的新读回必须与预览一致，规则变化、原生顺序变化和取消均不写入。
+        let importer = MenuBarItemManager()
+        importer.itemCache.groups = [.visible: [first]]
+        MenuBarItem.live = [divider, first]
+        let proposal = [LayoutImportDocument.Item(identity: "first", section: .hidden)]
+        let selected = Set(proposal.map(\.id))
+        let snapshot = try! await importer.layoutImportSnapshot()
+        importer.newItemRules.alwaysVisibleApplications.insert("first")
+        do { try await importer.importLayout(items: proposal, selected: selected, snapshot: snapshot); preconditionFailure("stale rule accepted") }
+        catch LayoutImportDocument.Failure.stale {} catch { preconditionFailure("wrong error: \(error)") }
+        importer.newItemRules.alwaysVisibleApplications = []
+        importer.itemCache.groups = [.hidden: [first]]
+        do { try await importer.importLayout(items: proposal, selected: selected, snapshot: snapshot); preconditionFailure("stale section accepted") }
+        catch LayoutImportDocument.Failure.stale {} catch { preconditionFailure("wrong error: \(error)") }
+        let beforeManagerImport = MemoryDefaults.shared.value!
+        importer.itemCache.groups = [.visible: [first]]
+        do { try await importer.importLayout(items: proposal, selected: [], snapshot: snapshot); preconditionFailure("empty selection accepted") }
+        catch LayoutImportDocument.Failure.invalidSelection {} catch { preconditionFailure("wrong error: \(error)") }
+        precondition(MemoryDefaults.shared.value == beforeManagerImport)
+        importer.itemCache.groups = [.visible: [first]]
+        try! await importer.importLayout(items: proposal, selected: selected, snapshot: snapshot)
+        precondition(!importer.isRecoveringLayout)
+        precondition(importer.moves == [first.windowID])
+        let managerBackup = MemoryDefaults.shared.values["MenuBarLayoutImportBackup.v1"]!
+        try! await importer.undoLayoutImport()
+        precondition(MemoryDefaults.shared.value == managerBackup)
+        let undoEntries = try! JSONDecoder().decode([MenuBarLayoutStore.Entry].self, from: managerBackup)
+        precondition(undoEntries.contains { $0.key == "first" && $0.section == "visible" })
+        let previousManagerEntries = try! JSONDecoder().decode([MenuBarLayoutStore.Entry].self, from: beforeManagerImport)
+        for section in ["visible", "hidden", "alwaysHidden"] {
+            precondition(undoEntries.filter { $0.key != "first" && $0.section == section } == previousManagerEntries.filter { $0.section == section })
+        }
+
+        let iceManager = MenuBarItemManager()
+        var h = item("com.jordanbaird.Ice", "HItem", 801); h.position = 100
+        var ah = item("com.jordanbaird.Ice", "AHItem", 802); ah.position = 50
+        var visible = item("com.example.visible", "", 803); visible.position = 110
+        var hidden = item("com.example.hidden", "", 804); hidden.position = 60
+        var always = item("com.example.always", "", 805); always.position = 30
+        MenuBarItem.live = [visible, h, hidden, ah, always, divider]
+        let captured = try! iceManager.captureIceLayout()
+        precondition(captured.map(\.identity) == ["com.example.always", "com.example.hidden", "com.example.visible"])
+        precondition(captured.map(\.section) == [.alwaysHidden, .hidden, .visible])
+        MenuBarItem.live = [visible, hidden]
+        do { _ = try iceManager.captureIceLayout(); preconditionFailure("missing Ice dividers accepted") }
+        catch LayoutImportDocument.Failure.iceNotFound {} catch { preconditionFailure("wrong error: \(error)") }
+        // 取消的强制扫描与不可用发现都不能改写布局；损坏记录只有显式手动整理才能替换。
+        let rejected = MenuBarItemManager()
+        rejected.itemCache.groups = [.visible: [first]]
+        let rejectedSnapshot = try! await rejected.layoutImportSnapshot()
+        let unchanged = MemoryDefaults.shared.value!
+        rejected.failRead = true
+        do { try await rejected.importLayout(items: proposal, selected: selected, snapshot: rejectedSnapshot); preconditionFailure("failed fresh read accepted") }
+        catch LayoutImportDocument.Failure.stale {} catch { preconditionFailure("wrong error: \(error)") }
+        precondition(MemoryDefaults.shared.value == unchanged)
+        rejected.failRead = false
+        rejected.isItemDiscoveryUnavailable = true
+        do { _ = try await rejected.layoutImportSnapshot(); preconditionFailure("AX-only import accepted") }
+        catch LayoutImportDocument.Failure.discoveryUnavailable {} catch { preconditionFailure("wrong error: \(error)") }
+        precondition(MemoryDefaults.shared.value == unchanged)
+        rejected.isItemDiscoveryUnavailable = false
+        let cancelledImport = Task { @MainActor in
+            withUnsafeCurrentTask { $0?.cancel() }
+            do { try await rejected.importLayout(items: proposal, selected: selected, snapshot: rejectedSnapshot); preconditionFailure("cancelled import accepted") }
+            catch is CancellationError {} catch { preconditionFailure("wrong error: \(error)") }
+        }
+        await cancelledImport.value
+        precondition(MemoryDefaults.shared.value == unchanged && !rejected.isRecoveringLayout)
+        let corrupt = Data("damaged".utf8)
+        MemoryDefaults.shared.value = corrupt
+        let invalidImporter = MenuBarItemManager()
+        invalidImporter.itemCache.groups = [.visible: [first]]
+        let invalidSnapshot = try! await invalidImporter.layoutImportSnapshot()
+        do { try await invalidImporter.importLayout(items: proposal, selected: selected, snapshot: invalidSnapshot); preconditionFailure("damaged baseline overwritten") }
+        catch LayoutImportDocument.Failure.damagedLayout {} catch { preconditionFailure("wrong error: \(error)") }
+        precondition(MemoryDefaults.shared.value == corrupt)
+        print("PASS: production importer rejects stale/empty/cancelled/failed/damaged submissions, commits and undoes through recovery, captures Ice dividers and rejects absent Ice")
+
         print("PASS: failed restoration backs off and retries; disappearance/reappearance with reused window ID is restored")
         print("PASS: production layout persists unique identities, rejects ambiguous items, restores recreated windows, protects menus/temporary reveals and does not repeatedly reorder live items")
     }
 }
 """#
 let file = directory.appendingPathComponent("Checks.swift")
-try fixture.replacingOccurrences(of: "__PRODUCTION__", with: source).replacingOccurrences(of: "__RECOVERY_METHODS__", with: recoveryMethods).write(to: file, atomically: true, encoding: .utf8)
+try fixture.replacingOccurrences(of: "__PRODUCTION__", with: source + "\n" + importSources).replacingOccurrences(of: "__RECOVERY_METHODS__", with: recoveryMethods).write(to: file, atomically: true, encoding: .utf8)
 func run(_ arguments: [String]) throws {
     let process = Process(); process.executableURL = URL(fileURLWithPath: "/usr/bin/env"); process.arguments = arguments
     try process.run(); process.waitUntilExit(); precondition(process.terminationStatus == 0)

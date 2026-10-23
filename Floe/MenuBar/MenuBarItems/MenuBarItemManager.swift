@@ -236,6 +236,176 @@ final class MenuBarItemManager: ObservableObject {
         }
     }
 
+    struct ImportSnapshot {
+        let items: [LayoutImportPlan.AvailableItem]
+        let environmentRevision: Int
+        let choiceRevision: Int
+        let layoutSignature: [String]
+        let alwaysShownBundles: Set<String>
+    }
+
+    var hasLayoutImportBackup: Bool { layoutStore.hasImportBackup }
+
+    private func checkImportAvailability() throws {
+        guard !isLayoutRecoverySuspended, !isRecoveringLayout, !layoutStore.isApplyingChoices,
+              !isEditingLayout, !isMovingItem, !hasTemporarilyShownItems, !MenuInteractionGuard.isInteracting else {
+            throw LayoutImportDocument.Failure.busy
+        }
+    }
+
+    /// 强制成功读回后才生成可提交的预览，不能使用无权限/换屏前残留的缓存。
+    func layoutImportSnapshot() async throws -> ImportSnapshot {
+        try checkImportAvailability()
+        isRecoveringLayout = true
+        defer { isRecoveringLayout = false }
+        return try await readImportSnapshot()
+    }
+
+    private func readImportSnapshot() async throws -> ImportSnapshot {
+        let environment = layoutEnvironmentRevision
+        let completed = completedCacheReadGeneration
+        await cacheItemsIfNeeded(force: true)
+        try Task.checkCancellation()
+        guard environment == layoutEnvironmentRevision, !isLayoutRecoverySuspended else {
+            throw LayoutImportDocument.Failure.stale
+        }
+        guard !isItemDiscoveryUnavailable else { throw LayoutImportDocument.Failure.discoveryUnavailable }
+        guard cachedItemWindowIDs != nil, completedCacheReadGeneration > completed else {
+            throw LayoutImportDocument.Failure.stale
+        }
+        let identities = layoutStore.identifiedItems(itemCache.allItems)
+        let items = itemCache.allItems.filter { $0.info.namespace != .floe }.map { item in
+            LayoutImportPlan.AvailableItem(
+                key: identities.first(where: { $0.value.windowID == item.windowID })?.key ?? "",
+                bundleIdentifier: item.info.namespace.rawValue,
+                title: item.info.title,
+                isMovable: item.isMovable,
+                canBeHidden: item.canBeHidden,
+                alwaysShown: newItemRules.alwaysShows(item.info.namespace.rawValue)
+            )
+        }.sorted {
+            if $0.bundleIdentifier != $1.bundleIdentifier { return $0.bundleIdentifier < $1.bundleIdentifier }
+            if $0.key != $1.key { return $0.key < $1.key }
+            return $0.title < $1.title
+        }
+        let signature = MenuBarSection.Name.allCases.flatMap { section in
+            itemCache[section].filter { $0.info.namespace != .floe }.sorted { $0.frame.minX < $1.frame.minX }.map {
+                "\(section):\($0.ownerPID):\($0.windowID):\($0.info.description)"
+            }
+        }
+        return ImportSnapshot(
+            items: items,
+            environmentRevision: environment,
+            choiceRevision: layoutStore.revision,
+            layoutSignature: signature,
+            alwaysShownBundles: newItemRules.alwaysVisibleApplications
+        )
+    }
+
+    /// 识别 Bartender 的 bundle-token 时只认可本机可验证的 bundle，避免用第一个连字符猜应用名。
+    func knownImportBundles(for items: [LayoutImportDocument.Item]) -> Set<String> {
+        var bundles = Set(itemCache.allItems.map { $0.info.namespace.rawValue })
+        var checked = Set<String>()
+        for item in items {
+            let raw = item.identity.trimmingCharacters(in: .whitespacesAndNewlines)
+            var candidates = [raw]
+            candidates += raw.indices.filter { raw[$0] == "-" }.map { String(raw[..<$0]) }
+            for candidate in candidates where LayoutImportDocument.isBundleIdentifier(candidate) && checked.insert(candidate).inserted {
+                if NSWorkspace.shared.urlForApplication(withBundleIdentifier: candidate) != nil { bundles.insert(candidate) }
+            }
+        }
+        return bundles
+    }
+
+    /// Ice 0.11 的文件不存逐项布局，按已知 HItem/AHItem 原生分隔符读取当前分区。
+    func captureIceLayout() throws -> [LayoutImportDocument.Item] {
+        try checkImportAvailability()
+        let live = MenuBarItem.getMenuBarItems(onScreenOnly: false, activeSpaceOnly: true)
+        let ice = live.filter { $0.info.namespace.rawValue == "com.jordanbaird.Ice" }
+        let hidden = ice.filter { $0.info.title == "HItem" }
+        let alwaysHidden = ice.filter { $0.info.title == "AHItem" }
+        guard hidden.count == 1, alwaysHidden.count <= 1, let divider = hidden.first,
+              alwaysHidden.first.map({ $0.frame.maxX <= divider.frame.minX }) ?? true else {
+            throw LayoutImportDocument.Failure.iceNotFound
+        }
+        let identities = layoutStore.identifiedItems(live)
+        let items = live.filter {
+            $0.info.namespace != .floe && $0.info.namespace.rawValue != "com.jordanbaird.Ice" &&
+                abs($0.frame.minY - divider.frame.minY) < 1
+        }.sorted { $0.frame.minX < $1.frame.minX }
+        let captured = items.compactMap { item -> LayoutImportDocument.Item? in
+            let section: LayoutImportDocument.Section
+            if item.frame.minX >= divider.frame.maxX {
+                section = .visible
+            } else if let always = alwaysHidden.first, item.frame.maxX <= always.frame.minX {
+                section = .alwaysHidden
+            } else if item.frame.maxX <= divider.frame.minX,
+                      alwaysHidden.first.map({ item.frame.minX >= $0.frame.maxX }) ?? true {
+                section = .hidden
+            } else { return nil }
+            return LayoutImportDocument.Item(
+                identity: identities.first(where: { $0.value.windowID == item.windowID })?.key ?? item.info.namespace.rawValue,
+                section: section
+            )
+        }
+        guard !captured.isEmpty else { throw LayoutImportDocument.Failure.iceNotFound }
+        return captured
+    }
+
+    /// 保存与匹配之间不能跨 await；实际移动仍使用已有菜单保护、身份重验与失败退避。
+    func importLayout(items: [LayoutImportDocument.Item], selected: Set<UUID>, snapshot: ImportSnapshot) async throws {
+        try checkImportAvailability()
+        isRecoveringLayout = true
+        defer { isRecoveringLayout = false }
+        let fresh = try await readImportSnapshot()
+        guard fresh.environmentRevision == snapshot.environmentRevision, fresh.choiceRevision == snapshot.choiceRevision,
+              fresh.items == snapshot.items, fresh.layoutSignature == snapshot.layoutSignature,
+              fresh.alwaysShownBundles == snapshot.alwaysShownBundles, !isEditingLayout, !isMovingItem, !hasTemporarilyShownItems,
+              !MenuInteractionGuard.isInteracting else { throw LayoutImportDocument.Failure.stale }
+        let plan = LayoutImportPlan(
+            items: items,
+            available: fresh.items,
+            knownBundles: knownImportBundles(for: items),
+            alwaysShownBundles: fresh.alwaysShownBundles
+        )
+        let entries = plan.rows.compactMap { row -> MenuBarLayoutStore.Entry? in
+            guard selected.contains(row.id), let key = row.key else { return nil }
+            return MenuBarLayoutStore.Entry(key: key, section: row.item.section.rawValue)
+        }
+        try Task.checkCancellation()
+        guard !entries.isEmpty, entries.count <= 2_000 else { throw LayoutImportDocument.Failure.invalidSelection }
+        guard layoutStore.isSavedLayoutValid else { throw LayoutImportDocument.Failure.damagedLayout }
+        // 备份取自提交前的真实布局；原生拖拽可能尚未更新此前保存的位置。
+        layoutStore.record(itemCache)
+        guard layoutStore.importEntries(entries) else { throw LayoutImportDocument.Failure.invalidSelection }
+        layoutRecoveryStatus = L10n.string("Imported layout saved. Unavailable apps and disabled sections remain pending.")
+        let environment = layoutEnvironmentRevision
+        let result = await layoutStore.restoreIfNeeded(manager: self)
+        if Task.isCancelled, environment == layoutEnvironmentRevision { layoutStore.cancelExplicitRestore() }
+        if result.remaining > 0 {
+            layoutRecoveryStatus = L10n.string("Restored %d items; %d items are still pending. Close menus and try again.", result.restored, result.remaining)
+        }
+        await cacheItemsIfNeeded(force: true)
+    }
+
+    func undoLayoutImport() async throws {
+        try checkImportAvailability()
+        isRecoveringLayout = true
+        defer { isRecoveringLayout = false }
+        _ = try await readImportSnapshot()
+        guard !isEditingLayout, !isMovingItem, !hasTemporarilyShownItems, !MenuInteractionGuard.isInteracting else {
+            throw LayoutImportDocument.Failure.busy
+        }
+        guard layoutStore.undoImport() else { throw LayoutImportDocument.Failure.invalidSelection }
+        let environment = layoutEnvironmentRevision
+        let result = await layoutStore.restoreIfNeeded(manager: self)
+        if Task.isCancelled, environment == layoutEnvironmentRevision { layoutStore.cancelExplicitRestore() }
+        await cacheItemsIfNeeded(force: true)
+        layoutRecoveryStatus = result.remaining > 0
+            ? L10n.string("Restored %d items; %d items are still pending. Close menus and try again.", result.restored, result.remaining)
+            : L10n.string("The layout from before the last import was restored for available items.")
+    }
+
     func showAllExistingItems() async {
         guard !isLayoutRecoverySuspended, !isRecoveringLayout, !layoutStore.isApplyingChoices, !isMovingItem, !isEditingLayout, !hasTemporarilyShownItems, !MenuInteractionGuard.isInteracting else { return }
         newItemRules.showExistingItems(cache: itemCache, store: layoutStore)

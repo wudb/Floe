@@ -49,6 +49,8 @@ final class MenuBarNewItemRules: ObservableObject {
         set { state.insertAtEnd = newValue; save() }
     }
 
+    var alwaysVisibleApplications: Set<String> { state.visibleApplications }
+
     func alwaysShows(_ bundle: String) -> Bool { state.visibleApplications.contains(bundle) }
 
     func setAlwaysShown(_ bundle: String, enabled: Bool) {

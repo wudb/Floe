@@ -40,6 +40,7 @@ final class MenuBarLayoutStore {
     private(set) var appliedRevision = 0
     var isApplyingChoices: Bool { isRestoring }
     var hasSavedLayout: Bool { !entries.isEmpty }
+    var revision: Int { choiceRevision }
     private(set) var isSavedLayoutValid = true
 
     init() {
@@ -140,6 +141,44 @@ final class MenuBarLayoutStore {
         observedWindows.removeValue(forKey: key)
         pendingKeys.insert(key)
         saveEntries()
+    }
+
+    private static let importBackupKey = "MenuBarLayoutImportBackup.v1"
+
+    var hasImportBackup: Bool { UserDefaults.standard.data(forKey: Self.importBackupKey) != nil }
+
+    /// 一次写入整批导入；未提及应用保留原分区与相对顺序，导入项目按源顺序排在本区开头，避免以不可移动的时钟作为插入锚点。
+    @discardableResult
+    func importEntries(_ incoming: [Entry]) -> Bool {
+        guard isSavedLayoutValid, !incoming.isEmpty,
+              incoming.allSatisfy({ !$0.key.isEmpty && ["visible", "hidden", "alwaysHidden"].contains($0.section) }),
+              Set(incoming.map(\.key)).count == incoming.count,
+              let backup = try? JSONEncoder().encode(entries) else { return false }
+        let keys = Set(incoming.map(\.key))
+        let next = incoming + entries.filter { !keys.contains($0.key) }
+        guard let encoded = try? JSONEncoder().encode(next) else { return false }
+        UserDefaults.standard.set(backup, forKey: Self.importBackupKey)
+        UserDefaults.standard.set(encoded, forKey: Self.defaultsKey)
+        entries = next
+        observedWindows = [:]
+        requestRestore()
+        return true
+    }
+
+    /// 回退同样经由恢复管线，备份跨重启保留；不把导入后的扫描结果覆盖为备份。
+    @discardableResult
+    func undoImport() -> Bool {
+        guard let data = UserDefaults.standard.data(forKey: Self.importBackupKey),
+              let previous = try? JSONDecoder().decode([Entry].self, from: data),
+              previous.allSatisfy({ !$0.key.isEmpty && ["visible", "hidden", "alwaysHidden"].contains($0.section) }),
+              Set(previous.map(\.key)).count == previous.count else { return false }
+        entries = previous
+        isSavedLayoutValid = true
+        UserDefaults.standard.set(data, forKey: Self.defaultsKey)
+        observedWindows = [:]
+        pendingKeys = []
+        requestRestore()
+        return true
     }
 
     private func saveEntries() {

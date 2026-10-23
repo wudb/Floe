@@ -7,6 +7,7 @@
 enum SettingsNavigationIdentifier: String, NavigationIdentifier {
     case general = "General"
     case menuBarLayout = "Menu Bar Layout"
+    case layoutImport = "Import Layout"
     case menuBarAppearance = "Menu Bar Appearance"
     case hotkeys = "Hotkeys"
     case advanced = "Advanced"
