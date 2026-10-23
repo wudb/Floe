@@ -5,21 +5,8 @@ set -e
 # Pass a version to check for duplicates: ./script/dev.sh v0.11.12
 cd "$(dirname "$0")/.."
 
-VERSION_ARGS=()
-if [ $# -ge 1 ]; then
-    VERSION="${1#v}"
-    if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo "❌ Version '$1' must look like vX.Y.Z (e.g. ./script/dev.sh v0.11.12)"
-        exit 1
-    fi
-    # Same as build.sh: 1117 + commit count so the build number keeps increasing.
-    BUILD_NUMBER=$((1117 + $(git rev-list --count HEAD)))
-    echo "→ Version override: $VERSION ($BUILD_NUMBER)"
-    VERSION_ARGS=(MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER")
-elif [ -n "${MARKETING_VERSION:-}" ] || [ -n "${CURRENT_PROJECT_VERSION:-}" ]; then
-    [ -n "${MARKETING_VERSION:-}" ] && VERSION_ARGS+=(MARKETING_VERSION="$MARKETING_VERSION")
-    [ -n "${CURRENT_PROJECT_VERSION:-}" ] && VERSION_ARGS+=(CURRENT_PROJECT_VERSION="$CURRENT_PROJECT_VERSION")
-fi
+source "./script/lib/build-settings.sh"
+floe_resolve_build_settings "${1:-}"
 
 # 只从可用的签名身份中选择，避免仅有证书却缺失私钥；默认不静默降级。
 IDENTITY="${FLOE_CODE_SIGN_IDENTITY:-}"

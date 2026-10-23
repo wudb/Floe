@@ -10,11 +10,17 @@
 set -e
 
 APP="${1:-/Applications/Floe.app}"
-BUNDLE_ID="com.wudb.Floe"
 
 if [[ ! -d "$APP" ]]; then
   echo "not found: $APP"
   echo "usage: $0 [/path/to/Floe.app]"
+  exit 1
+fi
+
+# 重置实际安装包的身份；先检查再退出应用，避免对错误应用执行 TCC 操作。
+BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Contents/Info.plist")
+if [ "$BUNDLE_ID" != "com.float.floe" ]; then
+  echo "unexpected Floe bundle identifier: $BUNDLE_ID" >&2
   exit 1
 fi
 

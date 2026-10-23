@@ -8,7 +8,7 @@ import Foundation
 /// 隔离无法取消的同步截图：调用者可以超时返回，但系统调用结束前不接受新任务。
 /// 可跨线程共享；可变运行标记只通过 NSLock 访问。
 final class ScreenCaptureExecutor: @unchecked Sendable {
-    private let queue = DispatchQueue(label: "com.wudb.Floe.screen-capture", qos: .utility)
+    private let queue = DispatchQueue(label: "com.float.floe.screen-capture", qos: .utility)
     private let lock = NSLock()
     private var isRunning = false
 

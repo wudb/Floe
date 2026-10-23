@@ -32,7 +32,7 @@ for file in try FileManager.default.contentsOfDirectory(at: assets, includingPro
 }
 try run("/usr/bin/iconutil", ["-c", "icns", iconset.path, "-o", resources.appendingPathComponent("AppIcon.icns").path])
 let info: [String: Any] = [
-    "CFBundleIdentifier": "com.wudb.FloeIconCheck",
+    "CFBundleIdentifier": "com.float.floe.IconCheck",
     "CFBundleExecutable": "check",
     "CFBundlePackageType": "APPL",
     "CFBundleIconFile": "AppIcon",

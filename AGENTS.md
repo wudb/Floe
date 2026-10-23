@@ -34,7 +34,7 @@ jordanbaird/Ice → cavaldos/Ice → wudb/Floe
 
 - Xcode 工程：`Floe.xcodeproj`；Target 和共享 Scheme：`Floe`。
 - 源码目录：`Floe/`；应用与发布产物：`Floe.app`、`Floe.zip`、`Floe.dmg`。
-- Bundle Identifier：`com.wudb.Floe`，与上游 Ice 的偏好设置和系统隐私授权独立。
+- Bundle Identifier：`com.float.floe`，与上游 Ice 的偏好设置和系统隐私授权独立。
 - 项目 UI、类型和脚本统一采用 Floe 命名；上游仓库名、历史 issue 原文、版权归属及 Ice Cube 图标形状名称保留。
 - 自动更新必须使用 Floe 自己的更新源和签名公钥；未配置前不启用 Sparkle，也不向上游发布更新。
 

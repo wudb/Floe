@@ -23,7 +23,7 @@ import Foundation
 import CoreGraphics
 struct Application { let bundleIdentifier: String? }
 struct MenuBarItem { let id: Int; let owningApplication: Application?; var frame = CGRect.zero; var ownerPID: pid_t = 42; var title: String? = nil }
-struct FixtureBundle { static let main = FixtureBundle(); let bundleIdentifier: String? = "com.wudb.Floe" }
+struct FixtureBundle { static let main = FixtureBundle(); let bundleIdentifier: String? = "com.float.floe" }
 struct FixtureWorkspace { static let shared = FixtureWorkspace(); let runningApplications = [1] }
 enum ScreenCapture { static func cachedCheckPermissions(reset: Bool) -> Bool { true } }
 enum MenuBarItemAXDiscovery {
@@ -93,7 +93,7 @@ enum MenuBarItemAXDiscovery {
         precondition(pane.supplementalAXItems([identified], cached: [cached]).isEmpty)
         let ambiguous = MenuBarItemAXDiscovery.AXMenuBarItem(id: 25, pid: 10, title: "Status")
         precondition(pane.supplementalAXItems([identified, ambiguous], cached: [cached]).map(\.id).isEmpty)
-        let own = MenuBarItem(id: 1, owningApplication: Application(bundleIdentifier: "com.wudb.Floe"))
+        let own = MenuBarItem(id: 1, owningApplication: Application(bundleIdentifier: "com.float.floe"))
         let foreign = MenuBarItem(id: 2, owningApplication: Application(bundleIdentifier: "foreign.app"))
         pane.appState.itemManager.itemCache.allItems = [own]
         precondition(pane.displayableCachedItems.isEmpty)

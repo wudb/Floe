@@ -214,10 +214,10 @@ enum MenuBarItemAXDiscovery {
         }
         AXUIElementSetMessagingTimeout(item.element, 1)
         let currentFrame = frame(of: item.element)
-        os.Logger(subsystem: "com.wudb.Floe", category: "AXDiscovery")
+        os.Logger(subsystem: "com.float.floe", category: "AXDiscovery")
             .info("axPress geometry pid=\(item.pid) original=\(String(describing: item.axFrame), privacy: .public) current=\(String(describing: currentFrame), privacy: .public)")
         let result = AXUIElementPerformAction(item.element, kAXPressAction as CFString)
-        os.Logger(subsystem: "com.wudb.Floe", category: "AXDiscovery")
+        os.Logger(subsystem: "com.float.floe", category: "AXDiscovery")
             .info("axPress result pid=\(item.pid) element=\(CFHash(item.element)) code=\(result.rawValue)")
         return result == .success
     }

@@ -4,6 +4,15 @@ set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_PATH="${1:-}"
+BUNDLE_ID="com.float.floe"
+# 指定安装包时以其实际身份采集；不把其他应用的偏好设置误当作 Floe。
+if [ -n "$APP_PATH" ]; then
+    BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP_PATH/Contents/Info.plist")
+    if [ "$BUNDLE_ID" != "com.float.floe" ]; then
+        printf 'Unexpected Floe bundle identifier: %s\n' "$BUNDLE_ID" >&2
+        exit 1
+    fi
+fi
 EVIDENCE_DIR="$(mktemp -d "${TMPDIR:-/tmp/}Floe-evidence.XXXXXX")"
 
 # 每项采集独立保留退出码，缺失工具或未安装应用不会伪装成成功。
@@ -25,7 +34,7 @@ capture packages cat Floe.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Pac
 capture lint-version swiftlint version
 # 仅列出本项目进程，不采集其他应用的命令行或系统硬件序列号。
 capture process pgrep -x Floe
-capture preferences defaults export com.wudb.Floe -
+capture preferences defaults export "$BUNDLE_ID" -
 
 if [ -n "$APP_PATH" ]; then
     if [ ! -d "$APP_PATH/Contents" ]; then

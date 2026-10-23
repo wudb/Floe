@@ -8,7 +8,7 @@ Local dev and release helpers. Run from the repository root.
 # Build Debug and launch the app
 ./script/run.sh
 
-# Build Release DMG into release/ (optional version override for About)
+# Build Universal app, ZIP, DMG and checksums into release/vX.Y.Z/
 ./script/build.sh [vX.Y.Z]
 
 # Same lint + build as CI — run before pushing (optional tag check)
@@ -163,7 +163,37 @@ Ad-hoc signed builds are pinned to a `cdhash` that changes with every build, so 
 ./script/release.sh vX.Y.Z
 ```
 
-CI publishes `Floe.zip` to this repository. Homebrew publishing is optional:
+Local builds and CI both call `script/build.sh`. It creates `Floe.app`,
+`Floe.zip`, `Floe.dmg`, `SHA256SUMS.txt`, `build-info.json` and `build.log`
+under `release/vX.Y.Z/`. CI uploads ZIP, DMG, checksums and build metadata.
+It verifies the version, `com.float.floe` identity, signatures, **all** embedded
+Mach-O architectures (`arm64` and `x86_64`), and that extracted ZIP/DMG apps match
+the signed original. A failed build never replaces a previously verified package.
+
+The committed `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in the Xcode
+project are the shared version source. Before a release, update both Debug and
+Release configurations, commit them, then run `release.sh`. The tag must match
+the committed marketing version and the build number must exceed the preceding
+release's committed build number. CI checks full history; it does not derive
+versions from commit counts or workflow run numbers.
+
+For local verification, `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` overrides
+are honored; a tag argument and environment version must agree, and a build
+number below the committed value is rejected. Existing output directories are
+never overwritten. To rebuild an existing version without touching its artifacts:
+
+```bash
+FLOE_RELEASE_ROOT="$PWD/release/recheck" ./script/build.sh v1.0.1
+python3 script/tests/release-pipeline.py
+```
+
+`ci-local.sh` runs lint and this same packaging pipeline in a unique preflight
+directory. `FLOE_DERIVED_DATA_PATH` selects the build cache and
+`FLOE_SOURCE_PACKAGES_PATH` optionally reuses a Swift package cache. The scripts
+do not install or launch the result. Builds remain ad-hoc signed and are not
+notarized; automatic updates remain disabled.
+
+Homebrew publishing is optional:
 configure `FLOE_HOMEBREW_TAP` as a repository variable and
 `HOMEBREW_TAP_TOKEN` as a secret only after a Floe tap exists.
 
@@ -187,7 +217,7 @@ This downloads `Floe.zip` from `wudb/Floe`; verify the configured `SUFeedURL`
 contains the new tag. The script requires `gh` and Sparkle's `generate_appcast`.
 
 Tags must follow `vX.Y.Z` and increase with each release. Never re-tag an old
-version. CI injects the version into the Xcode build.
+version. CI validates the tag against the committed Xcode version.
 
 ## Adaptive presentation regression checks
 

@@ -52,7 +52,7 @@ final class MenuBarNewItemRules: ObservableObject {
     func alwaysShows(_ bundle: String) -> Bool { state.visibleApplications.contains(bundle) }
 
     func setAlwaysShown(_ bundle: String, enabled: Bool) {
-        guard !bundle.isEmpty, bundle != "<null>", bundle != "com.wudb.Floe" else { return }
+        guard !bundle.isEmpty, bundle != "<null>", bundle != "com.float.floe" else { return }
         if enabled { state.visibleApplications.insert(bundle) } else { state.visibleApplications.remove(bundle) }
         save()
     }

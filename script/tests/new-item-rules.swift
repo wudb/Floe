@@ -109,6 +109,9 @@ __RULES__
         manager.itemCache.groups[.hidden, default: []].append(f)
         restarted.prepare(cache: manager.itemCache, store: store, alwaysHiddenEnabled: true)
         precondition(choices().first?.key == "app.f", "beginning must precede existing members")
+        // 自身身份统一后，不能被添加成普通应用的常显规则。
+        restarted.setAlwaysShown("com.float.floe", enabled: true)
+        precondition(!restarted.alwaysShows("com.float.floe"))
         restarted.setAlwaysShown("app.a", enabled: true)
         restarted.prepare(cache: manager.itemCache, store: store, alwaysHiddenEnabled: true)
         precondition(choices().first(where: { $0.key == "app.a" })?.section == "visible")
