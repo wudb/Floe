@@ -173,6 +173,12 @@ struct MenuBarLayoutSettingsPane: View {
                         }
                     }
 
+                    LayoutRecoveryControls(manager: appState.itemManager) {
+                        await refresh()
+                    }
+                    .padding(14)
+                    .floeCardSurface()
+
                     NewItemRulesView(rules: appState.itemManager.newItemRules, manager: appState.itemManager)
                         .padding(14)
                         .floeCardSurface()
@@ -1406,6 +1412,47 @@ private struct SectionMeta {
         SectionMeta(kind: .hidden, title: "Hidden", icon: "eye.slash", subtitle: "A hover or click away — or ⌘-drag icons left of the chevron", emptyHint: "No hidden icons — drop icons here to hide them"),
         SectionMeta(kind: .alwaysHidden, title: "Always Hidden", icon: "lock", subtitle: "Out of sight until you double-click or ⌥-click the chevron", emptyHint: "No always-hidden icons — drop icons here to hide them"),
     ]
+}
+
+/// 恢复任务由当前页面持有；离开页面或点击取消都停止等待，避免后台突然移动图标。
+private struct LayoutRecoveryControls: View {
+    @ObservedObject var manager: MenuBarItemManager
+    let refresh: () async -> Void
+    @State private var task: Task<Void, Never>?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Layout Recovery")
+                .font(.headline)
+            Text("Reapply saved sections and order without changing your settings.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+            HStack {
+                Button("Restore Saved Layout") {
+                    task = Task {
+                        await manager.restoreSavedLayout()
+                        if !Task.isCancelled { await refresh() }
+                        task = nil
+                    }
+                }
+                .buttonStyle(FloeButtonStyle())
+                .disabled(task != nil || manager.isRecoveringLayout)
+                if task != nil {
+                    ProgressView().controlSize(.small)
+                    Button("Cancel") { task?.cancel() }
+                        .buttonStyle(FloeButtonStyle())
+                }
+            }
+            if let status = manager.layoutRecoveryStatus {
+                Text(status)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .accessibilityAddTraits(.updatesFrequently)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .onDisappear { task?.cancel() }
+    }
 }
 
 // MARK: - FlowLayout

@@ -641,5 +641,12 @@
     "release_build": "passed",
     "swiftlint_strict": "passed",
     "live_original_scenarios": "not_completed"
+  },
+  "layout_reliability_follow_up": {
+    "date": "2026-10-23",
+    "status": "native_layout_implemented_original_scenarios_pending",
+    "report": "layout-recovery.md",
+    "snapshot": "layout-recovery-status.json",
+    "inventory_change": 0
   }
 }

@@ -109,6 +109,15 @@ final class MenuBarItemManager: ObservableObject {
     /// 扫描跨 await 可能重入；普通触发合并，强制读回必须等待自己的新快照。
     private var isCachingItems = false
     private var cacheReadGeneration = 0
+    /// 只在快照成功发布后推进；失败/取消的扫描不能满足另一个强制刷新请求。
+    private var completedCacheReadGeneration = 0
+    private var layoutEnvironmentRevision = 0
+    private var isLayoutRecoverySuspended = false
+    private var layoutEnvironmentTask: Task<Void, Never>?
+    private var layoutReconciliationTask: Task<Void, Never>?
+
+    @Published private(set) var isRecoveringLayout = false
+    @Published private(set) var layoutRecoveryStatus: String?
 
     /// The shared app state.
     private(set) weak var appState: AppState?
@@ -129,13 +138,13 @@ final class MenuBarItemManager: ObservableObject {
 
     /// 用户拖拽确认后记录最终布局；AX-only 环境不把空 CGS 快照写入偏好。
     func recordLayoutChoice() {
-        guard !hasTemporarilyShownItems else { return }
+        guard !hasTemporarilyShownItems, !isCachingItems, cachedItemWindowIDs != nil, !isItemDiscoveryUnavailable else { return }
         layoutStore.record(itemCache)
     }
 
     /// 默认规则、应用规则和已知布局共用串行恢复，不与编辑或暂时显示竞争。
     func reconcileLayout() async {
-        guard !layoutStore.isApplyingChoices, !isMovingItem, !isEditingLayout, !hasTemporarilyShownItems,
+        guard !isLayoutRecoverySuspended, !isRecoveringLayout, !layoutStore.isApplyingChoices, !isMovingItem, !isEditingLayout, !hasTemporarilyShownItems,
               !MenuInteractionGuard.isInteracting, let appState else { return }
         newItemRules.prepare(
             cache: itemCache,
@@ -143,13 +152,92 @@ final class MenuBarItemManager: ObservableObject {
             alwaysHiddenEnabled: appState.menuBarManager.section(withName: .alwaysHidden)?.isEnabled == true
         )
         let revision = layoutStore.appliedRevision
-        await layoutStore.restoreIfNeeded(manager: self)
+        let result = await layoutStore.restoreIfNeeded(manager: self)
+        if !result.wasInterrupted, result.remaining > 0 {
+            layoutRecoveryStatus = L10n.string("Restored %d items; %d items are still pending. Close menus and try again.", result.restored, result.remaining)
+        }
         // 自动移动也必须读回真实帧；窗口 ID 未变化不能保留移动前的分区快照。
         if layoutStore.appliedRevision != revision { await cacheItemsIfNeeded(force: true) }
     }
 
+    /// 自动协调只有一个拥有者，休眠或环境变化可以取消等待中的旧恢复。
+    private func scheduleLayoutReconciliation() {
+        guard layoutReconciliationTask == nil, !isLayoutRecoverySuspended else { return }
+        layoutReconciliationTask = Task { [weak self] in
+            guard let self else { return }
+            await reconcileLayout()
+            layoutReconciliationTask = nil
+        }
+    }
+
+    /// 屏幕/Space 切换可能只改变坐标、不改变窗口 ID，强制失效后再读取真实布局。
+    private func invalidateLayoutEnvironment(suspended: Bool = false) {
+        isLayoutRecoverySuspended = suspended
+        layoutEnvironmentRevision += 1
+        cachedItemWindowIDs = nil
+        layoutStore.requestRestore()
+        layoutReconciliationTask?.cancel()
+        layoutEnvironmentTask?.cancel()
+        guard !suspended else { return }
+        let revision = layoutEnvironmentRevision
+        layoutEnvironmentTask = Task { [weak self] in
+            do { try await Task.sleep(for: .milliseconds(700)) } catch { return }
+            guard let self, layoutEnvironmentRevision == revision else { return }
+            await cacheItemsIfNeeded(force: true)
+            guard !Task.isCancelled, layoutEnvironmentRevision == revision else { return }
+            scheduleLayoutReconciliation()
+        }
+    }
+
+    /// 显式恢复只重放已保存选择；扫描、临时展开和恢复本身均不会覆盖保存记录。
+    func restoreSavedLayout() async {
+        guard !isRecoveringLayout else { return }
+        guard !isLayoutRecoverySuspended, !isEditingLayout, !isMovingItem, !hasTemporarilyShownItems,
+              !MenuInteractionGuard.isInteracting else {
+            layoutRecoveryStatus = L10n.string("Close menus and finish moving items before restoring the layout.")
+            return
+        }
+        guard layoutStore.isSavedLayoutValid else {
+            layoutRecoveryStatus = L10n.string("The saved layout is damaged. It has been preserved; organize items manually to save a new layout.")
+            return
+        }
+        isRecoveringLayout = true
+        layoutRecoveryStatus = nil
+        defer { isRecoveringLayout = false }
+        let environment = layoutEnvironmentRevision
+        let completedRead = completedCacheReadGeneration
+        await cacheItemsIfNeeded(force: true)
+        guard !Task.isCancelled, environment == layoutEnvironmentRevision else {
+            layoutRecoveryStatus = L10n.string("Layout recovery was cancelled. Saved positions were kept.")
+            return
+        }
+        guard !isItemDiscoveryUnavailable else {
+            layoutRecoveryStatus = L10n.string("Saved-layout recovery is not available in this mode. You can still refresh the layout and organize items manually.")
+            return
+        }
+        guard cachedItemWindowIDs != nil, completedCacheReadGeneration > completedRead, !layoutStore.isApplyingChoices else {
+            layoutRecoveryStatus = L10n.string("Could not read a fresh layout. Close menus, refresh, and try again.")
+            return
+        }
+        guard layoutStore.hasSavedLayout else {
+            layoutRecoveryStatus = L10n.string("No saved layout is available yet. Organize an item first.")
+            return
+        }
+        layoutStore.requestRestore()
+        let result = await layoutStore.restoreIfNeeded(manager: self)
+        await cacheItemsIfNeeded(force: true)
+        if Task.isCancelled || environment != layoutEnvironmentRevision || result.wasInterrupted {
+            if Task.isCancelled, environment == layoutEnvironmentRevision { layoutStore.cancelExplicitRestore() }
+            layoutRecoveryStatus = L10n.string("Layout recovery was cancelled. Saved positions were kept.")
+        } else if result.remaining > 0 {
+            layoutRecoveryStatus = L10n.string("Restored %d items; %d items are still pending. Close menus and try again.", result.restored, result.remaining)
+        } else {
+            layoutRecoveryStatus = L10n.string("Saved positions were restored for available items. Apps that are not running keep their saved positions.")
+        }
+    }
+
     func showAllExistingItems() async {
-        guard !layoutStore.isApplyingChoices, !isMovingItem, !isEditingLayout, !hasTemporarilyShownItems, !MenuInteractionGuard.isInteracting else { return }
+        guard !isLayoutRecoverySuspended, !isRecoveringLayout, !layoutStore.isApplyingChoices, !isMovingItem, !isEditingLayout, !hasTemporarilyShownItems, !MenuInteractionGuard.isInteracting else { return }
         newItemRules.showExistingItems(cache: itemCache, store: layoutStore)
         await layoutStore.restoreIfNeeded(manager: self)
         await cacheItemsIfNeeded(force: true)
@@ -258,6 +346,20 @@ final class MenuBarItemManager: ObservableObject {
                     await self.cacheItemsIfNeeded()
                 }
             }
+            .store(in: &c)
+
+        Publishers.Merge3(
+            NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didWakeNotification),
+            NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification),
+            NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _ in self?.invalidateLayoutEnvironment() }
+        .store(in: &c)
+
+        NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.willSleepNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.invalidateLayoutEnvironment(suspended: true) }
             .store(in: &c)
 
         // NOTE: Do not drain and repost events in the eventTracking mode.
@@ -395,9 +497,12 @@ extension MenuBarItemManager {
         }
         guard !Task.isCancelled else { return }
         // 等待期间若另一个请求已启动并完成新一轮读取，直接共享该结果。
-        if force, cacheReadGeneration != requestedGeneration { return }
+        if force, completedCacheReadGeneration > requestedGeneration { return }
+        guard !isLayoutRecoverySuspended else { return }
         isCachingItems = true
         cacheReadGeneration += 1
+        let environment = layoutEnvironmentRevision
+        if force { cachedItemWindowIDs = nil }
         defer { isCachingItems = false }
         do {
             try await waitForItemsToStopMoving(timeout: .seconds(1))
@@ -413,11 +518,12 @@ extension MenuBarItemManager {
             }
         }
 
+        guard environment == layoutEnvironmentRevision, !Task.isCancelled else { return }
         let itemWindowIDs = Bridging.getWindowList(option: [.menuBarItems, .activeSpace])
         if !force, cachedItemWindowIDs == itemWindowIDs {
             logSkippingCache(reason: "item windows have not changed")
             // 持久化归位失败后仍有机会按退避重试，无需等待窗口 ID 再次改变。
-            Task { await reconcileLayout() }
+            scheduleLayoutReconciliation()
             return
         }
         // A failed scan must be retried even when the IDs do not change:
@@ -427,9 +533,9 @@ extension MenuBarItemManager {
         var items = MenuBarItem.getMenuBarItems(onScreenOnly: false, activeSpaceOnly: true)
 
         let hiddenControlItem = items.firstIndex(matching: .hiddenControlItem).map { items.remove(at: $0) }
-        let alwaysHiddenControlItem = items.firstIndex(matching: .alwaysHiddenControlItem).map { items.remove(at: $0) }
+        var alwaysHiddenControlItem = items.firstIndex(matching: .alwaysHiddenControlItem).map { items.remove(at: $0) }
 
-        guard let hiddenControlItem else {
+        guard var hiddenControlItem else {
             if !isItemDiscoveryUnavailable {
                 Logger.itemManager.warning("Missing control item for hidden section; using Accessibility discovery")
             }
@@ -441,19 +547,30 @@ extension MenuBarItemManager {
         isItemDiscoveryUnavailable = false
 
         do {
-            if let alwaysHiddenControlItem {
-                try await enforceControlItemOrder(
+            if let alwaysHidden = alwaysHiddenControlItem,
+               try await enforceControlItemOrder(
                     hiddenControlItem: hiddenControlItem,
-                    alwaysHiddenControlItem: alwaysHiddenControlItem
-                )
+                    alwaysHiddenControlItem: alwaysHidden
+               ) {
+                // 分隔符归位改变了所有分区边界，移动前的帧不能继续发布为新快照。
+                items = MenuBarItem.getMenuBarItems(onScreenOnly: false, activeSpaceOnly: true)
+                guard let index = items.firstIndex(matching: .hiddenControlItem) else {
+                    isItemDiscoveryUnavailable = true
+                    itemCache.clear()
+                    return
+                }
+                hiddenControlItem = items.remove(at: index)
+                alwaysHiddenControlItem = items.firstIndex(matching: .alwaysHiddenControlItem).map { items.remove(at: $0) }
             }
+            guard environment == layoutEnvironmentRevision, !Task.isCancelled else { return }
             uncheckedCacheItems(
                 hiddenControlItem: hiddenControlItem,
                 alwaysHiddenControlItem: alwaysHiddenControlItem,
                 otherItems: items
             )
             cachedItemWindowIDs = itemWindowIDs
-            Task { await reconcileLayout() }
+            completedCacheReadGeneration = cacheReadGeneration
+            scheduleLayoutReconciliation()
         } catch {
             Logger.itemManager.error("Error enforcing control item order: \(error)")
             Logger.itemManager.debug("Clearing menu bar item cache")
@@ -725,7 +842,7 @@ extension MenuBarItemManager {
     /// - Parameters:
     ///   - item: The item to check the position of.
     ///   - destination: The destination to compare the item's position against.
-    private func itemHasCorrectPosition(item: MenuBarItem, for destination: MoveDestination) throws -> Bool {
+    func itemHasCorrectPosition(item: MenuBarItem, for destination: MoveDestination) throws -> Bool {
         guard let currentFrame = getCurrentFrame(for: item) else {
             throw EventError(code: .invalidItem, item: item)
         }
@@ -1171,7 +1288,7 @@ extension MenuBarItemManager {
         item: MenuBarItem,
         to destination: MoveDestination,
         maxAttempts: Int = 5,
-        beforePostingEvents: (() -> Void)? = nil
+        beforePostingEvents: (() throws -> Void)? = nil
     ) async throws {
         if try itemHasCorrectPosition(item: item, for: destination) {
             Logger.itemManager.debug("\(item.logString) is already in the correct position")
@@ -1202,7 +1319,7 @@ extension MenuBarItemManager {
         guard let cursorLocation = MouseCursor.locationCoreGraphics else {
             throw EventError(code: .invalidCursorLocation, item: item)
         }
-        guard let initialFrame = getCurrentFrame(for: item) else {
+        guard getCurrentFrame(for: item) != nil else {
             throw EventError(code: .invalidItem, item: item)
         }
 
@@ -1213,7 +1330,7 @@ extension MenuBarItemManager {
 
         // 系统移动会先把指针送到屏外；隐藏这段合成轨迹，归位后再显示。
         // 计数覆盖重试和清理，避免下一次用户拖拽与未归位的鼠标重叠。
-        beforePostingEvents?()
+        try beforePostingEvents?()
         itemMoveCount += 1
         let didHideCursor = MouseCursor.hide()
         defer {
@@ -1227,16 +1344,18 @@ extension MenuBarItemManager {
         for n in 1...attempts {
             try Task.checkCancellation()
             do {
+                // 重试可能跨越一次用户操作；每次投递前都核实事务仍然有效。
+                try beforePostingEvents?()
                 try await moveItemWithoutRestoringMouseLocation(item, to: destination)
-                guard let newFrame = getCurrentFrame(for: item) else {
-                    throw EventError(code: .invalidItem, item: item)
-                }
-                if newFrame != initialFrame {
+                // 有帧变化只能证明项目移动过；恢复成功必须到达指定邻项的正确一侧。
+                if try itemHasCorrectPosition(item: item, for: destination) {
                     Logger.itemManager.info("Successfully moved \(item.logString)")
                     break
                 } else {
                     throw EventError(code: .couldNotComplete, item: item)
                 }
+            } catch is CancellationError {
+                throw CancellationError()
             } catch where n < attempts && !Task.isCancelled {
                 Logger.itemManager.warning("Attempt \(n) to move \(item.logString) failed (error: \(error))")
                 try await wakeUpItem(item)
@@ -1624,19 +1743,25 @@ extension MenuBarItemManager {
     ///     hidden section.
     ///   - alwaysHiddenControlItem: A menu bar item that represents the control item
     ///     for the always-hidden section.
-    func enforceControlItemOrder(hiddenControlItem: MenuBarItem, alwaysHiddenControlItem: MenuBarItem) async throws {
-        guard !isMouseButtonDown else {
+    func enforceControlItemOrder(hiddenControlItem: MenuBarItem, alwaysHiddenControlItem: MenuBarItem) async throws -> Bool {
+        guard !isMouseButtonDown, !isEditingLayout, !MenuInteractionGuard.isInteracting else {
             Logger.itemManager.debug("Mouse button is down, so will not enforce control item order")
-            return
+            return false
         }
         guard !mouseHasRecentlyMoved else {
             Logger.itemManager.debug("Mouse has recently moved, so will not enforce control item order")
-            return
+            return false
         }
         if hiddenControlItem.frame.maxX <= alwaysHiddenControlItem.frame.minX {
             Logger.itemManager.info("Arranging menu bar items")
-            try await slowMove(item: alwaysHiddenControlItem, to: .leftOfItem(hiddenControlItem))
+            let environment = layoutEnvironmentRevision
+            try await move(item: alwaysHiddenControlItem, to: .leftOfItem(hiddenControlItem), maxAttempts: 1) {
+                guard self.layoutEnvironmentRevision == environment, !self.isLayoutRecoverySuspended,
+                      !self.isEditingLayout, !MenuInteractionGuard.isInteracting else { throw CancellationError() }
+            }
+            return true
         }
+        return false
     }
 }
 

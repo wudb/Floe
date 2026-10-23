@@ -368,3 +368,16 @@
 "Unclassified icons" = "分区未确认的图标";
 "Section boundaries are unavailable; membership has not been confirmed." = "暂时无法获取分区边界，尚未确认图标所属分区。";
 "Section membership is unknown. This does not mean the section is empty." = "分区归属暂未确认，不代表此区域没有图标。";
+
+/* Layout recovery */
+"Layout Recovery" = "布局恢复";
+"Reapply saved sections and order without changing your settings." = "按已保存的分区和顺序恢复图标，保留其他设置。";
+"Restore Saved Layout" = "恢复已保存布局";
+"Close menus and finish moving items before restoring the layout." = "请先关闭菜单并结束图标移动，再恢复布局。";
+"The saved layout is damaged. It has been preserved; organize items manually to save a new layout." = "已保存的布局记录损坏，原记录已保留。请手动整理图标以保存新布局。";
+"No saved layout is available yet. Organize an item first." = "暂无已保存布局，请先整理一个图标。";
+"Layout recovery was cancelled. Saved positions were kept." = "布局恢复已取消，已保存的位置仍然保留。";
+"Saved-layout recovery is not available in this mode. You can still refresh the layout and organize items manually." = "当前模式暂不支持恢复已保存布局，仍可刷新布局并手动整理图标。";
+"Restored %d items; %d items are still pending. Close menus and try again." = "已恢复 %d 个图标，仍有 %d 个待恢复。请关闭菜单后重试。";
+"Saved positions were restored for available items. Apps that are not running keep their saved positions." = "已按保存的位置恢复当前可用图标，未运行应用的位置仍然保留。";
+"Could not read a fresh layout. Close menus, refresh, and try again." = "未能读取最新布局。请关闭菜单、刷新布局后重试。";

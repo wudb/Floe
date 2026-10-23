@@ -368,3 +368,16 @@
 "Unclassified icons" = "Unclassified icons";
 "Section boundaries are unavailable; membership has not been confirmed." = "Section boundaries are unavailable; membership has not been confirmed.";
 "Section membership is unknown. This does not mean the section is empty." = "Section membership is unknown. This does not mean the section is empty.";
+
+/* Layout recovery */
+"Layout Recovery" = "Layout Recovery";
+"Reapply saved sections and order without changing your settings." = "Reapply saved sections and order without changing your settings.";
+"Restore Saved Layout" = "Restore Saved Layout";
+"Close menus and finish moving items before restoring the layout." = "Close menus and finish moving items before restoring the layout.";
+"The saved layout is damaged. It has been preserved; organize items manually to save a new layout." = "The saved layout is damaged. It has been preserved; organize items manually to save a new layout.";
+"No saved layout is available yet. Organize an item first." = "No saved layout is available yet. Organize an item first.";
+"Layout recovery was cancelled. Saved positions were kept." = "Layout recovery was cancelled. Saved positions were kept.";
+"Saved-layout recovery is not available in this mode. You can still refresh the layout and organize items manually." = "Saved-layout recovery is not available in this mode. You can still refresh the layout and organize items manually.";
+"Restored %d items; %d items are still pending. Close menus and try again." = "Restored %d items; %d items are still pending. Close menus and try again.";
+"Saved positions were restored for available items. Apps that are not running keep their saved positions." = "Saved positions were restored for available items. Apps that are not running keep their saved positions.";
+"Could not read a fresh layout. Close menus, refresh, and try again." = "Could not read a fresh layout. Close menus, refresh, and try again.";

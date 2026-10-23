@@ -1,0 +1,349 @@
+{
+  "date": "2026-10-23",
+  "timezone": "Asia/Shanghai",
+  "baseline_commit": "a891d9250e5a797c48b1ed203fb03f42cff0c6d6",
+  "status": "native_layout_implemented_original_scenarios_pending",
+  "scope": "可靠布局与异常恢复；不包含完整配置备份、Profiles 或发布更新",
+  "report": "layout-recovery.md",
+  "implemented": [
+    "explicit_restore_and_cancel",
+    "pending_work_survives_interruption",
+    "pid_and_window_identity_validation",
+    "pre_event_revision_validation",
+    "destination_verification",
+    "failed_anchor_chain_guard",
+    "absent_host_order_retention",
+    "corrupt_record_preservation",
+    "sleep_wake_display_space_invalidation",
+    "fresh_scan_completion_tracking",
+    "divider_move_frame_refresh",
+    "already_positioned_protected_items"
+  ],
+  "not_implemented": [
+    "AX-only cross-restart layout persistence and restore"
+  ],
+  "original_reports_closed": 0,
+  "retained_inventory_count": 367,
+  "retained_m2_count": 63,
+  "validation": {
+    "host_macos": "15.8.1 (24H32)",
+    "swift_regressions": {
+      "total": 63,
+      "passed": 63,
+      "initial_sandbox_passed": 60,
+      "host_rechecks": [
+        "app-appearance.swift",
+        "app-icon.swift"
+      ],
+      "results": [
+        {
+          "test": "adaptive-menu-measurement.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "adaptive-presentation-integration.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "adaptive-presentation.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "app-appearance.swift",
+          "exit_code": 0,
+          "verification": "passed on host after sandbox failure",
+          "log": "/tmp/floe-recovery-appearance-host.log"
+        },
+        {
+          "test": "app-icon.swift",
+          "exit_code": 0,
+          "verification": "passed on host after sandbox failure",
+          "log": "/tmp/floe-recovery-icon-host.log"
+        },
+        {
+          "test": "app-language.swift",
+          "exit_code": 0,
+          "verification": "final source rerun",
+          "log": "/tmp/floe-recovery-language.log"
+        },
+        {
+          "test": "appearance-refresh-policy.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "appearance-surfaces.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "ax-activation.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "ax-drag-cancellation.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "ax-item-press.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "ax-row-filter.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "color-picker-external-click.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "color-picker-lifecycle.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "control-item-click.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "delayed-interactions.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "display-space-states.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "event-tap-timeout.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-ax-reorder.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "floe-bar-color-generation.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-content-height.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-drag-session.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-image-scale.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-layout.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-lifecycle.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-pill-shape.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-position.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-preferences.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-reorder.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "floe-bar-section-modes.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "floe-bar-source-policy.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "image-cache-retention.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "image-capture-cancellation.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "input-wait-cancellation.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "item-discovery.swift",
+          "exit_code": 0,
+          "verification": "final source rerun",
+          "log": "/tmp/floe-recovery-discovery.log"
+        },
+        {
+          "test": "layout-cache-fallback.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "layout-drag-reveal.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "layout-drag-session.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "layout-drop-order.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "layout-immediate-tooltip.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "layout-keyboard-actions.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "layout-native-move.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "layout-native-pointer.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "layout-persistence.swift",
+          "exit_code": 0,
+          "verification": "final source rerun",
+          "log": "/tmp/floe-recovery-persistence.log"
+        },
+        {
+          "test": "layout-refresh-state.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "menu-bar-ax-probe.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "menu-bar-display-hit.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "menu-bar-search.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "menu-interaction-safety.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "mouse-monitor-lifecycle.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "move-wait-cancellation.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "native-move-delays.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "new-item-rules.swift",
+          "exit_code": 0,
+          "verification": "final source rerun",
+          "log": "/tmp/floe-recovery-rules.log"
+        },
+        {
+          "test": "overlay-display-lifecycle.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "permission-wait-lifecycle.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "screen-capture-executor.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "search-selection.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "settings-compact-layout.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "spacing-quit-deadline.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "temp-rehide-lifecycle.swift",
+          "exit_code": 0,
+          "verification": "targeted final rerun"
+        },
+        {
+          "test": "temp-show-boundary.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "window-id.swift",
+          "exit_code": 0
+        },
+        {
+          "test": "window-list-bounds.swift",
+          "exit_code": 0
+        }
+      ]
+    },
+    "strict_swiftlint": "passed; 0.65.1; no-cache",
+    "bilingual_plutil": "passed",
+    "git_diff_check": "passed",
+    "debug_build": "passed; Universal arm64/x86_64",
+    "release_build": "passed; Universal arm64/x86_64",
+    "build_architectures": [
+      "arm64",
+      "x86_64"
+    ]
+  },
+  "not_verified": [
+    "real third-party menu bar drag and native result",
+    "real system restart, logout/login, sleep/wake and host app update",
+    "notch and external displays, mixed fullscreen, hotplug and scaling",
+    "macOS 26/27 original scenarios",
+    "36-hour Floe/WindowServer comparison"
+  ],
+  "upstream_source_comparison": {
+    "repository": "cavaldos/Ice",
+    "path": "Ice/MenuBar/MenuBarItems/MenuBarItemManager.swift",
+    "access": "host gh api; read only",
+    "sha256": "ace55b9c50f04517de8c1f19c5fba22d2401d498cb6555e65074cb499b6d8a6b",
+    "meaning": "source comparison only; not device acceptance"
+  },
+  "source_sha256": {
+    "Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift": "6155a9ce8b4ec38c5426ae4f1d78ff519e7bb55bc724f0e433dab4d21292c4d2",
+    "Floe/MenuBar/MenuBarItems/MenuBarItemManager.swift": "e29f373144ce24a7ee086b83f5b57ea714cb98e0fc1ec32eedec4d39a66905d5",
+    "Floe/Settings/SettingsPanes/MenuBarLayoutSettingsPane.swift": "c9bf15762195d6df075e7c17f75af3d4f93e77254d05a32e09820abfc9de08ba"
+  }
+}

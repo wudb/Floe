@@ -6,6 +6,18 @@ let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
 let source = try String(contentsOf: repo.appendingPathComponent("Floe/MenuBar/MenuBarItems/MenuBarLayoutStore.swift"), encoding: .utf8)
     .replacingOccurrences(of: "UserDefaults.standard", with: "MemoryDefaults.shared")
     .replacingOccurrences(of: "Date()", with: "Clock.now")
+// 恢复入口与环境协调同样取自生产方法，验证真实的状态发布和任务取消边界。
+let managerSource = try String(contentsOf: repo.appendingPathComponent("Floe/MenuBar/MenuBarItems/MenuBarItemManager.swift"), encoding: .utf8)
+func managerMethod(_ marker: String) -> String {
+    let start = managerSource.range(of: marker)!.lowerBound
+    let end = managerSource.range(of: "\n    }", range: start..<managerSource.endIndex)!.upperBound
+    return String(managerSource[start..<end]).replacingOccurrences(of: "private func", with: "func")
+}
+let recoveryMethods = [
+    "    func restoreSavedLayout()",
+    "    private func scheduleLayoutReconciliation()",
+    "    private func invalidateLayoutEnvironment(",
+].map(managerMethod).joined(separator: "\n")
 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("floe-persist-\(UUID().uuidString)")
 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 defer { try? FileManager.default.removeItem(at: directory) }
@@ -13,6 +25,7 @@ let fixture = #"""
 import Foundation
 import CoreGraphics
 @MainActor enum Clock { static var now = Date(timeIntervalSince1970: 100) }
+enum L10n { static func string(_ key: String, _ args: CVarArg...) -> String { String(format: key, arguments: args) } }
 @MainActor final class MemoryDefaults {
     static let shared = MemoryDefaults()
     var value: Data?
@@ -27,7 +40,9 @@ struct MenuBarItemInfo: Equatable {
 }
 struct MenuBarItem {
     let info: MenuBarItemInfo; let windowID: UInt32
-    var frame: CGRect { CGRect(x: CGFloat(windowID), y: 0, width: 1, height: 10) }
+    var ownerPID: Int32 = 1
+    var position: CGFloat?
+    var frame: CGRect { CGRect(x: position ?? (info.namespace == .floe ? 0 : CGFloat(windowID) * 10), y: 0, width: 1, height: 10) }
     var isMovable = true; var canBeHidden = true
     var logString: String { info.title }
     @MainActor static var live = [MenuBarItem]()
@@ -54,9 +69,31 @@ struct MenuBarItem {
     var isMovingItem = false; var mouseHasRecentlyMoved = false; var hasTemporarilyShownItems = false
     var appState: AppState? = AppState()
     var itemCache = ItemCache()
+    let layoutStore = MenuBarLayoutStore()
+    var isRecoveringLayout = false
+    var layoutRecoveryStatus: String?
+    var isLayoutRecoverySuspended = false
+    var layoutEnvironmentRevision = 0
+    var completedCacheReadGeneration = 0
+    var layoutEnvironmentTask: Task<Void, Never>?
+    var layoutReconciliationTask: Task<Void, Never>?
+    var cachedItemWindowIDs: [UInt32]? = [100]
+    var isItemDiscoveryUnavailable = false
+    var reads = 0, reconciliations = 0
+    var failRead = false
+    func cacheItemsIfNeeded(force: Bool = false) async { reads += 1; if !failRead { completedCacheReadGeneration += 1 } }
+    func reconcileLayout() async { reconciliations += 1 }
+    __RECOVERY_METHODS__
+    func itemHasCorrectPosition(item: MenuBarItem, for destination: MoveDestination) throws -> Bool {
+        switch destination {
+        case .leftOfItem(let target): return item.frame.maxX == target.frame.minX
+        case .rightOfItem(let target): return item.frame.minX == target.frame.maxX
+        }
+    }
     var fail = false
+    var beforeMove: (() async -> Void)?
     var moves = [UInt32]()
-    func move(item: MenuBarItem, to: MoveDestination) async throws { moves.append(item.windowID); if fail { throw CancellationError() } }
+    func move(item: MenuBarItem, to: MoveDestination, beforePostingEvents: (() throws -> Void)? = nil) async throws { await beforeMove?(); try Task.checkCancellation(); try beforePostingEvents?(); moves.append(item.windowID); if fail { throw CancellationError() } }
 }
 struct Logger {
     init(category: String) {}
@@ -120,13 +157,172 @@ __PRODUCTION__
         manager.itemCache.groups = [.visible: [newB, newA]]
         await failedStore.restoreIfNeeded(manager: manager)
         precondition(manager.moves.count > retryCount)
+
+        func save(_ values: [MenuBarLayoutStore.Entry]) {
+            MemoryDefaults.shared.value = try! JSONEncoder().encode(values)
+        }
+        let divider = MenuBarItem(info: .hiddenControlItem, windowID: 100)
+        let first = item("first", "one", 21), second = item("second", "two", 22)
+        let twoChoices = [MenuBarLayoutStore.Entry(key: "first", section: "hidden"), .init(key: "second", section: "hidden")]
+
+        // 取消发生在输入等待中：未完成项目仍可用相同窗口编号继续恢复。
+        save(twoChoices)
+        let interrupted = MenuBarLayoutStore(), interruptedManager = MenuBarItemManager()
+        interruptedManager.itemCache.groups = [.visible: [first, second]]
+        MenuBarItem.live = [divider, first, second]
+        var waiting = false
+        interruptedManager.beforeMove = { waiting = true; try? await Task.sleep(for: .seconds(10)) }
+        let cancelled = Task { await interrupted.restoreIfNeeded(manager: interruptedManager) }
+        while !waiting { await Task.yield() }
+        cancelled.cancel(); _ = await cancelled.value
+        precondition(interruptedManager.moves.isEmpty)
+        interruptedManager.beforeMove = nil
+        let resumed = await interrupted.restoreIfNeeded(manager: interruptedManager)
+        precondition(resumed.remaining == 0 && resumed.restored == 2)
+
+        // 等待期间新的用户布局优先，旧恢复不能在松开鼠标后覆盖它。
+        save(twoChoices)
+        let superseded = MenuBarLayoutStore(), userManager = MenuBarItemManager()
+        userManager.itemCache.groups = [.visible: [first, second]]
+        userManager.beforeMove = { superseded.record(userManager.itemCache) }
+        _ = await superseded.restoreIfNeeded(manager: userManager)
+        precondition(userManager.moves.isEmpty)
+        userManager.beforeMove = nil
+        _ = await superseded.restoreIfNeeded(manager: userManager)
+        precondition(userManager.moves.isEmpty)
+
+        // 第一项未进入目标分区时，后续项目不能把它当锚点继续移动。
+        save(twoChoices)
+        let blocked = MenuBarLayoutStore(), blockedManager = MenuBarItemManager()
+        blockedManager.itemCache.groups = [.visible: [first, second]]
+        blockedManager.fail = true
+        let blockedResult = await blocked.restoreIfNeeded(manager: blockedManager)
+        precondition(blockedManager.moves == [second.windowID] && blockedResult.remaining == 2)
+        Clock.now = Clock.now.addingTimeInterval(31)
+        blockedManager.fail = false
+        let unblocked = await blocked.restoreIfNeeded(manager: blockedManager)
+        precondition(unblocked.remaining == 0)
+
+        // PID 已变但窗口 ID 复用，仍必须视为重建宿主。
+        save([.init(key: "first", section: "hidden")])
+        let reused = MenuBarLayoutStore(), reusedManager = MenuBarItemManager()
+        reusedManager.itemCache.groups = [.hidden: [first]]
+        reused.record(reusedManager.itemCache)
+        var newProcess = first; newProcess.ownerPID = 999
+        reusedManager.itemCache.groups = [.visible: [newProcess]]
+        MenuBarItem.live = [divider, newProcess]
+        _ = await reused.restoreIfNeeded(manager: reusedManager)
+        precondition(reusedManager.moves == [first.windowID])
+
+        // 缺少分隔符时保留待办；稍后分隔符返回，不依赖窗口 ID 再次变化。
+        save([.init(key: "first", section: "hidden")])
+        let missingDivider = MenuBarLayoutStore(), missingManager = MenuBarItemManager()
+        missingManager.itemCache.groups = [.visible: [first]]
+        MenuBarItem.live = [first]
+        let missing = await missingDivider.restoreIfNeeded(manager: missingManager)
+        precondition(missing.remaining == 1 && missingManager.moves.isEmpty)
+        Clock.now = Clock.now.addingTimeInterval(31)
+        MenuBarItem.live = [divider, first]
+        let found = await missingDivider.restoreIfNeeded(manager: missingManager)
+        precondition(found.remaining == 0 && missingManager.moves == [first.windowID])
+
+        // 相同窗口也能显式重放；显式取消后定时协调不再继续这一批。
+        missingManager.moves = []
+        missingDivider.requestRestore()
+        _ = await missingDivider.restoreIfNeeded(manager: missingManager)
+        precondition(missingManager.moves == [first.windowID])
+        missingManager.moves = []
+        missingDivider.requestRestore(); missingDivider.cancelExplicitRestore()
+        _ = await missingDivider.restoreIfNeeded(manager: missingManager)
+        precondition(missingManager.moves.isEmpty)
+
+        // 宿主退出期间整理其他图标，保留退出项的分区与原有邻项。
+        MemoryDefaults.shared.value = nil
+        let absent = MenuBarLayoutStore(), absentManager = MenuBarItemManager()
+        let third = item("third", "three", 23)
+        absentManager.itemCache.groups = [.visible: [first, second, third]]
+        absent.record(absentManager.itemCache)
+        absentManager.itemCache.groups = [.visible: [first, third]]
+        absent.record(absentManager.itemCache)
+        let retained = try! JSONDecoder().decode([MenuBarLayoutStore.Entry].self, from: MemoryDefaults.shared.value!)
+        precondition(retained.map(\.key) == ["first", "second", "third"])
+
+        // 损坏/重复身份记录不会被后台基线和新项目规则覆盖。
+        save([.init(key: "first", section: "hidden"), .init(key: "first", section: "visible")])
+        let damagedData = MemoryDefaults.shared.value
+        let damaged = MenuBarLayoutStore()
+        precondition(!damaged.isSavedLayoutValid)
+        damaged.seedMissingChoices(absentManager.itemCache)
+        damaged.assign(key: "first", section: "visible", atEnd: true)
+        precondition(MemoryDefaults.shared.value == damagedData)
+        precondition(damaged.identifiedItems([first, first]).isEmpty)
+
+        // 无需移动的系统保护项应直接确认，不能产生永远待恢复的假失败。
+        save([.init(key: "first", section: "visible")])
+        let protectedStore = MenuBarLayoutStore(), protectedManager = MenuBarItemManager()
+        var protectedItem = first; protectedItem.isMovable = false; protectedItem.position = 1
+        protectedManager.itemCache.groups = [.visible: [protectedItem]]
+        MenuBarItem.live = [divider, protectedItem]
+        let protectedResult = await protectedStore.restoreIfNeeded(manager: protectedManager)
+        precondition(protectedResult.remaining == 0 && protectedManager.moves.isEmpty)
+
+        // 手动恢复入口使用生产方法，验证进度与失败消息不会把不可用路径说成成功。
+        save([.init(key: "first", section: "hidden")])
+        let manual = MenuBarItemManager()
+        manual.itemCache.groups = [.visible: [first]]
+        MenuBarItem.live = [divider, first]
+        await manual.restoreSavedLayout()
+        precondition(!manual.isRecoveringLayout && manual.moves == [first.windowID] && manual.layoutRecoveryStatus?.hasPrefix("Saved positions") == true)
+        let unavailable = MenuBarItemManager()
+        unavailable.isItemDiscoveryUnavailable = true
+        await unavailable.restoreSavedLayout()
+        precondition(unavailable.moves.isEmpty && unavailable.layoutRecoveryStatus?.contains("not available in this mode") == true)
+        let failedRead = MenuBarItemManager()
+        failedRead.failRead = true
+        await failedRead.restoreSavedLayout()
+        precondition(failedRead.moves.isEmpty && failedRead.layoutRecoveryStatus?.contains("fresh layout") == true,
+                     "an old successful cache must not make a failed forced read look like recovery success")
+        let busy = MenuBarItemManager()
+        busy.isEditingLayout = true
+        await busy.restoreSavedLayout()
+        precondition(busy.reads == 0 && busy.layoutRecoveryStatus?.contains("Close menus") == true)
+
+        let manualCancel = MenuBarItemManager()
+        manualCancel.itemCache.groups = [.visible: [first]]
+        waiting = false
+        manualCancel.beforeMove = { waiting = true; try? await Task.sleep(for: .seconds(10)) }
+        let manualTask = Task { await manualCancel.restoreSavedLayout() }
+        while !waiting { await Task.yield() }
+        precondition(manualCancel.isRecoveringLayout)
+        manualTask.cancel(); await manualTask.value
+        precondition(!manualCancel.isRecoveringLayout && manualCancel.moves.isEmpty && manualCancel.layoutRecoveryStatus?.contains("cancelled") == true)
+        manualCancel.beforeMove = nil
+        _ = await manualCancel.layoutStore.restoreIfNeeded(manager: manualCancel)
+        precondition(manualCancel.moves.isEmpty, "explicit cancellation must not leave a hidden automatic batch")
+
+        let lifecycle = MenuBarItemManager()
+        lifecycle.invalidateLayoutEnvironment()
+        lifecycle.invalidateLayoutEnvironment()
+        try? await Task.sleep(for: .milliseconds(850))
+        precondition(lifecycle.reads == 1 && lifecycle.reconciliations == 1)
+        lifecycle.invalidateLayoutEnvironment()
+        lifecycle.invalidateLayoutEnvironment(suspended: true)
+        try? await Task.sleep(for: .milliseconds(850))
+        precondition(lifecycle.reads == 1 && lifecycle.isLayoutRecoverySuspended)
+        lifecycle.invalidateLayoutEnvironment()
+        try? await Task.sleep(for: .milliseconds(850))
+        precondition(lifecycle.reads == 2 && !lifecycle.isLayoutRecoverySuspended)
+        print("PASS: production recovery entry reports success/busy/unavailable/cancelled, cancellation clears explicit work, environment bursts coalesce, sleep cancels and wake resumes")
+
+        print("PASS: cancelled recovery resumes, newer choices win, failed anchors stop the chain, PID reuse and missing dividers recover, explicit cancellation stops the batch, absent hosts retain order and damaged data is preserved")
+
         print("PASS: failed restoration backs off and retries; disappearance/reappearance with reused window ID is restored")
         print("PASS: production layout persists unique identities, rejects ambiguous items, restores recreated windows, protects menus/temporary reveals and does not repeatedly reorder live items")
     }
 }
 """#
 let file = directory.appendingPathComponent("Checks.swift")
-try fixture.replacingOccurrences(of: "__PRODUCTION__", with: source).write(to: file, atomically: true, encoding: .utf8)
+try fixture.replacingOccurrences(of: "__PRODUCTION__", with: source).replacingOccurrences(of: "__RECOVERY_METHODS__", with: recoveryMethods).write(to: file, atomically: true, encoding: .utf8)
 func run(_ arguments: [String]) throws {
     let process = Process(); process.executableURL = URL(fileURLWithPath: "/usr/bin/env"); process.arguments = arguments
     try process.run(); process.waitUntilExit(); precondition(process.terminationStatus == 0)

@@ -42,8 +42,8 @@ enum Logger { static let itemManager = Log() }
     var appState: AppState? = AppState()
     var itemMoveCount = 0, calls = 0, wakeups = 0
     var frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-    var correct = false, fail = false, cancel = false
-    func itemHasCorrectPosition(item: MenuBarItem, for destination: MoveDestination) throws -> Bool { correct }
+    var correct = false, landed = false, wrongDestination = false, fail = false, cancel = false
+    func itemHasCorrectPosition(item: MenuBarItem, for destination: MoveDestination) throws -> Bool { correct || landed }
     func waitForNoModifiersPressed() async throws { try Task.checkCancellation() }
     func waitForMouseToStopMoving() async throws { try Task.checkCancellation() }
     func getCurrentFrame(for item: MenuBarItem) -> CGRect? { frame }
@@ -55,6 +55,7 @@ enum Logger { static let itemManager = Log() }
         if cancel { withUnsafeCurrentTask { $0?.cancel() }; throw CancellationError() }
         if fail { throw EventError(code: .couldNotComplete, item: item) }
         frame.origin.x += 20
+        landed = !wrongDestination
     }
     __PRODUCTION__
 }
@@ -72,22 +73,41 @@ enum Logger { static let itemManager = Log() }
         precondition(!enteredPointerTransaction && waiting.calls == 0 && MouseCursor.events.isEmpty)
         NSEvent.pressedMouseButtons = 0; await task.value
         precondition(enteredPointerTransaction && waiting.calls == 1)
-        for outcome in ["success", "failure", "cancel", "hideFailure", "alreadyPositioned"] {
+        for outcome in ["success", "failure", "cancel", "hideFailure", "alreadyPositioned", "wrongDestination"] {
             let manager = Manager()
             manager.fail = outcome == "failure"; manager.cancel = outcome == "cancel"
             manager.correct = outcome == "alreadyPositioned"
+            manager.wrongDestination = outcome == "wrongDestination"
             MouseCursor.events = []; MouseCursor.canHide = outcome != "hideFailure"
             let task = Task { () -> Bool in
                 do { try await manager.move(item: MenuBarItem(), to: MoveDestination(), maxAttempts: 1); return true }
                 catch { return false }
             }
             let result = await task.value
-            precondition(result == !["failure", "cancel"].contains(outcome))
+            precondition(result == !["failure", "cancel", "wrongDestination"].contains(outcome))
             precondition(manager.itemMoveCount == 0 && manager.appState?.eventManager.stopped == false)
             precondition(manager.wakeups == 0 && manager.calls == (manager.correct ? 0 : 1), "layout failure cannot trigger hidden physical retries")
             let expected = manager.correct ? [] : (MouseCursor.canHide ? ["hide", "warp", "show"] : ["hide", "warp"])
             precondition(MouseCursor.events == expected, "restore before show; balance only successful hides on every exit")
         }
+        let superseded = Manager()
+        MouseCursor.events = []
+        NSEvent.pressedMouseButtons = 1
+        var allowed = true
+        let oldMove = Task { () -> Bool in
+            do {
+                try await superseded.move(item: MenuBarItem(), to: MoveDestination(), maxAttempts: 1) {
+                    if !allowed { throw CancellationError() }
+                }
+                return true
+            } catch { return false }
+        }
+        try? await Task.sleep(for: .milliseconds(30))
+        allowed = false
+        NSEvent.pressedMouseButtons = 0
+        let oldResult = await oldMove.value
+        precondition(!oldResult && superseded.calls == 0 && MouseCursor.events.isEmpty && superseded.appState?.eventManager.stopped == false)
+        print("PASS: a changed frame at the wrong destination is rejected, and a superseded move cannot post input after waiting")
         print("PASS: native layout move uses one physical attempt and restores cursor/event ownership on success, failure and cancellation")
     }
 }

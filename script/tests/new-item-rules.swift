@@ -28,7 +28,8 @@ struct MenuBarItemInfo: Equatable {
 }
 struct MenuBarItem {
     let info: MenuBarItemInfo; let windowID: UInt32
-    var frame: CGRect { CGRect(x: CGFloat(windowID), y: 0, width: 1, height: 10) }
+    var ownerPID: Int32 = 1
+    var frame: CGRect { CGRect(x: info.namespace == .floe ? 0 : CGFloat(windowID) * 10, y: 0, width: 1, height: 10) }
     var isMovable = true; var canBeHidden = true
     var logString: String { info.title }
     @MainActor static var live = [MenuBarItem]()
@@ -55,10 +56,16 @@ struct MenuBarItem {
     var isMovingItem = false; var mouseHasRecentlyMoved = false; var hasTemporarilyShownItems = false
     var appState: AppState? = AppState()
     var itemCache = ItemCache()
+    func itemHasCorrectPosition(item: MenuBarItem, for destination: MoveDestination) throws -> Bool {
+        switch destination {
+        case .leftOfItem(let target): return item.frame.maxX == target.frame.minX
+        case .rightOfItem(let target): return item.frame.minX == target.frame.maxX
+        }
+    }
     var fail = false
     var moves = [UInt32]()
     var destinations = [String]()
-    func move(item: MenuBarItem, to: MoveDestination) async throws { moves.append(item.windowID); switch to { case .leftOfItem(let i): destinations.append("left:\(i.windowID)"); case .rightOfItem(let i): destinations.append("right:\(i.windowID)") }; if fail { throw CancellationError() } }
+    func move(item: MenuBarItem, to: MoveDestination, beforePostingEvents: (() throws -> Void)? = nil) async throws { try beforePostingEvents?(); moves.append(item.windowID); switch to { case .leftOfItem(let i): destinations.append("left:\(i.windowID)"); case .rightOfItem(let i): destinations.append("right:\(i.windowID)") }; if fail { throw CancellationError() } }
 }
 struct Logger {
     init(category: String) {}

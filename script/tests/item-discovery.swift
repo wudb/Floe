@@ -61,15 +61,21 @@ struct Cache {
     func reconcileLayout() async { await layoutStore.restoreIfNeeded(manager: self) }
     var isCachingItems = false
     var cacheReadGeneration = 0
+    var completedCacheReadGeneration = 0
+    var layoutEnvironmentRevision = 0
+    var isLayoutRecoverySuspended = false
+    func scheduleLayoutReconciliation() {}
     var waitDelay = false
+    var failedWaits = 0
     var isItemDiscoveryUnavailable = false
     var itemCache = Cache()
     var itemHasRecentlyMoved = false
     func waitForItemsToStopMoving(timeout: Duration) async throws {
         if waitDelay { try await Task.sleep(for: .milliseconds(30)) }
+        if failedWaits > 0 { failedWaits -= 1; throw TaskTimeoutError() }
     }
     func logSkippingCache(reason: String) {}
-    func enforceControlItemOrder(hiddenControlItem: MenuBarItem, alwaysHiddenControlItem: MenuBarItem) async throws {}
+    func enforceControlItemOrder(hiddenControlItem: MenuBarItem, alwaysHiddenControlItem: MenuBarItem) async throws -> Bool { false }
     func uncheckedCacheItems(hiddenControlItem: MenuBarItem, alwaysHiddenControlItem: MenuBarItem?, otherItems: [MenuBarItem]) {
         itemCache.count = otherItems.count
     }
@@ -107,6 +113,10 @@ let tests = #"""
         expect(!recovery.isItemDiscoveryUnavailable && recovery.itemCache.count == 1,
                "discovery recovers with unchanged IDs after window metadata becomes available")
 
+        recovery.failedWaits = 1
+        await recovery.cacheItemsIfNeeded(force: true)
+        expect(recovery.cachedItemWindowIDs == nil, "a failed forced read invalidates the prior success stamp")
+        await recovery.cacheItemsIfNeeded(force: true)
         let scans = MenuBarItem.scans
         await recovery.cacheItemsIfNeeded()
         expect(MenuBarItem.scans == scans, "successful unchanged snapshots still skip redundant scans")
@@ -148,6 +158,29 @@ let tests = #"""
         waiting.cancel(); await waiting.value
         await active.value
         expect(MenuBarItem.scans == 1 && !cancelling.isCachingItems, "cancelling a waiting forced caller stops its scan without cancelling the active caller")
+        let failedScan = Manager()
+        failedScan.waitDelay = true
+        failedScan.failedWaits = 1
+        MenuBarItem.scans = 0
+        let unsuccessful = Task { await failedScan.cacheItemsIfNeeded() }
+        while !failedScan.isCachingItems { await Task.yield() }
+        let retry = Task { await failedScan.cacheItemsIfNeeded(force: true) }
+        await unsuccessful.value; await retry.value
+        expect(MenuBarItem.scans == 1 && failedScan.itemCache.count == 1,
+               "a failed in-flight scan cannot satisfy a waiting forced refresh")
+
+        let changedEnvironment = Manager()
+        changedEnvironment.waitDelay = true
+        MenuBarItem.scans = 0
+        let oldEnvironment = Task { await changedEnvironment.cacheItemsIfNeeded(force: true) }
+        while !changedEnvironment.isCachingItems { await Task.yield() }
+        changedEnvironment.layoutEnvironmentRevision += 1
+        await oldEnvironment.value
+        expect(MenuBarItem.scans == 0 && changedEnvironment.itemCache.count == 0,
+               "an environment change invalidates an old scan before publishing")
+        changedEnvironment.isLayoutRecoverySuspended = true
+        await changedEnvironment.cacheItemsIfNeeded(force: true)
+        expect(MenuBarItem.scans == 0, "sleep suspends menu bar scans")
         exit(failures == 0 ? 0 : 1)
     }
 }

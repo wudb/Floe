@@ -8,7 +8,7 @@
   <p><a href="https://github.com/wudb/Floe/releases">Download</a> · <a href="https://github.com/wudb/Floe/issues">Report an issue</a> · <a href="LICENSE">GPL-3.0</a></p>
 </div>
 
-**macOS 14 Sonoma or later** · **English and Simplified Chinese** · **Current source version: 1.0.1**
+**macOS 14 Sonoma or later** · **English and Simplified Chinese** · **Current source version: 1.0.2**
 
 ## A clearer view of your menu bar
 
@@ -54,6 +54,8 @@ At the bottom of the page, choose the destination and beginning/end position for
 In **General**, you can enable click, hover or scroll to reveal hidden icons, and configure automatic rehide. In **Hotkeys**, assign shortcuts for revealing sections, searching items and toggling Floe Bar.
 
 For a separate item search window, choose **Search menu bar items** from Floe's context menu or use its configured shortcut.
+
+**Layout recovery:** The refresh button at the top rediscovers current items. **Layout Recovery → Restore Saved Layout** reapplies saved sections and order to available items, keeping positions for apps that are not running. You can cancel recovery; leaving the page also cancels it. Read failures, damaged records and unsupported modes are reported. Discovery through Accessibility alone does not yet support restoring layouts across restarts. Recovery preserves the saved layout; successful manual organization saves new choices.
 
 ## Choose how hidden icons appear
 
