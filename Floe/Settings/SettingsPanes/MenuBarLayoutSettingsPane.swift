@@ -583,11 +583,13 @@ struct MenuBarLayoutSettingsPane: View {
         guard !Task.isCancelled, !MenuInteractionGuard.isInteracting,
               !appState.itemManager.isMovingItem
         else { return false }
-        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        // 用户输入等待不计入系统移动超时；长按下一次拖拽时保留当前操作，离页取消可立即退出。
         while NSEvent.pressedMouseButtons != 0 || !NSEvent.modifierFlags.isDisjoint(with: [.command, .control, .option, .shift]) {
-            guard !Task.isCancelled, ContinuousClock.now < deadline else { return false }
+            guard !Task.isCancelled else { return false }
             do { try await Task.sleep(for: .milliseconds(30)) } catch { return false }
         }
+        guard !Task.isCancelled, !MenuInteractionGuard.isInteracting,
+              !appState.itemManager.isMovingItem else { return false }
         isPostingMove = true
         defer { isPostingMove = false }
         appState.eventManager.stopAll()
@@ -601,12 +603,12 @@ struct MenuBarLayoutSettingsPane: View {
         guard !Task.isCancelled, !MenuInteractionGuard.isInteracting else { return false }
         // NSItemProvider 的放下回调可能早于真实鼠标释放；原生路径也必须等待，
         // 避免合成 mouseUp 和指针归位打断用户尚未结束的拖拽或下一次按下。
-        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        // 下一次拖拽可能持续超过两秒，不能把仍在等待用户输入的操作判为失败并移出队列。
         while NSEvent.pressedMouseButtons != 0 {
-            guard !Task.isCancelled, ContinuousClock.now < deadline else { return false }
+            guard !Task.isCancelled else { return false }
             do { try await Task.sleep(for: .milliseconds(10)) } catch { return false }
         }
-        guard !Task.isCancelled else { return false }
+        guard !Task.isCancelled, !MenuInteractionGuard.isInteracting else { return false }
         if item.id.hasPrefix("cgs:"), let id = CGWindowID(item.id.dropFirst(4)),
            anchorID == nil || anchorID?.hasPrefix("cgs:") == true {
             let items = MenuBarItem.getMenuBarItems(onScreenOnly: false, activeSpaceOnly: true)
@@ -700,11 +702,11 @@ struct MenuBarLayoutSettingsPane: View {
         } else {
             destination = destinationPoint(for: kind)
         }
-        let posted = await performLayoutMove(item, to: kind, anchorID: targetID, destination: destination)
+        _ = await performLayoutMove(item, to: kind, anchorID: targetID, destination: destination)
         guard !Task.isCancelled else { return }
         // 一次操作只发一次系统移动；窗口尚未稳定时只读回，不重复抢占鼠标。
-        var confirmed = false
-        if posted { confirmed = await waitForDropResult(itemID: itemID, to: kind, before: targetID) }
+        // 事件回执超时不等于系统未移动；失败回执也读回实际位置，不能直接回滚已落地的操作。
+        var confirmed = await waitForDropResult(itemID: itemID, to: kind, before: targetID)
         guard !Task.isCancelled else { return }
         let restored = restoreLayoutSections(revealed)
         if confirmed, restored {
@@ -749,18 +751,30 @@ struct MenuBarLayoutSettingsPane: View {
         to kind: MenuBarItemAXDiscovery.SectionKind,
         before targetID: String?
     ) async -> Bool {
-        for delay in [0, 80, 160, 320] {
+        let delays = [0, 80, 160, 320]
+        var attempt = 0
+        while attempt < delays.count {
             guard !Task.isCancelled else { return false }
+            // 下一次原生拖拽占用输入时，旧帧不能耗尽确认次数并让上一项出队回跳。
+            // 保留投影和队列，松开后重新读回；离开页面仍通过任务取消立即终止。
+            while NSEvent.pressedMouseButtons != 0 {
+                do { try await Task.sleep(for: .milliseconds(10)) } catch { return false }
+            }
+            let delay = delays[attempt]
             if delay > 0 {
                 do { try await Task.sleep(for: .milliseconds(delay)) } catch { return false }
             }
+            guard !Task.isCancelled else { return false }
+            if NSEvent.pressedMouseButtons != 0 { continue }
             await rescanAfterDrag()
             guard !Task.isCancelled else { return false }
+            if NSEvent.pressedMouseButtons != 0 { continue }
             if let targetID {
                 if hasLanded(itemID: itemID, targetID: targetID, toKind: kind) { return true }
             } else if findItem(id: itemID)?.kind == kind {
                 return true
             }
+            attempt += 1
         }
         return false
     }

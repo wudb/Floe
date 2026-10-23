@@ -8,11 +8,13 @@ func method(_ marker: String) -> String {
     let start = source.range(of: marker)!.lowerBound
     let end = source.range(of: "\n    }", range: start..<source.endIndex)!.upperBound
     return String(source[start..<end]).replacingOccurrences(of: "private func", with: "func")
+        .replacingOccurrences(of: "private var", with: "var")
 }
 let methods = [
     "    private func drop(itemID: String, to kind:", "    private func drop(itemID: String, onto targetID:",
     "    private func moveLayoutItem(", "    private func makeMovePreview(", "    private func waitForDropResult(",
     "    private func restoreLayoutSections(", "    private func findItem(", "    private func isImmediatelyBefore(", "    private func hasLanded(",
+    "    private var displayedSections:", "    private func enqueueLayoutMove(", "    private func startLayoutMoveQueue(",
 ].map(method).joined(separator: "\n")
 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("floe-layout-reveal-\(UUID().uuidString)")
 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -20,7 +22,10 @@ defer { try? FileManager.default.removeItem(at: directory) }
 let fixture = #"""
 import Foundation
 import CoreGraphics
+@MainActor enum NSEvent { static var pressedMouseButtons = 0 }
 enum MenuBarItemAXDiscovery { enum SectionKind: Hashable { case visible, hidden, alwaysHidden } }
+final class Advanced { var enableAlwaysHiddenSection = true }
+final class Settings { let advancedSettingsManager = Advanced() }
 @MainActor final class MenuBarSection {
     enum State { case hideItems, showItems }
     final class Control { var state = State.hideItems }
@@ -34,7 +39,7 @@ enum MenuBarItemAXDiscovery { enum SectionKind: Hashable { case visible, hidden,
     func cacheItemsIfNeeded(force: Bool) async {}
     func recordLayoutChoice() { records += 1 }
 }
-@MainActor final class AppState { let itemManager = ItemManager(); let menuBarManager = Bar() }
+@MainActor final class AppState { let itemManager = ItemManager(); let menuBarManager = Bar(); let settingsManager = Settings() }
 struct RowItem { let id: String; let quartzFrame: CGRect?; var isMovable = true; var canBeHidden = true }
 struct Animation { static func easeInOut(duration: Double) -> Animation { Animation() } }
 func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
@@ -45,6 +50,10 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
     var dropTargetID: String?
     var activeDrag: (token: String, itemID: String)?
     var movePreview: [MenuBarItemAXDiscovery.SectionKind: [RowItem]]?
+    var isPageVisible = true
+    var moveTask: Task<Void, Never>?
+    var moveQueue = [(itemID: String, kind: MenuBarItemAXDiscovery.SectionKind, targetID: String?)]()
+    var queuedMovePreview: [MenuBarItemAXDiscovery.SectionKind: [RowItem]]?
     var sections: [MenuBarItemAXDiscovery.SectionKind: [RowItem]] = [:]
     var live: [MenuBarItemAXDiscovery.SectionKind: [RowItem]] = [:]
     var dropped = false, requestedDrag = false, fail = false
@@ -55,6 +64,8 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
     var pauseFinalRead = false
     var finalRead: CheckedContinuation<Void, Never>?
     var lastSnapshot: [MenuBarItemAXDiscovery.SectionKind: [RowItem]] = [:]
+    var pauseFirstRead = false, failAfterLanding = false
+    var firstRead: CheckedContinuation<Void, Never>?
     func seed(_ groups: [MenuBarItemAXDiscovery.SectionKind: [String]]) {
         live = groups.mapValues { $0.map { RowItem(id: $0, quartzFrame: CGRect(x: 100, y: 0, width: 20, height: 20)) } }
         sections = live
@@ -62,6 +73,11 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
     func refreshAfterDrop() async { refreshes += 1; await rescanAfterDrag() }
     func rescanAfterDrag() async {
         reads += 1
+        if pauseFirstRead {
+            pauseFirstRead = false
+            await withCheckedContinuation { firstRead = $0 }
+        }
+        if NSEvent.pressedMouseButtons != 0 { sections = lastSnapshot; return }
         let revealed = appState.menuBarManager.sections.allSatisfy { $0.controlItem.state == .showItems }
         if dropped && !revealed && pauseFinalRead {
             await withCheckedContinuation { finalRead = $0 }
@@ -87,7 +103,7 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
         let index = anchorID.flatMap { id in rows.firstIndex(where: { $0.id == id }) } ?? (kind == .visible ? 0 : rows.count)
         rows.insert(item, at: index); live[kind] = rows
         dropped = true
-        return true
+        return !failAfterLanding
     }
     func destinationPoint(for kind: MenuBarItemAXDiscovery.SectionKind) -> CGPoint? { CGPoint(x: 200, y: 10) }
     func reorderDestination(for kind: MenuBarItemAXDiscovery.SectionKind, leftFrame: CGRect?, rightFrame: CGRect?) -> CGPoint? { CGPoint(x: 200, y: 10) }
@@ -95,6 +111,7 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
 }
 @main struct Checks {
     @MainActor static func main() async {
+        Task.detached { try await Task.sleep(for: .seconds(15)); exit(124) }
         let pane = Pane()
         pane.seed([.hidden: ["a"], .visible: ["existing"]])
         await pane.rescanAfterDrag()
@@ -130,6 +147,46 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
         await settling.drop(itemID: "cgs:c", onto: "cgs:a")
         precondition(settling.posts == 1 && settling.reads == 4 && !settling.moveFailed, "late frames need readback, not another physical drag")
 
+        // 第一项正在读回时开始第二次拖拽；原生拖拽期间的旧帧不能导致首项出队回跳。
+        let queued = Pane()
+        queued.seed([.visible: ["cgs:a", "cgs:b", "cgs:c", "cgs:d"]])
+        queued.pauseFirstRead = true
+        queued.enqueueLayoutMove(itemID: "cgs:c", to: .visible, before: "cgs:a")
+        while queued.firstRead == nil { await Task.yield() }
+        NSEvent.pressedMouseButtons = 1
+        queued.firstRead?.resume()
+        try? await Task.sleep(for: .milliseconds(800))
+        precondition(queued.moveQueue.count == 1 && queued.pendingMoves.contains("cgs:c") && !queued.moveFailed,
+                     "confirmation must not exhaust retries while the next native drag owns input")
+        NSEvent.pressedMouseButtons = 0
+        queued.enqueueLayoutMove(itemID: "cgs:d", to: .visible, before: "cgs:b")
+        precondition(queued.displayedSections[.visible]?.map(\.id) == ["cgs:c", "cgs:a", "cgs:d", "cgs:b"],
+                     "second drop must preserve the first pending position")
+        while queued.moveTask != nil { await Task.yield() }
+        precondition(queued.sections[.visible]?.map(\.id) == ["cgs:c", "cgs:a", "cgs:d", "cgs:b"])
+        precondition(queued.posts == 2 && queued.appState.itemManager.records == 2 && !queued.moveFailed)
+
+        let closing = Pane()
+        closing.seed([.visible: ["cgs:a", "cgs:b", "cgs:c"]]); closing.pauseFirstRead = true
+        closing.enqueueLayoutMove(itemID: "cgs:c", to: .visible, before: "cgs:a")
+        while closing.firstRead == nil { await Task.yield() }
+        NSEvent.pressedMouseButtons = 1
+        closing.firstRead?.resume()
+        try? await Task.sleep(for: .milliseconds(30))
+        closing.isPageVisible = false; closing.moveTask?.cancel()
+        while closing.moveTask != nil { await Task.yield() }
+        precondition(closing.pendingMoves.isEmpty && closing.moveQueue.isEmpty && closing.queuedMovePreview == nil)
+        precondition(!closing.isMoving && !closing.appState.itemManager.isEditingLayout && closing.appState.itemManager.records == 0,
+                     "closing the page while confirmation waits must cancel and release queue ownership")
+        NSEvent.pressedMouseButtons = 0
+
+        // 回执报错不等同于移动失败；迟到的系统落点仍需读回核验，不能重复发事件。
+        let lateAck = Pane()
+        lateAck.seed([.visible: ["cgs:a", "cgs:b", "cgs:c"]]); lateAck.failAfterLanding = true
+        await lateAck.drop(itemID: "cgs:c", onto: "cgs:a")
+        precondition(!lateAck.moveFailed && lateAck.posts == 1 && lateAck.appState.itemManager.records == 1,
+                     "a landed move with a late acknowledgement must be confirmed from system truth")
+
         let failed = Pane()
         failed.seed([.visible: ["cgs:a", "cgs:b", "cgs:c"]]); failed.fail = true
         await failed.drop(itemID: "cgs:c", onto: "cgs:a")
@@ -151,7 +208,7 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
         task.cancel(); await task.value
         precondition(cancelled.sources.isEmpty && cancelled.movePreview == nil && !cancelled.isMoving && !cancelled.appState.itemManager.isEditingLayout)
         precondition(cancelled.appState.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems && $0.writes == 0 })
-        print("PASS: immediate isolated previews, one native readback, settled-frame polling, no-op ordering, failure rollback, temporary section restoration and cancellation")
+        print("PASS: full move/confirmation queue retains the first position across a second drag, verifies late acknowledgements, cancels input waits and preserves failure/reveal cleanup")
 
     }
 }

@@ -277,6 +277,8 @@ Symbols with production mask preparation and surface modifiers.
 swift script/tests/layout-cache-fallback.swift
 swift script/tests/layout-native-move.swift
 swift script/tests/layout-native-pointer.swift
+swift script/tests/input-wait-cancellation.swift
+swift script/tests/native-move-delays.swift
 swift script/tests/layout-drag-reveal.swift
 swift script/tests/layout-drag-session.swift
 swift script/tests/layout-refresh-state.swift
@@ -298,6 +300,20 @@ attempt per layout operation, restoration before cursor display, balanced hide/s
 and event ownership on success, failure and cancellation. The AX cancellation check
 also covers cursor cleanup. These checks do not inject real input. Real third-party icon
 movement remains a separate acceptance step; see the [layout fix](../docs/layout-icon-merge-fix.md).
+
+Input-wait checks use AppKit's actual modifier flags against controlled state:
+Caps Lock, numeric-pad, Fn and help flags cannot block a move, while held
+Command/Control/Option/Shift still defer it. Native and AX layout checks hold input
+past the former two-second cutoff, verify one move after release, and cover
+cancellation and menus opened during the wait. Waiting does not lock the pointer
+or stop event monitoring; system event/readback deadlines remain bounded.
+
+The reveal check also executes the real queue and move/confirmation methods
+together: a second drag cannot exhaust the first move's readback attempts, and
+its drop preserves both projected positions. It covers cancellation during this
+wait and an error acknowledgement after the system has actually placed an item.
+Native event checks simulate delayed delivery without posting real events, and
+verify acknowledgement timeouts and cleanup after late events.
 
 Layout click routing and readback checks:
 

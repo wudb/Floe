@@ -633,14 +633,15 @@ extension MenuBarItemManager {
         }
     }
 
-    /// Waits asynchronously until no modifier keys are pressed.
+    /// Waits asynchronously until no mouse-affecting modifier keys are pressed.
     ///
     /// - Parameter timeout: Amount of time to wait before throwing an error.
     func waitForNoModifiersPressed(timeout: Duration? = nil) async throws {
         try await waitWithTask(timeout: timeout) {
             // 不依赖下一条 flagsChanged：事件丢失或任务取消时 continuation 无法结束，
             // 还会让结构化超时任务组一直等子任务退出。短间隔检查同时支持取消和超时。
-            while await MainActor.run(body: { !NSEvent.modifierFlags.isEmpty }) {
+            // 只等待改变鼠标操作的四个修饰键；Caps Lock、方向键和 Fn 等状态不应阻塞队列。
+            while await MainActor.run(body: { !NSEvent.modifierFlags.isDisjoint(with: [.command, .control, .option, .shift]) }) {
                 try Task.checkCancellation()
                 try await Task.sleep(for: .milliseconds(10))
             }
@@ -829,7 +830,8 @@ extension MenuBarItemManager {
                 return nil
             }
 
-            eventTap.enable(timeout: .milliseconds(50)) {
+            // 原生拖拽结束时事件循环可能短暂繁忙；成功回执仍立即返回，不能 50 ms 就触发归位。
+            eventTap.enable(timeout: .milliseconds(250)) {
                 Logger.itemManager.error("Event tap \"\(eventTap.label)\" timed out (item: \(item.logString))")
                 eventTap.disable()
                 continuation.resume(throwing: EventError(code: .eventOperationTimeout, item: item))
@@ -935,7 +937,8 @@ extension MenuBarItemManager {
 
             // Enable both taps, with a timeout on the second tap.
             eventTap1.enable()
-            eventTap2.enable(timeout: .milliseconds(50)) {
+            // 连续拖拽的回执可能晚于一帧；保留有界等待，避免过早回退把已移动图标送回原位。
+            eventTap2.enable(timeout: .milliseconds(250)) {
                 Logger.itemManager.error("Event tap \"\(eventTap2.label)\" timed out (item: \(item.logString))")
                 eventTap1.disable()
                 eventTap2.disable()
@@ -969,7 +972,7 @@ extension MenuBarItemManager {
             return
         }
         try await scrombleEvent(event, from: firstLocation, to: secondLocation, item: item)
-        try await waitForFrameChange(of: item, initialFrame: currentFrame, timeout: .milliseconds(50))
+        try await waitForFrameChange(of: item, initialFrame: currentFrame, timeout: .milliseconds(250))
     }
 
     /// Waits for a menu bar item's frame to change from an initial frame.
@@ -992,7 +995,7 @@ extension MenuBarItemManager {
                         Logger.itemManager.debug("Menu bar item frame for \(item.logString) has changed to \(NSStringFromRect(currentFrame))")
                         return
                     }
-                    // ponytail: 1ms pause cuts WindowServer IPC from thousands to ~50 per move; +1ms detect delay is negligible vs 50ms timeout.
+                    // 短间隔异步轮询避免紧循环请求 WindowServer，同时在帧更新后及时结束等待。
                     try await Task.sleep(for: .milliseconds(1))
                 }
             }
