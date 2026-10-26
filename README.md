@@ -120,6 +120,8 @@ The layout editor also exposes movement actions through context menus and VoiceO
 
 ## Help
 
+**Missing system icons or Floe icon (development build):** Reopen Floe from Applications, then choose **General → Recover Menu Bar Items**. This releases Floe's hiding spacers, restores its icon and pauses hiding and automatic layout restoration for the current session, including across display changes and wake. Saved app layouts and hiding preferences are kept. Choose **Resume Hiding** to return to the previous section states. This recovery path does not require discovering third-party icons and cannot change system Wi-Fi settings. macOS 27.0.1 still requires real-device validation.
+
 - **An icon is missing:** confirm Floe's permissions in System Settings, then refresh Menu Bar Layout. Items that macOS does not expose or allow moving may have limited controls.
 - **The Floe icon is missing:** reopen Floe from Applications, then use **General → Restore Floe icon**.
 - **Permissions stopped working after a rebuild or update:** check Floe's grants again. Development signing and permission troubleshooting are covered in the [script guide](script/README.md).

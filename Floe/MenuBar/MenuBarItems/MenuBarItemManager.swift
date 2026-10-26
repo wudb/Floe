@@ -113,6 +113,7 @@ final class MenuBarItemManager: ObservableObject {
     private var completedCacheReadGeneration = 0
     private var layoutEnvironmentRevision = 0
     private var isLayoutRecoverySuspended = false
+    private var isMenuBarRecoveryActive = false
     private var layoutEnvironmentTask: Task<Void, Never>?
     private var layoutReconciliationTask: Task<Void, Never>?
 
@@ -170,15 +171,22 @@ final class MenuBarItemManager: ObservableObject {
         }
     }
 
+    /// 恢复显示时取消旧归位任务；期间休眠/换屏不能重新启动移动或默认规则。
+    func setMenuBarRecoveryActive(_ active: Bool) {
+        isMenuBarRecoveryActive = active
+        invalidateLayoutEnvironment(suspended: active)
+        if active { layoutStore.cancelExplicitRestore() }
+    }
+
     /// 屏幕/Space 切换可能只改变坐标、不改变窗口 ID，强制失效后再读取真实布局。
     private func invalidateLayoutEnvironment(suspended: Bool = false) {
-        isLayoutRecoverySuspended = suspended
+        isLayoutRecoverySuspended = suspended || isMenuBarRecoveryActive
         layoutEnvironmentRevision += 1
         cachedItemWindowIDs = nil
         layoutStore.requestRestore()
         layoutReconciliationTask?.cancel()
         layoutEnvironmentTask?.cancel()
-        guard !suspended else { return }
+        guard !isLayoutRecoverySuspended else { return }
         let revision = layoutEnvironmentRevision
         layoutEnvironmentTask = Task { [weak self] in
             do { try await Task.sleep(for: .milliseconds(700)) } catch { return }

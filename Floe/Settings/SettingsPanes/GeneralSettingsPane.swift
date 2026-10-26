@@ -105,6 +105,8 @@ struct GeneralSettingsPane: View {
             }
             FloeSection {
                 floeIconOptions
+                Divider()
+                MenuBarVisibilityRecoveryView(manager: appState.menuBarManager)
             }
             FloeSection {
                 floeBarOptions

@@ -430,3 +430,9 @@
 "Operation cancelled. Saved layout choices were kept." = "Operation cancelled. Saved layout choices were kept.";
 "Ice's original dividers could not be read. Keep Ice running and allow menu bar discovery, then capture again." = "Ice's original dividers could not be read. Keep Ice running and allow menu bar discovery, then capture again.";
 "Layout import requires native menu bar discovery. Check permissions; Accessibility-only mode is not supported." = "Layout import requires native menu bar discovery. Check permissions; Accessibility-only mode is not supported.";
+
+/* Menu bar visibility recovery */
+"Recover Menu Bar Items" = "Recover Menu Bar Items";
+"Temporarily stops Floe from hiding items and restores its icon. Saved layouts and hiding preferences are kept." = "Temporarily stops Floe from hiding items and restores its icon. Saved layouts and hiding preferences are kept.";
+"Menu bar recovery is active. Hiding stays paused until you resume it or restart Floe." = "Menu bar recovery is active. Hiding stays paused until you resume it or restart Floe.";
+"Resume Hiding" = "Resume Hiding";

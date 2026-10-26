@@ -28,6 +28,10 @@ final class MenuBarManager: ObservableObject {
     /// according to a value stored in UserDefaults.
     @Published private(set) var isMenuBarHiddenBySystemUserDefaults = false
 
+    /// 用户显式恢复后，本次运行暂停隐藏；不覆盖布局、自动隐藏偏好或分区保存值。
+    @Published private(set) var isMenuBarRecoveryActive = false
+    private var statesBeforeMenuBarRecovery = [MenuBarSection.Name: ControlItem.HidingState]()
+
     /// The shared app state.
     private weak var appState: AppState?
 
@@ -64,6 +68,47 @@ final class MenuBarManager: ObservableObject {
         guard let appState else { return }
         if searchPanel == nil { searchPanel = MenuBarSearchPanel(appState: appState) }
         searchPanel?.show()
+    }
+
+    /// 不依赖 CGS/AX 发现或图标点击的恢复通道；只释放 Floe 自己的占位项。
+    @discardableResult
+    func recoverMenuBarVisibility() -> Bool {
+        guard let appState, !sections.isEmpty,
+              !appState.itemManager.isMovingItem, !appState.itemManager.isEditingLayout,
+              !appState.itemManager.hasTemporarilyShownItems, !MenuInteractionGuard.isInteracting else { return false }
+        if !isMenuBarRecoveryActive {
+            statesBeforeMenuBarRecovery = Dictionary(uniqueKeysWithValues: sections.map { ($0.name, $0.controlItem.state) })
+        }
+        isMenuBarRecoveryActive = true
+        appState.eventManager.cancelDelayedInteractions()
+        appState.itemManager.setMenuBarRecoveryActive(true)
+        floeBarPanel.close()
+        for section in sections {
+            section.setState(.showItems, persist: false)
+            section.controlItem.updateStatusItem(with: .showItems)
+        }
+        appState.settingsManager.generalSettingsManager.showFloeIcon = true
+        section(withName: .visible)?.controlItem.restoreToMenuBar()
+        return true
+    }
+
+    /// 恢复前的真实分区状态仅在会话内保存，重复点击恢复不能把已展开状态当作旧选择。
+    @discardableResult
+    func resumeMenuBarHiding() -> Bool {
+        guard let appState, isMenuBarRecoveryActive,
+              !appState.itemManager.isMovingItem, !appState.itemManager.isEditingLayout,
+              !appState.itemManager.hasTemporarilyShownItems, !MenuInteractionGuard.isInteracting else { return false }
+        isMenuBarRecoveryActive = false
+        for section in sections {
+            if let previous = statesBeforeMenuBarRecovery[section.name] {
+                section.setState(previous, persist: false)
+                section.controlItem.updateStatusItem(with: previous)
+                if previous == .showItems { section.startRehideChecks() }
+            }
+        }
+        statesBeforeMenuBarRecovery = [:]
+        appState.itemManager.setMenuBarRecoveryActive(false)
+        return true
     }
 
     /// Performs the initial setup of the menu bar manager.

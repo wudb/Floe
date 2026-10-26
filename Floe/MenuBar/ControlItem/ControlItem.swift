@@ -27,29 +27,15 @@ final class ControlItem {
         static let expanded: CGFloat = 10_000
     }
 
-    /// Length of an expanded hiding spacer.
-    ///
-    /// On macOS 27, a spacer wider than the native status region is discarded
-    /// instead of pushing its neighbours into overflow (jordanbaird/Ice#980),
-    /// so the width is fitted inside the region. Older systems keep the
-    /// 10 000 trick.
+    /// 新系统使用屏幕点宽度限制占位项；缺失几何时不继续发送固定 1,000 点的隐藏宽度。
     private func expandedHidingLength() -> CGFloat {
         if #available(macOS 27, *) {
-            let screen = window?.screen ?? NSScreen.main
-            let regionWidth: CGFloat
-            if let rightArea = screen?.auxiliaryTopRightArea {
-                regionWidth = rightArea.width
-            } else if let screen {
-                let appMenuWidth = appState?.menuBarManager.getApplicationMenuFrame(for: screen.displayID)?.width ?? 300
-                regionWidth = screen.frame.width - appMenuWidth
-            } else {
-                regionWidth = 0
-            }
-            if regionWidth.isFinite, regionWidth > 64 {
-                return max(32, regionWidth - 32)
-            }
-            // ponytail: fallback guess inside any real status region; exact fit recomputed on next toggle
-            return 1_000
+            return MenuBarControlLayout.hidingLength(for: NSScreen.screens.map { screen in
+                MenuBarControlLayout.Region(
+                    displayWidth: screen.frame.width,
+                    statusRegionWidth: screen.auxiliaryTopRightArea?.width ?? screen.frame.width
+                )
+            })
         }
         return Lengths.expanded
     }
@@ -145,7 +131,10 @@ final class ControlItem {
         // we need the control item to always be present to act as a delimiter. The new solution
         // is to remove the constraint that prevents status items from having a length of zero,
         // then resize the content view. FIXME: Find a replacement for this.
-        if
+        if #available(macOS 27, *) {
+            // 新菜单栏的窗口不再属于单个状态项，不能修改共享窗口的私有布局约束。
+            self.constraint = nil
+        } else if
             let button = statusItem.button,
             let constraints = button.window?.contentView?.constraintsAffectingLayout(for: .horizontal),
             let constraint = constraints.first(where: Predicates.controlItemConstraint(button: button))
@@ -175,6 +164,34 @@ final class ControlItem {
         statusItem.length = length
     }
 
+    /// 恢复模式先释放所有隐藏占位；macOS 27 全程只使用公开长度，不调整共享窗口大小。
+    private func applyStatusItemLayout(isVisible: Bool, state: HidingState) {
+        guard let section else { return }
+        if isSectionDivider, appState?.menuBarManager.isMenuBarRecoveryActive == true {
+            applyStatusItemLength(1)
+            return
+        }
+        let length: CGFloat
+        if !isVisible {
+            length = 0
+        } else if section.name == .visible || state == .showItems {
+            length = Lengths.standard
+        } else {
+            length = expandedHidingLength()
+        }
+        if #available(macOS 27, *) {
+            applyStatusItemLength(isVisible ? length : 1)
+            return
+        }
+        applyStatusItemLength(length)
+        constraint?.isActive = isVisible
+        if !isVisible, let window {
+            var size = window.frame.size
+            size.width = 1
+            window.setContentSize(size)
+        }
+    }
+
     /// Configures the internal observers for the control item.
     private func configureCancellables() {
         var c = Set<AnyCancellable>()
@@ -187,32 +204,7 @@ final class ControlItem {
 
         Publishers.CombineLatest($isVisible, $state)
             .sink { [weak self] (isVisible, state) in
-                guard
-                    let self,
-                    let section
-                else {
-                    return
-                }
-                if isVisible {
-                    let length: CGFloat = switch section.name {
-                    case .visible: Lengths.standard
-                    case .hidden, .alwaysHidden:
-                        switch state {
-                        case .hideItems: expandedHidingLength()
-                        case .showItems: Lengths.standard
-                        }
-                    }
-                    applyStatusItemLength(length)
-                    constraint?.isActive = true
-                } else {
-                    applyStatusItemLength(0)
-                    constraint?.isActive = false
-                    if let window {
-                        var size = window.frame.size
-                        size.width = 1
-                        window.setContentSize(size)
-                    }
-                }
+                self?.applyStatusItemLayout(isVisible: isVisible, state: state)
             }
             .store(in: &c)
 
@@ -367,6 +359,18 @@ final class ControlItem {
                 .store(in: &c)
         }
 
+        Publishers.Merge3(
+            NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification),
+            NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didWakeNotification),
+            NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _ in
+            guard #available(macOS 27, *), let self, isSectionDivider else { return }
+            applyStatusItemLayout(isVisible: isVisible, state: state)
+        }
+        .store(in: &c)
+
         cancellables = c
     }
 
@@ -405,6 +409,7 @@ final class ControlItem {
             return
         }
 
+        let displayState: HidingState = appState.menuBarManager.isMenuBarRecoveryActive ? .showItems : state
         switch section.name {
         case .visible:
             isVisible = true
@@ -417,8 +422,18 @@ final class ControlItem {
             // Closed points right like a collapsed disclosure; open points
             // left toward the revealed items, matching the section dividers.
             // 普通点击控制隐藏区，始终隐藏区保留给 Option 点击。
-            let showsOpenArrow = state == .showItems
-            button.image = showsOpenArrow ? hiddenImage.nsImage(for: appState) : visibleImage.nsImage(for: appState)
+            let showsOpenArrow = displayState == .showItems
+            // 恢复期间固定使用内置图形，也能排除透明自定义图片；原图和偏好不变。
+            let selectedImage = appState.menuBarManager.isMenuBarRecoveryActive
+                ? ControlItemImage.builtin(.chevronLarge).nsImage(for: appState)
+                : (showsOpenArrow ? hiddenImage.nsImage(for: appState) : visibleImage.nsImage(for: appState))
+            if let selectedImage, selectedImage.size.width.isFinite, selectedImage.size.height.isFinite,
+               selectedImage.size.width > 0, selectedImage.size.height > 0 {
+                button.image = selectedImage
+            } else {
+                // 损坏/空白尺寸的自定义图像不能让恢复入口继续成为零宽状态项；不覆盖用户的图像配置。
+                button.image = ControlItemImage.builtin(.chevronLarge).nsImage(for: appState)
+            }
             if
                 case .custom = icon.name,
                 let originalImage = button.image
@@ -431,7 +446,7 @@ final class ControlItem {
                 button.image = originalImage.resized(to: newSize)
             }
         case .hidden, .alwaysHidden:
-            switch state {
+            switch displayState {
             case .hideItems:
                 isVisible = true
                 // Prevent the cell from highlighting while expanded.
@@ -612,6 +627,8 @@ final class ControlItem {
         guard !isSectionDivider else { return }
         statusItem.isVisible = false
         StatusItemDefaults[.preferredPosition, statusItem.autosaveName as String] = 0
+        updateStatusItem(with: state)
+        applyStatusItemLayout(isVisible: true, state: state)
         statusItem.isVisible = true
     }
 

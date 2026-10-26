@@ -28,6 +28,7 @@ let recoveryMethods = [
     "    func restoreSavedLayout()",
     "    private func scheduleLayoutReconciliation()",
     "    private func invalidateLayoutEnvironment(",
+    "    func setMenuBarRecoveryActive(",
 ].map(managerMethod).joined(separator: "\n") + "\n" + importTypes
 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("floe-persist-\(UUID().uuidString)")
 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -98,6 +99,7 @@ struct MenuBarItem {
     var isRecoveringLayout = false
     var layoutRecoveryStatus: String?
     var isLayoutRecoverySuspended = false
+    var isMenuBarRecoveryActive = false
     var layoutEnvironmentRevision = 0
     var completedCacheReadGeneration = 0
     var layoutEnvironmentTask: Task<Void, Never>?
@@ -337,6 +339,19 @@ __PRODUCTION__
         lifecycle.invalidateLayoutEnvironment()
         try? await Task.sleep(for: .milliseconds(850))
         precondition(lifecycle.reads == 2 && !lifecycle.isLayoutRecoverySuspended)
+        let paused = MenuBarItemManager()
+        paused.setMenuBarRecoveryActive(true)
+        paused.invalidateLayoutEnvironment()
+        try? await Task.sleep(for: .milliseconds(850))
+        precondition(paused.isLayoutRecoverySuspended && paused.reads == 0 && paused.reconciliations == 0)
+        paused.invalidateLayoutEnvironment(suspended: true)
+        paused.invalidateLayoutEnvironment()
+        try? await Task.sleep(for: .milliseconds(850))
+        precondition(paused.isLayoutRecoverySuspended && paused.reads == 0)
+        paused.setMenuBarRecoveryActive(false)
+        try? await Task.sleep(for: .milliseconds(850))
+        precondition(!paused.isLayoutRecoverySuspended && paused.reads == 1 && paused.reconciliations == 1)
+        print("PASS: visibility recovery suspends layout writes/moves across wake and display changes, resuming only after explicit release")
         print("PASS: production recovery entry reports success/busy/unavailable/cancelled, cancellation clears explicit work, environment bursts coalesce, sleep cancels and wake resumes")
 
         print("PASS: cancelled recovery resumes, newer choices win, failed anchors stop the chain, PID reuse and missing dividers recover, explicit cancellation stops the batch, absent hosts retain order and damaged data is preserved")

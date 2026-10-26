@@ -430,3 +430,9 @@
 "Operation cancelled. Saved layout choices were kept." = "操作已取消，已保存的布局选择仍保留。";
 "Ice's original dividers could not be read. Keep Ice running and allow menu bar discovery, then capture again." = "无法读取 Ice 原分隔符，请保持 Ice 运行并允许菜单栏发现后重试。";
 "Layout import requires native menu bar discovery. Check permissions; Accessibility-only mode is not supported." = "布局导入需要原生菜单栏发现能力，请检查权限。仅辅助功能发现模式暂不支持导入。";
+
+/* Menu bar visibility recovery */
+"Recover Menu Bar Items" = "恢复菜单栏项目";
+"Temporarily stops Floe from hiding items and restores its icon. Saved layouts and hiding preferences are kept." = "暂停 Floe 的隐藏并恢复其图标，保留已保存的布局和隐藏偏好。";
+"Menu bar recovery is active. Hiding stays paused until you resume it or restart Floe." = "菜单栏恢复模式已启用。隐藏会持续暂停，直到你继续隐藏或重启 Floe。";
+"Resume Hiding" = "继续隐藏";
