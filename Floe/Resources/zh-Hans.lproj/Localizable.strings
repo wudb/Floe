@@ -117,6 +117,9 @@
 "Make more room in the menu bar by hiding the left application menus if needed" = "必要时隐藏左侧应用菜单，为菜单栏项目腾出空间";
 "Maybe Later" = "以后再说";
 "Menu Bar Appearance" = "菜单栏外观";
+"Floe Bar Appearance" = "浮栏外观";
+"Floe Bar Shape" = "浮栏形状";
+"Edit Floe Bar Appearance…" = "编辑浮栏外观…";
 "Menu Bar Icons" = "菜单栏图标";
 "Menu Bar Layout" = "菜单栏布局";
 "Menu Bar Layout isn't available on this macOS version" = "此 macOS 版本不支持菜单栏布局";
@@ -209,6 +212,8 @@
 "Turn on automatic checks to enable automatic downloads" = "开启自动检查后即可启用自动下载";
 "Type Hotkey" = "输入快捷键";
 "Unable to display menu bar items" = "无法显示菜单栏项目";
+"Unable to open this menu bar item" = "无法打开此菜单栏项目";
+"macOS did not open %@. Try again or use Recover Menu Bar Items in General settings." = "macOS 未能打开 %@。请重试，或在通用设置中使用“恢复菜单栏项目”。";
 "Unknown" = "未知";
 "Use Floe Bar" = "使用 Floe 浮栏";
 "Use dynamic appearance" = "使用动态外观";

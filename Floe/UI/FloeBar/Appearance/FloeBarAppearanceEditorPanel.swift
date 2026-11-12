@@ -1,15 +1,15 @@
 //
-//  MenuBarAppearanceEditorPanel.swift
+//  FloeBarAppearanceEditorPanel.swift
 //  Floe
 //
 
 import Combine
 import SwiftUI
 
-// MARK: - MenuBarAppearanceEditorPanel
+// MARK: - FloeBarAppearanceEditorPanel
 
 /// A panel that manages the appearance editor popover.
-final class MenuBarAppearanceEditorPanel: NSPanel {
+final class FloeBarAppearanceEditorPanel: NSPanel {
     /// The shared app state.
     private weak var appState: AppState?
 
@@ -55,7 +55,7 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
             return
         }
         setFrameOrigin(CGPoint(x: screen.frame.midX - frame.width / 2, y: screen.frame.maxY - menuBarHeight))
-        let popover = MenuBarAppearanceEditorPopover(appState: appState)
+        let popover = FloeBarAppearanceEditorPopover(appState: appState)
         popover.delegate = self
         popover.show(relativeTo: .zero, of: contentView, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeKey()
@@ -63,10 +63,10 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
     }
 }
 
-// MARK: MenuBarAppearanceEditorPanel: NSPopoverDelegate
-extension MenuBarAppearanceEditorPanel: NSPopoverDelegate {
+// MARK: FloeBarAppearanceEditorPanel: NSPopoverDelegate
+extension FloeBarAppearanceEditorPanel: NSPopoverDelegate {
     func popoverDidClose(_ notification: Notification) {
-        if let popover = notification.object as? MenuBarAppearanceEditorPopover {
+        if let popover = notification.object as? FloeBarAppearanceEditorPopover {
             popover.mouseDownMonitor.stop()
             orderOut(popover)
             NSColorPanel.shared.close()
@@ -75,11 +75,11 @@ extension MenuBarAppearanceEditorPanel: NSPopoverDelegate {
     }
 }
 
-// MARK: - MenuBarAppearanceEditorPopover
+// MARK: - FloeBarAppearanceEditorPopover
 
 /// A popover that displays the menu bar appearance editor
 /// at a centered location under the menu bar.
-private final class MenuBarAppearanceEditorPopover: NSPopover {
+private final class FloeBarAppearanceEditorPopover: NSPopover {
     private weak var appState: AppState?
 
     private(set) lazy var mouseDownMonitor = GlobalEventMonitor(mask: .leftMouseDown) { [weak self] _ in
@@ -91,13 +91,13 @@ private final class MenuBarAppearanceEditorPopover: NSPopover {
     @ViewBuilder
     private var contentView: some View {
         if let appState {
-            MenuBarAppearanceEditor(
+            FloeBarAppearanceEditor(
                 location: .popover(closePopover: { [weak self] in
                     self?.performClose(self)
                 })
             )
             .environmentObject(appState)
-            .environmentObject(appState.appearanceManager)
+            .environmentObject(appState.floeBarAppearanceManager)
             .appLanguage()
             .appAppearance()
         }

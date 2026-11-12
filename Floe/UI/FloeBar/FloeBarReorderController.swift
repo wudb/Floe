@@ -36,6 +36,7 @@ final class FloeBarReorderController: ObservableObject {
 
     func provider(for item: Item) -> NSItemProvider {
         guard active, isEditing, !isMoving else { return NSItemProvider() }
+        if case .ax(let value) = item, !value.isMovable || !value.canBeHidden { return NSItemProvider() }
         source = item
         let value = UUID().uuidString
         token = value
@@ -127,7 +128,7 @@ final class FloeBarReorderController: ObservableObject {
     /// AX 路径先临时展开，再用最新帧拖动并读回顺序；不把临时展开保存为用户选择。
     private static func moveUsingAX(_ item: MenuBarItemAXDiscovery.AXMenuBarItem, before anchor: MenuBarItemAXDiscovery.AXMenuBarItem, after: Bool, appState: AppState) async throws -> Bool {
         if CFEqual(item.element, anchor.element) { return true }
-        guard MenuBarItemAXDiscovery.isTrusted() else { return false }
+        guard item.isMovable, item.canBeHidden, MenuBarItemAXDiscovery.isTrusted() else { return false }
         let revealed = appState.menuBarManager.sections.compactMap { section -> (MenuBarSection, Int)? in
             guard section.isEnabled, section.controlItem.state == .hideItems else { return nil }
             section.setState(.showItems, persist: false)

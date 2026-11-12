@@ -99,6 +99,23 @@ final class MenuBarItemManager: ObservableObject {
     /// The manager's menu bar item cache.
     @Published private(set) var itemCache = ItemCache()
 
+    /// 布局页与浮栏共用身份，不能因一次收起后的空 AX 扫描丢弃已确认的隐藏项。
+    private(set) var axItemCache = MenuBarItemAXCache()
+
+    func rememberAXItems(_ items: [MenuBarItemAXDiscovery.AXMenuBarItem], hiddenDividerX: CGFloat?, alwaysHiddenDividerX: CGFloat?) {
+        let bands = NSScreen.screens.map { screen in
+            let bounds = CGDisplayBounds(screen.displayID)
+            return CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: screen.getMenuBarHeight() ?? 32)
+        }
+        axItemCache.update(
+            items,
+            runningPIDs: Set(NSWorkspace.shared.runningApplications.map(\.processIdentifier)),
+            hiddenDividerX: hiddenDividerX,
+            alwaysHiddenDividerX: alwaysHiddenDividerX,
+            menuBarBands: bands
+        )
+    }
+
     /// Whether window-based menu bar item discovery is currently unavailable.
     ///
     /// Without the hidden divider, window-based items cannot be assigned to

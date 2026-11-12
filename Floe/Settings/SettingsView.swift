@@ -130,8 +130,8 @@ struct SettingsView: View {
             MenuBarLayoutSettingsPane()
         case .layoutImport:
             LayoutImportSettingsPane()
-        case .menuBarAppearance:
-            MenuBarAppearanceSettingsPane()
+        case .floeBarAppearance:
+            FloeBarAppearanceSettingsPane()
         case .hotkeys:
             HotkeysSettingsPane()
         case .advanced:
@@ -146,7 +146,7 @@ struct SettingsView: View {
         case .general: .systemSymbol("gearshape")
         case .menuBarLayout: .systemSymbol("rectangle.topthird.inset.filled")
         case .layoutImport: .systemSymbol("square.and.arrow.down")
-        case .menuBarAppearance: .systemSymbol("swatchpalette")
+        case .floeBarAppearance: .systemSymbol("swatchpalette")
         case .hotkeys: .systemSymbol("keyboard")
         case .advanced: .systemSymbol("gearshape.2")
         case .about: .assetCatalog(.iceCubeStroke)

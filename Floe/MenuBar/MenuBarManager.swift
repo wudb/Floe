@@ -435,7 +435,7 @@ final class MenuBarManager: ObservableObject {
         let menu = NSMenu(title: "Floe")
 
         let editItem = NSMenuItem(
-            title: L10n.string("Edit Menu Bar Appearance…"),
+            title: L10n.string("Edit Floe Bar Appearance…"),
             action: #selector(showAppearanceEditorPopover),
             keyEquivalent: ""
         )
@@ -503,7 +503,7 @@ final class MenuBarManager: ObservableObject {
             Logger.menuBarManager.error("Error showing appearance editor popover: Missing app state")
             return
         }
-        let panel = MenuBarAppearanceEditorPanel(appState: appState)
+        let panel = FloeBarAppearanceEditorPanel(appState: appState)
         panel.orderFrontRegardless()
         panel.showAppearanceEditorPopover()
     }

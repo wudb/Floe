@@ -31,9 +31,12 @@ final class FixtureAXUIElement: NSObject {
 }
 struct FixtureNSRunningApplication {
     let processIdentifier: pid_t
-    init(processIdentifier: pid_t = 42) { self.processIdentifier = processIdentifier }
+    let bundleIdentifier: String?
+    init(processIdentifier: pid_t = 42, bundleIdentifier: String? = "com.apple.controlcenter") {
+        self.processIdentifier = processIdentifier
+        self.bundleIdentifier = bundleIdentifier
+    }
     let localizedName: String? = "Control Center"
-    let bundleIdentifier: String? = "com.apple.controlcenter"
     static let current = FixtureNSRunningApplication()
 }
 var trusted = true
@@ -99,6 +102,54 @@ let buttonItems = MenuBarItemAXDiscovery.discoverItems(in: [.current])
 precondition(buttonItems.count == 1 && buttonItems[0].title == "Status button")
 precondition(buttonItems[0].element == button)
 print("PASS: AX status button retains its actionable wrapper and excludes image resource names")
+let ownControls = ["FloeIcon", "FloeHiddenDivider", "FloeAlwaysHiddenDivider"].map {
+    FixtureAXUIElement("AXButton", title: "Floe", identifier: $0)
+}
+let clock = FixtureAXUIElement("AXMenuBarItem", title: "Clock", identifier: "com.apple.menuextra.clock")
+let wifi = FixtureAXUIElement("AXMenuBarItem", title: "Wi-Fi", identifier: "com.apple.menuextra.wifi")
+let audio = FixtureAXUIElement("AXMenuBarItem", title: "Audio", identifier: "com.apple.menuextra.audiovideo")
+application.attributes["AXExtrasMenuBar"] = FixtureAXUIElement("AXMenuBar", children: ownControls + [clock, wifi, audio])
+let protectedItems = MenuBarItemAXDiscovery.discoverItems(in: [.current])
+precondition(protectedItems.count == 3, "Floe controls proxied by MenuBarAgent are not third-party layout entries")
+let clockItem = protectedItems.first { $0.identifier == "com.apple.menuextra.clock" }!
+let wifiItem = protectedItems.first { $0.identifier == "com.apple.menuextra.wifi" }!
+let audioItem = protectedItems.first { $0.identifier == "com.apple.menuextra.audiovideo" }!
+precondition(!clockItem.isMovable && !clockItem.canBeHidden)
+precondition(wifiItem.isMovable && wifiItem.canBeHidden)
+precondition(audioItem.isMovable && !audioItem.canBeHidden)
+print("PASS: MenuBarAgent system protection flags exclude own controls while keeping Wi-Fi available")
+let vpnIcon = MenuBarItemAXDiscovery.systemIconImage(forIdentifier: "com.apple.menuextra.vpn", title: nil, bundleID: nil)
+let vpnSymbol = MenuBarItemAXDiscovery.systemImageName(forIdentifier: "com.apple.menuextra.vpn")
+if let vpnIcon {
+    precondition(vpnIcon.isTemplate && vpnIcon.size == NSSize(width: 18, height: 14))
+    precondition(vpnSymbol == nil, "the native VPN glyph must take precedence over a substitute symbol")
+} else {
+    precondition(vpnSymbol.flatMap { NSImage(systemSymbolName: $0, accessibilityDescription: nil) } != nil)
+}
+for host in ["com.apple.MenuBarAgent", "com.apple.systemuiserver", "com.apple.controlcenter"] {
+    let vpn = MenuBarItemAXDiscovery.AXMenuBarItem(element: FixtureAXUIElement("AXMenuBarItem"), pid: 42, appName: "System host", bundleID: host, identifier: nil, title: "VPN", axFrame: nil)
+    precondition(MenuBarItemAXDiscovery.systemImageName(for: vpn) == vpnSymbol)
+    precondition(MenuBarItemAXDiscovery.systemImageName(forTitle: "VPN", bundleID: host) == vpnSymbol)
+    let resolvedIcon = MenuBarItemAXDiscovery.systemIconImage(forIdentifier: nil, title: "VPN", bundleID: host)
+    precondition(resolvedIcon === vpnIcon)
+}
+precondition(MenuBarItemAXDiscovery.systemIconImage(forIdentifier: nil, title: "VPN", bundleID: "net.openvpn.connect.app") == nil)
+precondition(MenuBarItemAXDiscovery.systemImageName(forTitle: "VPN", bundleID: "net.openvpn.connect.app") == nil)
+precondition(MenuBarItemAXDiscovery.systemImageName(forTitle: "VPN", bundleID: nil) == nil)
+precondition(MenuBarItemAXDiscovery.systemImageName(forTitle: "OpenVPN Connect", bundleID: "net.openvpn.connect.app") == nil)
+print("PASS: system VPN uses the native macOS template glyph with and without AXIdentifier, third-party VPN app icons are preserved")
+let overflow = FixtureAXUIElement("AXButton", title: "Localized overflow")
+let namedOverflow = FixtureAXUIElement("AXButton", title: "显示隐藏菜单栏项目")
+let vpnTarget = FixtureAXUIElement("AXMenuBarItem", title: "VPN")
+let proxyBar = FixtureAXUIElement("AXMenuBar", children: [overflow, namedOverflow, vpnTarget])
+proxyBar.attributes["AXOverflowButton"] = overflow
+let proxyApp = FixtureAXUIElement("AXApplication")
+proxyApp.attributes["AXExtrasMenuBar"] = proxyBar
+applications = [45: proxyApp]
+let proxyItems = MenuBarItemAXDiscovery.discoverItems(in: [.init(processIdentifier: 45, bundleIdentifier: "com.apple.MenuBarAgent")])
+precondition(proxyItems.count == 1 && proxyItems[0].element === vpnTarget)
+applications = [:]
+print("PASS: native overflow controls are excluded by exact AX identity and scoped localized fallback, VPN remains listed")
 var failures = 0
 func check(_ name: String, title: String? = nil, identifier: String? = nil, changedTitle: Bool = false,
            stale: Bool = false, permission: Bool = true) {

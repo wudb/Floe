@@ -117,6 +117,9 @@
 "Make more room in the menu bar by hiding the left application menus if needed" = "Make more room in the menu bar by hiding the left application menus if needed";
 "Maybe Later" = "Maybe Later";
 "Menu Bar Appearance" = "Menu Bar Appearance";
+"Floe Bar Appearance" = "Floe Bar Appearance";
+"Floe Bar Shape" = "Floe Bar Shape";
+"Edit Floe Bar Appearance…" = "Edit Floe Bar Appearance…";
 "Menu Bar Icons" = "Menu Bar Icons";
 "Menu Bar Layout" = "Menu Bar Layout";
 "Menu Bar Layout isn't available on this macOS version" = "Menu Bar Layout isn't available on this macOS version";
@@ -209,6 +212,8 @@
 "Turn on automatic checks to enable automatic downloads" = "Turn on automatic checks to enable automatic downloads";
 "Type Hotkey" = "Type Hotkey";
 "Unable to display menu bar items" = "Unable to display menu bar items";
+"Unable to open this menu bar item" = "Unable to open this menu bar item";
+"macOS did not open %@. Try again or use Recover Menu Bar Items in General settings." = "macOS did not open %@. Try again or use Recover Menu Bar Items in General settings.";
 "Unknown" = "Unknown";
 "Use Floe Bar" = "Use Floe Bar";
 "Use dynamic appearance" = "Use dynamic appearance";

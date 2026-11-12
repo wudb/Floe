@@ -3,12 +3,13 @@ let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingL
 let source = try String(contentsOf: repo.appendingPathComponent("Floe/MenuBar/ControlItem/ControlItem.swift"), encoding: .utf8)
 let start = source.range(of: "    @objc private func performAction()")!.lowerBound
 let end = source.range(of: "\n    }", range: start..<source.endIndex)!.upperBound
-let method = String(source[start..<end]).replacingOccurrences(of: "@objc private func", with: "func").replacingOccurrences(of: "NSApp", with: "fixtureApp")
+let method = String(source[start..<end]).replacingOccurrences(of: "@objc private func", with: "func").replacingOccurrences(of: "NSApp", with: "fixtureApp").replacingOccurrences(of: "NSEvent.modifierFlags", with: "fixtureModifiers")
 let fixture = #"""
 import Cocoa
 struct Event { var type = NSEvent.EventType.leftMouseUp; var modifierFlags = NSEvent.ModifierFlags() }
 final class Application { var currentEvent: Event? = Event() }
 let fixtureApp = Application()
+var fixtureModifiers = NSEvent.ModifierFlags()
 final class Section { var isEnabled = true; var toggles = 0; func toggle() { toggles += 1 } }
 final class Advanced { var canToggleAlwaysHiddenSection = true }
 final class Settings { let advancedSettingsManager = Advanced() }
@@ -35,6 +36,23 @@ precondition(control.section!.toggles == 1 && control.appState!.menuBarManager.a
 fixtureApp.currentEvent!.modifierFlags = .control
 control.performAction()
 precondition(control.statusItem.menus == 1 && control.section!.toggles == 1)
+fixtureApp.currentEvent = nil
+control.performAction()
+precondition(control.section!.toggles == 2, "AXPress with no local mouse event must activate Hidden")
+fixtureModifiers = .option
+control.performAction()
+precondition(control.appState!.menuBarManager.always.toggles == 2)
+fixtureModifiers = []
+fixtureApp.currentEvent = Event(type: .applicationDefined)
+control.performAction()
+precondition(control.section!.toggles == 3, "MenuBarAgent forwarded activation must not be ignored")
+fixtureApp.currentEvent = Event(type: .keyDown)
+control.performAction()
+precondition(control.section!.toggles == 4)
+fixtureApp.currentEvent = Event(type: .rightMouseUp)
+control.performAction()
+precondition(control.statusItem.menus == 2)
+print("PASS: nil/forwarded/keyboard activation works, Option fallback preserves Always Hidden and right-click opens the menu")
 print("PASS: production normal click controls Hidden, Option controls Always Hidden, Control opens the context menu")
 """#
 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("floe-click-\(UUID().uuidString)")

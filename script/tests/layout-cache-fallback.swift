@@ -22,12 +22,12 @@ let fixture = #"""
 import Foundation
 import CoreGraphics
 struct Application { let bundleIdentifier: String? }
-struct MenuBarItem { let id: Int; let owningApplication: Application?; var frame = CGRect.zero; var ownerPID: pid_t = 42; var title: String? = nil }
+struct MenuBarItem { let id: Int; let owningApplication: Application?; var frame = CGRect.zero; var ownerPID: pid_t = 42; var title: String? = nil; var isMovable = true; var canBeHidden = true }
 struct FixtureBundle { static let main = FixtureBundle(); let bundleIdentifier: String? = "com.float.floe" }
 struct FixtureWorkspace { static let shared = FixtureWorkspace(); let runningApplications = [1] }
 enum ScreenCapture { static func cachedCheckPermissions(reset: Bool) -> Bool { true } }
 enum MenuBarItemAXDiscovery {
-    struct AXMenuBarItem { let id: Int; var axFrame: CGRect? = nil; var pid: pid_t = 42; var title: String? = nil }
+    struct AXMenuBarItem { let id: Int; var axFrame: CGRect? = nil; var pid: pid_t = 42; var title: String? = nil; var isMovable = true; var canBeHidden = true }
     static var trusted = true
     static func isTrusted() -> Bool { trusted }
     static var discovered = [AXMenuBarItem(id: 99, pid: 43)]
@@ -41,6 +41,7 @@ enum MenuBarItemAXDiscovery {
     var shouldWait = false
     var nextID = 0
     var pending: [Int: CheckedContinuation<Void, Never>] = [:]
+    func rememberAXItems(_ items: [MenuBarItemAXDiscovery.AXMenuBarItem], hiddenDividerX: CGFloat?, alwaysHiddenDividerX: CGFloat?) {}
     func cacheItemsIfNeeded(force: Bool = false) async {
         forces.append(force)
         if shouldWait {

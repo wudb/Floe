@@ -40,6 +40,11 @@ final class ControlItem {
         return Lengths.expanded
     }
 
+    private static var usesModernMenuBar: Bool {
+        if #available(macOS 27, *) { return true }
+        return false
+    }
+
     /// The control item's hiding state (`@Published`).
     @Published var state = HidingState.hideItems
 
@@ -100,22 +105,13 @@ final class ControlItem {
     init(identifier: Identifier, appState: AppState) {
         let autosaveName = identifier.rawValue
 
-        // If the status item doesn't have a preferred position, set it
-        // according to the identifier.
+        // 旧系统使用 0/1/2；27 的新顺序键让分隔符初次放在应用左侧，避免首次收起就隐藏整个菜单栏。
+        // 已有位置属于用户选择，只在记录缺失时初始化。
         if StatusItemDefaults[.preferredPosition, autosaveName] == nil {
-            switch identifier {
-            case .floeIcon:
-                StatusItemDefaults[.preferredPosition, autosaveName] = 0
-            case .hidden:
-                StatusItemDefaults[.preferredPosition, autosaveName] = 1
-            case .alwaysHidden:
-                // Lower values sit further right, so the always-hidden
-                // divider defaults left of the hidden divider. On macOS 27
-                // per-item windows are gone and nothing can auto-arrange
-                // the dividers, so a correct initial position is the only
-                // thing keeping the sections in the right order.
-                StatusItemDefaults[.preferredPosition, autosaveName] = 2
-            }
+            StatusItemDefaults[.preferredPosition, autosaveName] = MenuBarControlLayout.initialPosition(
+                for: autosaveName,
+                modernMenuBar: Self.usesModernMenuBar
+            )
         }
 
         self.statusItem = NSStatusBar.system.statusItem(withLength: 0)
@@ -392,10 +388,14 @@ final class ControlItem {
         switch identifier {
         case .hidden:
             button.setAccessibilityIdentifier("FloeHiddenDivider")
+            button.setAccessibilityLabel(L10n.string("Hidden"))
         case .alwaysHidden:
             button.setAccessibilityIdentifier("FloeAlwaysHiddenDivider")
+            button.setAccessibilityLabel(L10n.string("Always Hidden"))
         case .floeIcon:
-            break
+            button.setAccessibilityIdentifier("FloeIcon")
+            button.setAccessibilityLabel("Floe")
+            button.toolTip = "Floe"
         }
     }
 
@@ -480,30 +480,22 @@ final class ControlItem {
 
     /// Performs the control item's action.
     @objc private func performAction() {
-        guard
-            let appState,
-            let event = NSApp.currentEvent
-        else {
-            return
-        }
-        switch event.type {
-        case .leftMouseDown, .leftMouseUp:
-            if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .control {
-                statusItem.showMenu(createMenu(with: appState))
-            } else if
-                event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .option,
-                appState.settingsManager.advancedSettingsManager.canToggleAlwaysHiddenSection,
-                let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden),
-                alwaysHiddenSection.isEnabled
-            {
-                alwaysHiddenSection.toggle()
-            } else {
-                section?.toggle()
-            }
-        case .rightMouseUp:
+        guard let appState else { return }
+        // target/action 本身代表按钮激活；MenuBarAgent 转发、键盘和 AXPress 不保证有本进程鼠标事件。
+        // 按钮的 sendAction 掩码已限制鼠标边沿，不能再因 currentEvent 缺失而丢弃一次有效激活。
+        let event = NSApp.currentEvent
+        let modifiers = (event?.modifierFlags ?? NSEvent.modifierFlags).intersection(.deviceIndependentFlagsMask)
+        if event?.type == .rightMouseUp || modifiers == .control {
             statusItem.showMenu(createMenu(with: appState))
-        default:
-            break
+        } else if
+            modifiers == .option,
+            appState.settingsManager.advancedSettingsManager.canToggleAlwaysHiddenSection,
+            let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden),
+            alwaysHiddenSection.isEnabled
+        {
+            alwaysHiddenSection.toggle()
+        } else {
+            section?.toggle()
         }
     }
 
@@ -626,7 +618,10 @@ final class ControlItem {
     func restoreToMenuBar() {
         guard !isSectionDivider else { return }
         statusItem.isVisible = false
-        StatusItemDefaults[.preferredPosition, statusItem.autosaveName as String] = 0
+        StatusItemDefaults[.preferredPosition, statusItem.autosaveName as String] = MenuBarControlLayout.initialPosition(
+            for: statusItem.autosaveName as String,
+            modernMenuBar: Self.usesModernMenuBar
+        )
         updateStatusItem(with: state)
         applyStatusItemLayout(isVisible: true, state: state)
         statusItem.isVisible = true

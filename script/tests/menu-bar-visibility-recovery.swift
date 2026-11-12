@@ -61,6 +61,7 @@ enum StatusItemDefaults {
     }
 }
 final class ControlItem {
+    static var usesModernMenuBar = true
     enum HidingState { case hideItems, showItems }
     enum Lengths { static let standard: CGFloat = -1 }
     var section: MenuBarSection?
@@ -127,7 +128,7 @@ final class AppState {
 __POLICY__
 @main struct Checks {
     static func main() {
-        precondition(MenuBarControlLayout.hidingLength(displayWidth: 1440, statusRegionWidth: 1140) == 719)
+        precondition(MenuBarControlLayout.hidingLength(displayWidth: 1440, statusRegionWidth: 1140) == 696)
         precondition(MenuBarControlLayout.hidingLength(displayWidth: 1512, statusRegionWidth: 700) == 668)
         precondition(MenuBarControlLayout.hidingLength(displayWidth: 3024, statusRegionWidth: 500) == 468)
         for width: CGFloat? in [nil, 0, -1, .nan, .infinity, 64] {
@@ -141,6 +142,17 @@ __POLICY__
         precondition(MenuBarControlLayout.hidingLength(for: [externalRegion, internalRegion]) == 668)
         precondition(MenuBarControlLayout.hidingLength(for: [internalRegion, externalRegion]) == 668)
         precondition(MenuBarControlLayout.hidingLength(for: [externalRegion, .init(displayWidth: nil, statusRegionWidth: nil)]) == 1)
+        for width: CGFloat in [128, 1366, 1440, 1728, 1920, 3840] {
+            let length = MenuBarControlLayout.hidingLength(displayWidth: width, statusRegionWidth: width)
+            precondition(length + 16 < width / 2, "AppKit padding must stay below the drop threshold")
+        }
+        precondition(MenuBarControlLayout.initialPosition(for: "SItem", modernMenuBar: true) == 0.5)
+        precondition(MenuBarControlLayout.initialPosition(for: "HItem", modernMenuBar: true) == 100_000)
+        precondition(MenuBarControlLayout.initialPosition(for: "AHItem", modernMenuBar: true) == 100_010)
+        precondition(MenuBarControlLayout.initialPosition(for: "SItem", modernMenuBar: false) == 0)
+        precondition(MenuBarControlLayout.initialPosition(for: "HItem", modernMenuBar: false) == 1)
+        precondition(MenuBarControlLayout.initialPosition(for: "AHItem", modernMenuBar: false) == 2)
+        precondition(MenuBarControlLayout.initialPosition(for: "unknown", modernMenuBar: true) == nil)
         print("PASS: production spacer math stays below half-screen, uses logical points and reveals safely when geometry is unknown")
 
         let app = AppState(), manager = app.menuBarManager
@@ -158,7 +170,7 @@ __POLICY__
         precondition(manager.recoverMenuBarVisibility())
         precondition(manager.isMenuBarRecoveryActive && app.itemManager.suspended && app.eventManager.cancellations == 1)
         precondition(app.settingsManager.generalSettingsManager.showFloeIcon && app.settingsManager.generalSettingsManager.autoRehide)
-        precondition(visible.controlItem.statusItem.isVisible && StatusItemDefaults.values == ["SItem": 0, "HItem": 400, "AHItem": 600])
+        precondition(visible.controlItem.statusItem.isVisible && StatusItemDefaults.values == ["SItem": 0.5, "HItem": 400, "AHItem": 600])
         precondition(visible.controlItem.statusItem.button!.image!.size.width > 0)
         precondition(visible.controlItem.statusItem.button!.image!.size.width.isFinite)
         for section in [hidden, always] {

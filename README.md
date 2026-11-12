@@ -95,12 +95,12 @@ The sidebar keeps each set of controls in a dedicated page:
 | **General** | Launch at login, app appearance, language, Floe icon, reveal behavior, Floe Bar and icon spacing. |
 | **Menu Bar Layout** | Icon groups, ordering, search and default placement for new items. |
 | **Import Layout** | Preview app sections/order from Ice, Bartender and assisted JSON/plist lists; undo the last import. |
-| **Menu Bar Appearance** | Menu bar shape, rounded ends, tint, gradients, blur, borders and shadow. |
+| **Floe Bar Appearance** | Floe Bar rounded ends, tint, gradients, blur, borders and shadow. |
 | **Hotkeys** | Shortcuts for sections, search, Floe Bar and other menu bar actions. |
 | **Advanced** | Always Hidden, section dividers, reveal delays and additional behavior. |
 | **About Floe** | App version and project links. |
 
-**App appearance:** choose **Follow System**, **Light** or **Dark** in **General → Appearance**. The choice is saved and applied immediately to Floe's windows and default floating bar. Menu bar styling has its own controls in **Menu Bar Appearance**.
+**App appearance:** choose **Follow System**, **Light** or **Dark** in **General → Appearance**. The choice is saved and applied immediately to Floe's windows and default floating bar. Floating-bar styling has its own controls in **Floe Bar Appearance**.
 
 **Language:** choose **Follow System**, **English** or **简体中文** in **General → Language**. Changes apply without restarting. Unsupported system languages fall back to English.
 
@@ -120,7 +120,9 @@ The layout editor also exposes movement actions through context menus and VoiceO
 
 ## Help
 
-**Missing system icons or Floe icon (development build):** Reopen Floe from Applications, then choose **General → Recover Menu Bar Items**. This releases Floe's hiding spacers, restores its icon and pauses hiding and automatic layout restoration for the current session, including across display changes and wake. Saved app layouts and hiding preferences are kept. Choose **Resume Hiding** to return to the previous section states. This recovery path does not require discovering third-party icons and cannot change system Wi-Fi settings. macOS 27.0.1 still requires real-device validation.
+**Missing system icons or Floe icon (development build):** Reopen Floe from Applications, then choose **General → Recover Menu Bar Items**. This releases Floe's hiding spacers, restores its icon and pauses hiding and automatic layout restoration for the current session, including across display changes and wake. Saved app layouts and hiding preferences are kept. Choose **Resume Hiding** to return to the previous section states. This recovery path does not require discovering third-party icons and cannot change system Wi-Fi settings. The recovery controls have been checked on macOS 27.2.1; the original 27.0.1 report still needs confirmation.
+
+The development build retains macOS 27 items read and assigned to Hidden or Always Hidden during the current run when macOS stops listing them through Accessibility. Opening the Floe Bar keeps the native menu bar collapsed. These records last until Floe quits. An app may still decline a press on its hidden item.
 
 - **An icon is missing:** confirm Floe's permissions in System Settings, then refresh Menu Bar Layout. Items that macOS does not expose or allow moving may have limited controls.
 - **The Floe icon is missing:** reopen Floe from Applications, then use **General → Restore Floe icon**.

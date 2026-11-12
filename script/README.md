@@ -106,7 +106,7 @@ cover reentrant scans and foreign-popup rehide protection. See [C0 audit](../doc
 ## Menu bar AX thread regression checks
 
 ```bash
-swift script/tests/menu-bar-ax-probe.swift
+swift script/tests/floe-bar-appearance.swift
 ```
 
 Compiles the production probe with a controlled AX service. Checks that both

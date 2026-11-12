@@ -18,11 +18,8 @@ extension View {
                 if isFullscreen {
                     Color.black
                 } else if useLiveBlur {
-                    // Mirror MenuBarOverlayPanel.updateChrome: live .menu blur
-                    // under the tint instead of a static average-color sample —
-                    // the bar sits on the wallpaper so only live blur matches
-                    // the split pill.
-                    let current = appState.appearanceManager.configuration.current
+                    // 只在浮栏自身绘制实时模糊与色调。
+                    let current = appState.floeBarAppearanceManager.configuration.current
                     if !(current.blurAmount <= 0 || (current.tintKind != .none && current.tintOpacity >= 1)) {
                         VisualEffectView(material: .menu, blendingMode: .behindWindow)
                             .opacity(current.blurAmount)
@@ -48,15 +45,15 @@ extension View {
                     Color.defaultLayoutBar
                 }
                 if !isFullscreen {
-                    switch appState.appearanceManager.configuration.current.tintKind {
+                    switch appState.floeBarAppearanceManager.configuration.current.tintKind {
                     case .none:
                         EmptyView()
                     case .solid:
-                        Color(cgColor: appState.appearanceManager.configuration.current.tintColor)
+                        Color(cgColor: appState.floeBarAppearanceManager.configuration.current.tintColor)
                             .opacity(tintOpacity)
                             .allowsHitTesting(false)
                     case .gradient:
-                        appState.appearanceManager.configuration.current.tintGradient
+                        appState.floeBarAppearanceManager.configuration.current.tintGradient
                             .opacity(tintOpacity)
                             .allowsHitTesting(false)
                     }

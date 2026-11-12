@@ -15,6 +15,7 @@ let rowMethod = String(source[rowStart..<rowEnd]).replacingOccurrences(of: "priv
 let activationStart = source.range(of: "    func activateAXItem(")!.lowerBound
 let activationEnd = source.range(of: "\n    }\n", range: activationStart..<source.endIndex)!.upperBound
 let activationMethod = String(source[activationStart..<activationEnd])
+    .replacingOccurrences(of: "if #unavailable(macOS 27)", with: "if fixtureLegacyActivation")
 let sectionSource = try String(contentsOfFile: repo + "/Floe/MenuBar/MenuBarSection.swift", encoding: .utf8)
 let hideStart = sectionSource.range(of: "    func hide(persistState:")!.lowerBound
 let hideEnd = sectionSource.range(of: "\n    }\n", range: hideStart..<sectionSource.endIndex)!.upperBound
@@ -43,6 +44,7 @@ let hoverMethod = eventMethod("    private func handleShowOnHover()")
 let scrollMethod = eventMethod("    private func handleShowOnScroll(")
 let fixtures = #"""
 import Cocoa
+var fixtureLegacyActivation = false
 @MainActor enum MenuInteractionGuard { static var isInteracting = false }
 final class TestScreen {
     static let main: TestScreen? = TestScreen()
@@ -197,7 +199,7 @@ final class MenuServer: @unchecked Sendable {
         state.visibleAtPress.append(visible)
         // Model an AX request that is still in flight when another item is selected.
         while state.pausePress { condition.wait() }
-        if visible && state.succeeds && state.opensMenu {
+        if state.succeeds && state.opensMenu {
             state.menuOpen = true
             state.submenuOpen = state.opensSubmenu
         }
@@ -219,9 +221,15 @@ enum MenuBarItemAXDiscovery {
         let pid: pid_t = 42
         let identifier: String? = nil
         let title: String? = nil
+        let displayName = "Test item"
     }
     static func press(_ item: AXMenuBarItem) -> Bool { server.press(item.testID) }
 }
+final class NSAlert {
+    var messageText = "", informativeText = ""
+    func runModal() {}
+}
+enum L10n { static func string(_ key: String, _ values: CVarArg...) -> String { key } }
 struct WindowInfo {
     let windowID: CGWindowID
     let ownerPID: pid_t = 42
@@ -298,7 +306,7 @@ let tests = #"""
     app.menuBarManager.sections[0].setState(.showItems, persist: false)
     content.press(AXRowItem())
     await menuObserved()
-    expect("original items are visible before AXPress", server.snapshot.visibleAtPress == [true])
+    expect("AXPress keeps the native hidden sections collapsed", server.snapshot.visibleAtPress == [false])
     expect("the opened menu stays visible", server.snapshot.menuOpen)
     expect("the Floe Bar closes before activation", panel.closed)
     await finish(panel)
@@ -306,6 +314,15 @@ let tests = #"""
     expect("previously visible section stays visible", app.menuBarManager.sections[0].controlItem.state == .showItems)
     expect("temporary reveal never persists settings", app.menuBarManager.sections.allSatisfy { $0.persistedWrites == 0 })
     expect("previously visible sections resume automatic rehide checks", app.menuBarManager.sections[0].rehideMonitor?.isRunning == true)
+
+    fixtureLegacyActivation = true
+    let (legacyApp, legacyPanel, legacyContent) = setup()
+    legacyContent.press(AXRowItem())
+    await menuObserved()
+    expect("pre-27 AX fallback retains the original temporary reveal", server.snapshot.visibleAtPress == [true])
+    await finish(legacyPanel)
+    expect("pre-27 AX fallback restores transient visibility", legacyApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems && $0.persistedWrites == 0 })
+    fixtureLegacyActivation = false
 
     let (rehideApp, rehidePanel, rehideContent) = setup()
     let timedSection = rehideApp.menuBarManager.sections[0]
@@ -318,7 +335,7 @@ let tests = #"""
     let guardReads = rehidePanel.activationReads
     firedTimer?.fire()
     await until("automatic hide guard") { rehidePanel.activationReads > guardReads }
-    expect("automatic rehide cannot hide originals while a popup is open", rehideApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .showItems })
+    expect("automatic rehide preserves the existing visible section while a popup is open", timedSection.controlItem.state == .showItems)
     await finish(rehidePanel)
     _ = timedSection.rehideMonitor?.handler(0)
     expect("a fired timer does not prevent scheduling the next automatic rehide", timedSection.rehideTimer !== firedTimer && timedSection.rehideTimer?.isValid == true)
@@ -349,6 +366,7 @@ let tests = #"""
     MenuInteractionGuard.isInteracting = false
 
     let (manualApp, manualPanel, manualContent) = setup()
+    for section in manualApp.menuBarManager.sections { section.setState(.showItems, persist: false) }
     manualContent.press(AXRowItem())
     await menuObserved()
     manualApp.menuBarManager.sections[1].hide()
@@ -359,7 +377,7 @@ let tests = #"""
     server.update { $0.succeeds = false }
     failedContent.press(AXRowItem())
     await finish(failedPanel)
-    expect("failed press restores hidden items", server.snapshot.visibleAtPress == [true] && failedApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems })
+    expect("failed press keeps hidden items collapsed", server.snapshot.visibleAtPress == [false] && failedApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems })
 
     let (changedApp, changedPanel, changedContent) = setup()
     changedContent.press(AXRowItem())
@@ -376,7 +394,7 @@ let tests = #"""
     let submenuCompletion = completion(of: submenuPanel.axActivationTask)
     server.update { $0.submenuOpen = false }
     await until("parent popup observation after submenu closes") { server.snapshot.menuReads > submenuReads || submenuCompletion.done }
-    expect("closing a submenu keeps originals visible while its parent is open", !submenuCompletion.done && submenuApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .showItems })
+    expect("closing a submenu preserves activation and collapsed originals while its parent is open", !submenuCompletion.done && submenuApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems })
     await finish(submenuPanel)
 
     let (compactApp, compactPanel, compactContent) = setup()
@@ -386,32 +404,30 @@ let tests = #"""
     // A rejected popup can still be enumerated by all ten initial detection attempts.
     // Require observation beyond that phase, or report early cleanup as a failure.
     await until("compact popup lifetime observation") { server.snapshot.menuReads > 10 || compactCompletion.done }
-    expect("compact popups keep originals visible until dismissal", !compactCompletion.done && compactApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .showItems })
+    expect("compact popups preserve collapsed originals until dismissal", !compactCompletion.done && compactApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems })
     await finish(compactPanel)
 
     let (noMenuApp, noMenuPanel, noMenuContent) = setup()
     server.update { $0.opensMenu = false }
     noMenuContent.press(AXRowItem())
     await finish(noMenuPanel)
-    expect("acknowledged no-op restores items without a second click", server.snapshot.visibleAtPress == [true] && noMenuApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems })
+    expect("acknowledged no-op keeps items collapsed without a second click", server.snapshot.visibleAtPress == [false] && noMenuApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems })
 
     let (cancelledApp, cancelledPanel, cancelledContent) = setup()
-    // Cancel at the reveal boundary, not within a wall-clock race against the 250ms settle.
-    cancelledApp.menuBarManager.sections[0].onStateChange = {
-        cancelledPanel.axActivationTask?.cancel()
-    }
     cancelledContent.press(AXRowItem())
+    cancelledPanel.axActivationTask?.cancel()
     await finish(cancelledPanel)
     expect("cancellation restores items without pressing", server.snapshot.presses.isEmpty && cancelledApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems })
 
     let (hoverApp, hoverPanel, hoverContent) = setup()
+    for section in hoverApp.menuBarManager.sections { section.setState(.showItems, persist: false) }
     hoverContent.press(AXRowItem())
     await menuObserved()
     let hover = EventManager()
     hover.appState = hoverApp
     hover.handleShowOnHover()
     await until("hover exit recheck") { hover.outsideChecks >= 2 }
-    expect("hover exit cannot hide or persist while a popup is open", hoverApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .showItems && $0.persistedWrites == 0 })
+    expect("hover exit preserves visible originals and preferences while a popup is open", hoverApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .showItems && $0.persistedWrites == 0 })
     await finish(hoverPanel)
 
     let (idleApp, _, _) = setup()
@@ -467,6 +483,7 @@ let tests = #"""
     expect("hovering inside Floe Bar does not hide items", insideApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .showItems })
 
     let (scrollApp, scrollPanel, scrollContent) = setup()
+    for section in scrollApp.menuBarManager.sections { section.setState(.showItems, persist: false) }
     scrollContent.press(AXRowItem())
     await menuObserved()
     let scroll = EventManager()
@@ -493,7 +510,7 @@ let tests = #"""
         await until("continued popup observation after queued clicks") {
             server.snapshot.menuReads >= menuReads + 2 || previous.done
         }
-        expect("\(queuedIDs.count) queued clicks protect \(inFlight ? "in-flight press" : "open popup")", !previous.done && server.snapshot.hidesWhileOpen == 0 && server.snapshot.presses == [1] && queueApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .showItems })
+        expect("\(queuedIDs.count) queued clicks protect \(inFlight ? "in-flight press" : "open popup")", !previous.done && server.snapshot.hidesWhileOpen == 0 && server.snapshot.presses == [1] && queueApp.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems })
         queueApp.menuBarManager.sections[1].setState(.showItems, persist: true)
         server.update { $0.menuOpen = false }
         let latestID = queuedIDs[queuedIDs.count - 1]

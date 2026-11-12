@@ -241,9 +241,7 @@ final class FloeBarPanel: NSPanel {
         setFrameOrigin(getOrigin(for: appState.settingsManager.generalSettingsManager.floeBarLocation))
     }
 
-    /// Restores hidden originals before AXPress; parked status items may acknowledge a press
-    /// without opening anything. Only transient state is changed, and menus stay revealed
-    /// until they close. A later activation waits for the previous reveal to clean up.
+    /// 按已保留的精确 AX 身份激活图标，保持原生菜单栏收起；回执之后仍核验实际菜单。
     func activateAXItem(_ item: MenuBarItemAXDiscovery.AXMenuBarItem) {
         guard let appState else {
             return
@@ -258,12 +256,14 @@ final class FloeBarPanel: NSPanel {
             }
 
             isActivatingAXItem = true
-            let sections = appState.menuBarManager.sections.filter {
-                $0.isEnabled && $0.controlItem.state == .hideItems
-            }
-            let revealed = sections.map { section in
-                section.setState(.showItems, persist: false)
-                return (section: section, revision: section.stateRevision)
+            // 旧系统的 AX 降级仍沿用临时显示流程；27 的浮栏保持原生分区收起。
+            var revealed = [(section: MenuBarSection, revision: Int)]()
+            if #unavailable(macOS 27) {
+                revealed = appState.menuBarManager.sections.compactMap { section in
+                    guard section.isEnabled, section.controlItem.state == .hideItems else { return nil }
+                    section.setState(.showItems, persist: false)
+                    return (section, section.stateRevision)
+                }
             }
             defer {
                 for entry in revealed where entry.section.stateRevision == entry.revision {
@@ -276,13 +276,10 @@ final class FloeBarPanel: NSPanel {
             }
 
             do {
-                // Match the native section toggle's animation interval before pressing.
-                try await Task.sleep(for: .milliseconds(250))
+                if !revealed.isEmpty { try await Task.sleep(for: .milliseconds(250)) }
                 try Task.checkCancellation()
 
-                // Once a press is committed, cancellation must not restore the originals
-                // beneath its popup. This unstructured task owns the press and menu lifetime;
-                // cancelling the outer task only supersedes a request still waiting to press.
+                // 已投递的点击与菜单生命周期由独立任务持有，后续点击只替换尚未开始的请求。
                 try await Task { @MainActor in
                     let previousWindows = Set(WindowInfo.getOnScreenWindows().map(\.windowID))
                     let acknowledged = await Task.detached(priority: .userInitiated) {
@@ -310,17 +307,20 @@ final class FloeBarPanel: NSPanel {
                     }
                     guard observedMenu else {
                         Logger.floeBar.error("axActivation no visible menu pid=\(item.pid) acknowledged=\(acknowledged)")
+                        let alert = NSAlert()
+                        alert.messageText = L10n.string("Unable to open this menu bar item")
+                        alert.informativeText = L10n.string("macOS did not open %@. Try again or use Recover Menu Bar Items in General settings.", item.displayName)
+                        alert.runModal()
                         return
                     }
                     Logger.floeBar.info("axActivation observed menu pid=\(item.pid)")
-                    // Keep the reveal while any popup remains, including a parent whose
-                    // frontmost submenu closed or a replacement popup with a new window ID.
+                    // 菜单及其子菜单关闭前保持激活保护，避免自动隐藏任务打断菜单交互。
                     while hasOpenMenu() {
                         try await Task.sleep(for: .milliseconds(150))
                     }
                 }.value
             } catch {
-                // Cancellation before the press restores the reveal without clicking.
+                // 尚未投递的请求可取消，不改变分区状态。
             }
         }
     }
@@ -406,6 +406,7 @@ private final class FloeBarHostingView: NSHostingView<AnyView> {
                 .environmentObject(appState.imageCache)
                 .environmentObject(appState.itemManager)
                 .environmentObject(appState.menuBarManager)
+                .environmentObject(appState.floeBarAppearanceManager)
                 .environmentObject(colorManager)
                 .environmentObject(reorder)
                 .environmentObject(appState.settingsManager.generalSettingsManager.barPreferences)
@@ -473,6 +474,7 @@ private struct FloeBarContentView: View {
     @EnvironmentObject var itemManager: MenuBarItemManager
     @EnvironmentObject var imageCache: MenuBarItemImageCache
     @EnvironmentObject var menuBarManager: MenuBarManager
+    @EnvironmentObject var appearanceManager: FloeBarAppearanceManager
     @EnvironmentObject var preferences: FloeBarPreferences
     @EnvironmentObject var reorder: FloeBarReorderController
     @State private var frame = CGRect.zero
@@ -490,7 +492,7 @@ private struct FloeBarContentView: View {
     }
 
     private var configuration: MenuBarAppearanceConfigurationV2 {
-        appState.appearanceManager.configuration
+        appearanceManager.configuration
     }
 
     private var horizontalPadding: CGFloat {
@@ -507,7 +509,7 @@ private struct FloeBarContentView: View {
         }
         if configuration.shapeKind != .none && configuration.isInset && screen.hasNotch {
             // 低分辨率刘海屏扣除内缩后仍必须容纳完整图标/点击区域。
-            return max(NSStatusBar.system.thickness, menuBarHeight - appState.appearanceManager.menuBarInsetAmount * 2)
+            return max(NSStatusBar.system.thickness, menuBarHeight - 10)
         }
         return menuBarHeight
     }
@@ -516,8 +518,7 @@ private struct FloeBarContentView: View {
         barShape
     }
 
-    /// Whether the bar mirrors the split-shape trailing pill (same end caps,
-    /// tint opacity, inside border and shadow).
+    /// 迁移后的外观使用独立浮栏的两端形状。
     private var isSplitPill: Bool {
         configuration.shapeKind == .split
     }
@@ -526,7 +527,7 @@ private struct FloeBarContentView: View {
         if preferences.layout != .icons || reorder.isEditing {
             return AnyInsettableShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
-        // 两端的圆角/直角与菜单栏配置一致，轮廓内部不保留端帽接缝。
+        // 两端形状与浮栏设置一致，轮廓内部不保留端帽接缝。
         let trailing = configuration.splitShapeInfo.trailing
         if isSplitPill {
             return AnyInsettableShape(
@@ -551,15 +552,13 @@ private struct FloeBarContentView: View {
         }
     }
 
-    /// Bar tint opacity: matches the split, otherwise keeps the old 0.2.
     private var barTintOpacity: Double {
-        isSplitPill ? configuration.current.tintOpacity : 0.2
+        configuration.current.tintOpacity
     }
 
     @ViewBuilder
     private var splitBorderOverlay: some View {
-        // Mirror MenuBarTintView HACK: stroke at double width then trim the outer half
-        // via the clipShape right after → border sits neatly inside the pill.
+        // 双倍描边后裁去外半侧，将边框限制在浮栏内部。
         if isSplitPill, configuration.current.hasBorder {
             barShape.stroke(
                 Color(cgColor: configuration.current.borderColor),
@@ -1020,22 +1019,25 @@ private struct FloeBarContentView: View {
         }
 
         // Discovery returns items by name; re-sort left→right as on the menubar.
-        let ordered = found.sorted {
+        itemManager.rememberAXItems(found, hiddenDividerX: hiddenX, alwaysHiddenDividerX: alwaysHiddenX)
+        let ordered = itemManager.axItemCache.merging(found).sorted {
             ($0.axFrame?.midX ?? .greatestFiniteMagnitude) < ($1.axFrame?.midX ?? .greatestFiniteMagnitude)
         }
         var icons = [pid_t: NSImage]()
         var rows = [AXRowItem]()
         for item in ordered {
             // 与布局页分区一一对应；普通隐藏浮栏不混入始终隐藏项。
-            if !hiddenBoundaryMissing {
-                let actual = kind(centerX: item.axFrame?.midX)
+            let rememberedSection = itemManager.axItemCache.section(for: item)
+            if rememberedSection != nil || !hiddenBoundaryMissing {
+                let actual = rememberedSection ?? kind(centerX: item.axFrame?.midX)
                 let matches = wantedSection == .alwaysHidden ? actual == .alwaysHidden : actual == .hidden
                 if !matches { continue }
             }
             // Same icon selection as Menu Bar Layout: familiar system extras
             // use SF Symbols (a PID-based icon would yield the generic MenuBarAgent icon).
-            let systemImage = MenuBarItemAXDiscovery.systemImageName(forIdentifier: item.identifier)
-            if systemImage == nil, icons[item.pid] == nil {
+            let systemImage = MenuBarItemAXDiscovery.systemImageName(for: item)
+            let nativeIcon = MenuBarItemAXDiscovery.systemIconImage(forIdentifier: item.identifier, title: item.title, bundleID: item.bundleID)
+            if systemImage == nil, nativeIcon == nil, icons[item.pid] == nil {
                 if item.bundleID == "com.apple.TextInputMenuAgent" {
                     icons[item.pid] = MenuBarItemAXDiscovery.inputSourceIcon()
                 } else {
@@ -1049,22 +1051,10 @@ private struct FloeBarContentView: View {
                     title: item.title,
                     displayName: item.displayName,
                     systemImage: systemImage,
-                    appIcon: icons[item.pid],
+                    appIcon: nativeIcon ?? icons[item.pid],
                     midX: item.axFrame?.midX
                 )
             )
-        }
-        // Expanding spacer (garbage divider frames): drop items already visible in the
-        // trailing pill region — the user already sees them on the menubar. Only filter
-        // when the hidden/visible boundary is missing, even if always-hidden is readable.
-        // Skip fullscreen (pill isn't drawn, width is stale).
-        if hiddenBoundaryMissing,
-           menuBarManager.presentationController.fullscreenState(on: screen) == false,
-           let trailingWidth = MenuBarOverlayPanelContentView.currentTrailingVisibleWidth(for: screen.displayID),
-           trailingWidth > 0, trailingWidth < screen.frame.width
-        {
-            let visibleMinX = screen.frame.maxX - trailingWidth
-            rows.removeAll { ($0.midX ?? .greatestFiniteMagnitude) >= visibleMinX - 4 }
         }
         axRows = rows
         Logger.floeBar.info("axScan done wanted=\(wantedSection) attempt=\(attempt) found=\(found.count) rows=\(rows.count) hiddenBoundaryMissing=\(hiddenBoundaryMissing)")

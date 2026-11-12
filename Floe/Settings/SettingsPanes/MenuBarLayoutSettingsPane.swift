@@ -718,6 +718,17 @@ struct MenuBarLayoutSettingsPane: View {
         if confirmed, restored {
             // 收起会再次改变窗口位置；收起后的确认也必须完成，不能留给手动刷新。
             confirmed = await waitForDropResult(itemID: itemID, to: kind, before: targetID)
+            if !confirmed, !Task.isCancelled, itemID.hasPrefix("ax:"), findItem(id: itemID) == nil {
+                // 27 收起后会移除隐藏项的 AX 节点，缺席不能说明刚才的移动失败。
+                // 再临时展开并从系统确认真实分区与顺序，结束或取消时恢复，避免用预览猜测成功。
+                let verificationReveal = appState.menuBarManager.sections.compactMap { section -> (MenuBarSection, Int)? in
+                    guard section.isEnabled, section.controlItem.state == .hideItems else { return nil }
+                    section.setState(.showItems, persist: false)
+                    return (section, section.stateRevision)
+                }
+                defer { _ = restoreLayoutSections(verificationReveal) }
+                confirmed = await waitForDropResult(itemID: itemID, to: kind, before: targetID)
+            }
         } else if !confirmed {
             await refreshAfterDrop()
         }
@@ -1017,6 +1028,7 @@ struct MenuBarLayoutSettingsPane: View {
         }
         guard generation == scanGeneration, !Task.isCancelled else { return }
         axSnapshot = axFallback
+        appState.itemManager.rememberAXItems(axFallback, hiddenDividerX: hiddenX, alwaysHiddenDividerX: alwaysHiddenX)
         let (grouped, midY) = buildSections(
             hiddenX: hiddenX,
             alwaysHiddenX: alwaysHiddenX,
@@ -1150,8 +1162,8 @@ struct MenuBarLayoutSettingsPane: View {
                 let systemImage = MenuBarItemAXDiscovery.systemImageName(
                     forTitle: item.title ?? item.displayName, bundleID: bundleID
                 )
-                var appIcon: NSImage?
-                if systemImage == nil {
+                var appIcon = MenuBarItemAXDiscovery.systemIconImage(forIdentifier: nil, title: item.title ?? item.displayName, bundleID: bundleID)
+                if systemImage == nil, appIcon == nil {
                     if let cachedIcon = iconCache[item.ownerPID] {
                         appIcon = cachedIcon
                     } else if let icon = app?.icon {
@@ -1175,10 +1187,12 @@ struct MenuBarLayoutSettingsPane: View {
                 )
             }
         }
-        for item in supplementalAXItems(axFallback, cached: cached).sorted(by: { ($0.axFrame?.midX ?? .greatestFiniteMagnitude) < ($1.axFrame?.midX ?? .greatestFiniteMagnitude) }) {
-            let systemImage = MenuBarItemAXDiscovery.systemImageName(forIdentifier: item.identifier)
-            var appIcon: NSImage?
-            if systemImage == nil {
+        // 编辑确认只读实时数据；正常呈现补回已收起的 AX 项，保留它们实际确认过的分区。
+        let axItems = isMoving ? axFallback : appState.itemManager.axItemCache.merging(axFallback)
+        for item in supplementalAXItems(axItems, cached: cached).sorted(by: { ($0.axFrame?.midX ?? .greatestFiniteMagnitude) < ($1.axFrame?.midX ?? .greatestFiniteMagnitude) }) {
+            let systemImage = MenuBarItemAXDiscovery.systemImageName(for: item)
+            var appIcon = MenuBarItemAXDiscovery.systemIconImage(forIdentifier: item.identifier, title: item.title, bundleID: item.bundleID)
+            if systemImage == nil, appIcon == nil {
                 if let cachedIcon = iconCache[item.pid] {
                     appIcon = cachedIcon
                 } else if item.bundleID == "com.apple.TextInputMenuAgent" {
@@ -1194,7 +1208,9 @@ struct MenuBarLayoutSettingsPane: View {
             if let frame = item.axFrame {
                 quartzYs.append(frame.midY)
             }
-            grouped[kind(centerX: item.axFrame?.midX), default: []].append(
+            let section = isMoving ? kind(centerX: item.axFrame?.midX)
+                : appState.itemManager.axItemCache.section(for: item) ?? kind(centerX: item.axFrame?.midX)
+            grouped[section, default: []].append(
                 RowItem(
                     id: stableID(for: "ax:\(item.pid):\(CFHash(item.element))"),
                     title: item.displayName,
@@ -1202,6 +1218,8 @@ struct MenuBarLayoutSettingsPane: View {
                     systemImage: systemImage,
                     appIcon: appIcon,
                     quartzFrame: item.axFrame,
+                    isMovable: item.isMovable,
+                    canBeHidden: item.canBeHidden,
                     bundleID: item.bundleID
                 )
             )
@@ -1315,6 +1333,7 @@ struct MenuBarLayoutSettingsPane: View {
         }
         guard generation == scanGeneration, !Task.isCancelled else { return }
         axSnapshot = axFallback
+        appState.itemManager.rememberAXItems(axFallback, hiddenDividerX: hiddenX, alwaysHiddenDividerX: alwaysHiddenX)
         let (grouped, midY) = buildSections(hiddenX: hiddenX, alwaysHiddenX: alwaysHiddenX, axFallback: axFallback)
         // 完整扫描得到空结果时清除旧分组，不能永久保留已退出应用的行。
         sections = grouped

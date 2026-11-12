@@ -447,10 +447,6 @@ extension EventManager {
     // MARK: Handle Left Mouse Up
 
     private func handleLeftMouseUp() {
-        guard let appearanceManager = appState?.appearanceManager else {
-            return
-        }
-        appearanceManager.setIsDraggingMenuBarItem(false)
         if isUserDraggingItem, let appState {
             isUserDraggingItem = false
             Task {
@@ -473,10 +469,8 @@ extension EventManager {
             return
         }
 
-        // Notify each overlay panel that a menu bar item is being dragged.
         isUserDraggingItem = true
         cancelDelayedInteractions()
-        appState.appearanceManager.setIsDraggingMenuBarItem(true)
 
         // Don't continue if the setting to show the sections is disabled.
         guard appState.settingsManager.advancedSettingsManager.showAllSectionsOnUserDrag else {

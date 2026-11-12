@@ -10,6 +10,7 @@ let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     .deletingLastPathComponent().deletingLastPathComponent().path
 let source = try String(contentsOfFile: repo + "/Floe/UI/FloeBar/FloeBar.swift", encoding: .utf8)
 let discovery = try String(contentsOfFile: repo + "/Floe/MenuBar/MenuBarItems/MenuBarItemAXDiscovery.swift", encoding: .utf8)
+let cache = try String(contentsOfFile: repo + "/Floe/MenuBar/MenuBarItems/MenuBarItemAXCache.swift", encoding: .utf8)
 func method(_ signature: String, in source: String) -> String {
     let start = source.range(of: signature)!.lowerBound
     let end = source.range(of: "\n    }\n", range: start..<source.endIndex)!.upperBound
@@ -45,7 +46,8 @@ enum MenuBarItemAXDiscovery {
     static var dividers: (hidden: CGRect?, alwaysHidden: CGRect?) = (nil, nil)
     static func discoverItems(in apps: [FixtureApplication]) -> [AXMenuBarItem] { items }
     static func dividerFrames() -> (hidden: CGRect?, alwaysHidden: CGRect?) { dividers }
-    static func systemImageName(forIdentifier id: String?) -> String? { nil }
+    static func systemImageName(for item: AXMenuBarItem) -> String? { nil }
+    static func systemIconImage(forIdentifier identifier: String?, title: String?, bundleID: String?) -> NSImage? { nil }
     static func inputSourceIcon() -> NSImage? { nil }
     // PRODUCTION_CLASSIFICATION
 }
@@ -79,19 +81,24 @@ struct Screen {
     let displayID = 1
     let frame = CGRect(x: 0, y: 0, width: 1200, height: 800)
 }
-enum MenuBarOverlayPanelContentView {
-    static var width: CGFloat?
-    static func currentTrailingVisibleWidth(for displayID: Int) -> CGFloat? { width }
-}
 struct Logger {
     static let floeBar = Logger()
     func info(_ message: String) {}
+}
+final class ItemManager {
+    var axItemCache = MenuBarItemAXCache()
+    var runningPIDs: Set<pid_t> = [42]
+    func rememberAXItems(_ items: [MenuBarItemAXDiscovery.AXMenuBarItem], hiddenDividerX: CGFloat?, alwaysHiddenDividerX: CGFloat?) {
+        axItemCache.update(items, runningPIDs: runningPIDs, hiddenDividerX: hiddenDividerX, alwaysHiddenDividerX: alwaysHiddenDividerX,
+                           menuBarBands: [CGRect(x: 0, y: 0, width: 1200, height: 32)])
+    }
 }
 @MainActor final class Content {
     var section = Section.Name.hidden
     let menuBarManager = MenuBarManager()
     let appState = AppState()
     let screen = Screen()
+    let itemManager = ItemManager()
     var axRows = [AXRowItem]()
     // PRODUCTION_SCAN
 }
@@ -102,14 +109,13 @@ struct Logger {
         if !passed { failures += 1 }
     }
     func divider(_ x: CGFloat?) -> CGRect? { x.map { CGRect(x: $0, y: 0, width: 20, height: 24) } }
-    func check(_ name: String, hidden: CGFloat?, always: CGFloat?, width: CGFloat? = nil,
+    func check(_ name: String, hidden: CGFloat?, always: CGFloat?,
                fullscreen: Bool? = false, nativeHidden: CGFloat? = nil, wanted: Section.Name = .hidden, expected: [String]) async {
         let content = Content()
         content.section = wanted
         content.menuBarManager.presentationController.fullscreen = fullscreen
         content.menuBarManager.hidden.controlItem.window = divider(nativeHidden).map { Window(frame: $0) }
         MenuBarItemAXDiscovery.dividers = (divider(hidden), divider(always))
-        MenuBarOverlayPanelContentView.width = width
         await content.scanAXRowsOnce(attempt: 0)
         expect(name, content.axRows.compactMap(\.title) == expected)
     }
@@ -127,16 +133,32 @@ struct Logger {
     await check("always-hidden bar shows only its own section", hidden: 800, always: 500, wanted: .alwaysHidden, expected: ["400"])
     await check("missing always-hidden divider retains hidden items", hidden: 800, always: nil, expected: ["400", "600"])
     await check("missing hidden boundary does not discard unknown items", hidden: nil, always: 500, expected: ["400", "600", "1000", "unframed"])
-    await check("partial geometry uses the visible-region fallback", hidden: nil, always: 500, width: 200, expected: ["400", "600"])
-    await check("both missing dividers use the visible-region fallback", hidden: nil, always: nil, width: 200, expected: ["400", "600"])
-    await check("missing geometry without a visible region retains all items", hidden: nil, always: nil, expected: ["400", "600", "1000", "unframed"])
-    await check("unknown display Space does not discard icons", hidden: nil, always: 500, width: 200, fullscreen: nil, expected: ["400", "600", "1000", "unframed"])
-    await check("fullscreen ignores stale visible-region geometry", hidden: nil, always: 500, width: 200, fullscreen: true, expected: ["400", "600", "1000", "unframed"])
     await check("native hidden-divider fallback retains classification", hidden: nil, always: 500, nativeHidden: 800, expected: ["600"])
-    await check("parking-spacer geometry is not a hidden boundary", hidden: 7, always: 500, width: 200, expected: ["400", "600"])
-    await check("zero visible width is ignored", hidden: nil, always: 500, width: 0, expected: ["400", "600", "1000", "unframed"])
-    await check("oversized visible width is ignored", hidden: nil, always: 500, width: 1400, expected: ["400", "600", "1000", "unframed"])
+    await check("parking-spacer geometry is not a hidden boundary", hidden: 7, always: 500, expected: ["400", "600", "1000", "unframed"])
     expect("shared classifier still treats nil as a disabled section", MenuBarItemAXDiscovery.classify(centerX: 600, hiddenDividerX: nil, alwaysHiddenDividerX: 500) == .visible)
+
+    let retained = Content()
+    MenuBarItemAXDiscovery.dividers = (divider(800), divider(500))
+    let visible = MenuBarItemAXDiscovery.AXMenuBarItem(title: "visible", axFrame: CGRect(x: 990, y: 0, width: 20, height: 24))
+    let sibling = MenuBarItemAXDiscovery.AXMenuBarItem(title: "sibling", axFrame: CGRect(x: 390, y: 0, width: 20, height: 24))
+    let moved = MenuBarItemAXDiscovery.AXMenuBarItem(title: "moved", axFrame: CGRect(x: 590, y: 0, width: 20, height: 24))
+    MenuBarItemAXDiscovery.items = [visible, moved, sibling]
+    await retained.scanAXRowsOnce(attempt: 0)
+    expect("confirmed Hidden excludes the same process's Always Hidden sibling", retained.axRows.map(\.displayName) == ["moved"])
+    MenuBarItemAXDiscovery.items = [visible]
+    await retained.scanAXRowsOnce(attempt: 0)
+    expect("collapsed AX snapshot retains the exact hidden item", retained.axRows.map(\.displayName) == ["moved"] && CFEqual(retained.axRows[0].item.element, moved.element))
+    retained.section = .alwaysHidden
+    await retained.scanAXRowsOnce(attempt: 0)
+    expect("collapsed Always Hidden snapshot retains its own sibling", retained.axRows.map(\.displayName) == ["sibling"])
+    MenuBarItemAXDiscovery.dividers = (nil, nil)
+    retained.section = .hidden
+    await retained.scanAXRowsOnce(attempt: 0)
+    expect("missing dividers preserve confirmed hidden membership", retained.axRows.map(\.displayName) == ["moved"])
+    retained.itemManager.runningPIDs = []
+    MenuBarItemAXDiscovery.items = []
+    await retained.scanAXRowsOnce(attempt: 0)
+    expect("exited process removes retained items", retained.axRows.isEmpty)
     exit(failures == 0 ? 0 : 1)
 }
 await runTests()
@@ -146,6 +168,7 @@ try FileManager.default.createDirectory(at: directory, withIntermediateDirectori
 let generated = directory.appendingPathComponent("row-filter.swift")
 try fixtures.replacingOccurrences(of: "    // PRODUCTION_CLASSIFICATION", with: classification)
     .replacingOccurrences(of: "    // PRODUCTION_SCAN", with: scan)
+    .appending("\n" + cache)
     .write(to: generated, atomically: true, encoding: .utf8)
 let runner = Process()
 runner.executableURL = URL(fileURLWithPath: "/usr/bin/swift")

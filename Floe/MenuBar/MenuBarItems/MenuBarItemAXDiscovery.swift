@@ -38,6 +38,17 @@ enum MenuBarItemAXDiscovery {
         /// Convert to Cocoa coordinates when classifying.
         let axFrame: CGRect?
 
+        /// MenuBarAgent 的宿主身份不能沿用旧 ControlCenter 窗口判断；用稳定系统标识保护不可移动项。
+        var isMovable: Bool {
+            !["com.apple.menuextra.clock", "com.apple.menuextra.controlcenter", "com.apple.menuextra.siri"].contains(identifier ?? "")
+        }
+
+        var canBeHidden: Bool {
+            isMovable && ![
+                "com.apple.menuextra.audiovideo", "com.apple.menuextra.facetime", "com.apple.menuextra.musicrecognition",
+            ].contains(identifier ?? "")
+        }
+
         /// Most descriptive name for display.
         var displayName: String {
             // AX 的占位名不能遮住可读的宿主名称；空字符串也需要回退。
@@ -130,10 +141,31 @@ enum MenuBarItemAXDiscovery {
         return NSImage(contentsOf: url)
     }
 
-    /// SF Symbol for familiar system menu extras.
-    ///
-    /// These items are usually hosted by MenuBarAgent, so resolving the app icon by
-    /// PID yields a generic, incorrect icon.
+    /// 新符号不可用的旧系统使用已支持的盾牌符号。
+    private static let vpnSymbolName = NSImage(systemSymbolName: "network.badge.shield.half.filled", accessibilityDescription: nil) == nil
+        ? "lock.shield" : "network.badge.shield.half.filled"
+
+    /// 直接使用当前 macOS 的 VPN 菜单资源，保留原生轮廓和透明度，不将系统图形复制进应用。
+    private static let nativeVPNIcon: NSImage? = {
+        guard let bundle = Bundle(path: "/System/Library/CoreServices/Menu Extras/VPN.menu"),
+              let url = bundle.url(forResource: "VPN0", withExtension: "pdf"),
+              let image = NSImage(contentsOf: url) else { return nil }
+        image.isTemplate = true
+        return image
+    }()
+
+    static func systemIconImage(forIdentifier identifier: String?, title: String?, bundleID: String?) -> NSImage? {
+        if identifier == "com.apple.menuextra.vpn" { return nativeVPNIcon }
+        guard bundleID?.hasPrefix("com.apple.") == true, title?.lowercased() == "vpn" else { return nil }
+        return nativeVPNIcon
+    }
+
+    /// 系统 VPN 有时只有名称，没有 AXIdentifier；名称回退限定在系统宿主，保留第三方应用自己的图标。
+    static func systemImageName(for item: AXMenuBarItem) -> String? {
+        systemImageName(forIdentifier: item.identifier) ?? systemImageName(forTitle: item.title, bundleID: item.bundleID)
+    }
+
+    /// 系统菜单项目按稳定标识映射符号，避免使用 MenuBarAgent 的通用宿主图标。
     static func systemImageName(forIdentifier identifier: String?) -> String? {
         switch identifier {
         case "com.apple.menuextra.wifi": "wifi"
@@ -144,6 +176,7 @@ enum MenuBarItemAXDiscovery {
         case "com.apple.menuextra.clock": "clock"
         case "com.apple.menuextra.spotlight": "magnifyingglass"
         case "com.apple.menuextra.airplay": "airplayvideo"
+        case "com.apple.menuextra.vpn": nativeVPNIcon == nil ? vpnSymbolName : nil
         default: nil
         }
     }
@@ -170,6 +203,7 @@ enum MenuBarItemAXDiscovery {
         case "clock": return "clock"
         case "spotlight": return "magnifyingglass"
         case "airplay", "screenmirroring", "screen mirroring": return "airplayvideo"
+        case "vpn": return nativeVPNIcon == nil ? vpnSymbolName : nil
         default: return nil
         }
     }
@@ -352,6 +386,16 @@ enum MenuBarItemAXDiscovery {
             deadline: deadline,
             into: &result
         )
+        if app.bundleIdentifier == "com.apple.MenuBarAgent" {
+            // 系统溢出按钮会随布局重建身份，不能把它当成应用图标不断加入隐藏缓存。
+            var overflow: AnyObject?
+            if AXUIElementCopyAttributeValue(barElement, "AXOverflowButton" as CFString, &overflow) == .success,
+               let overflow, CFGetTypeID(overflow) == AXUIElementGetTypeID() {
+                result.removeAll { CFEqual($0.element, overflow) }
+            }
+            // 某些 27 版本未返回 AXOverflowButton，但提供了系统按钮的本地化名称。
+            result.removeAll { ["Show hidden menu bar items", "Show Hidden Menu Bar Items", "显示隐藏菜单栏项目", "顯示隱藏的選單列項目"].contains($0.title ?? "") }
+        }
         return result
     }
 
@@ -423,6 +467,8 @@ enum MenuBarItemAXDiscovery {
             ?? stringAttribute(kAXDescriptionAttribute as CFString, of: element)
             ?? stringAttribute(kAXHelpAttribute as CFString, of: element)
 
+        // 27 的代理可能把自身控件作为代理子项返回，不能把恢复按钮/分隔符列成待隐藏应用。
+        guard !["FloeIcon", "FloeHiddenDivider", "FloeAlwaysHiddenDivider"].contains(identifier ?? "") else { return }
         guard identifier != nil || title != nil || recordNameless else {
             return
         }

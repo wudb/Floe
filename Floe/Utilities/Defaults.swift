@@ -176,6 +176,7 @@ extension Defaults {
         // MARK: Menu Bar Appearance Settings
 
         case menuBarAppearanceConfigurationV2 = "MenuBarAppearanceConfigurationV2"
+        case floeBarAppearanceConfiguration = "FloeBarAppearanceConfiguration"
 
         // MARK: Floe Bar Settings
 

@@ -12,12 +12,10 @@ let fixture = """
 import Foundation
 struct Screen { var height: CGFloat?; var hasNotch = true; func getMenuBarHeight() -> CGFloat? { height } }
 struct Configuration { enum Shape { case none, split }; var shapeKind = Shape.split; var isInset = true }
-struct Appearance { var menuBarInsetAmount: CGFloat = 5 }
-struct AppState { var appearanceManager = Appearance() }
 struct Cache { var menuBarHeight: CGFloat? = nil }
 enum NSStatusBar { static let system = Bar(); struct Bar { let thickness: CGFloat = 22 } }
 struct View {
-    var screen = Screen(height: 32), imageCache = Cache(), configuration = Configuration(), appState = AppState()
+    var screen = Screen(height: 32), imageCache = Cache(), configuration = Configuration()
     \(String(source[start..<end]).replacingOccurrences(of: "private var", with: "var"))
 }
 var view = View()

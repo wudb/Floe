@@ -17,7 +17,7 @@ struct NSScreen { let displayID: UInt32; static var screens = [NSScreen(displayI
 func CGDisplayBounds(_ id: UInt32) -> CGRect { CGRect(x: 0, y: 0, width: 1000, height: 800) }
 struct NSWorkspace { static let shared = NSWorkspace(); let runningApplications = [1] }
 enum MenuBarItemAXDiscovery {
-    struct AXMenuBarItem { let element: NSNumber; var axFrame: CGRect? }
+    struct AXMenuBarItem { let element: NSNumber; var axFrame: CGRect?; var isMovable = true; var canBeHidden = true }
     static var items = [AXMenuBarItem]()
     static func isTrusted() -> Bool { true }
     static func discoverItems(in: [Int]) -> [AXMenuBarItem] { items }

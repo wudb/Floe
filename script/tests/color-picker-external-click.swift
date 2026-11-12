@@ -2,7 +2,7 @@ import Foundation
 
 // 编译生产外部点击处理，验证吸管会话和普通外部点击关闭行为。
 let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-let source = try String(contentsOf: repo.appendingPathComponent("Floe/MenuBar/Appearance/MenuBarAppearanceEditor/MenuBarAppearanceEditorPanel.swift"), encoding: .utf8)
+let source = try String(contentsOf: repo.appendingPathComponent("Floe/UI/FloeBar/Appearance/FloeBarAppearanceEditorPanel.swift"), encoding: .utf8)
 let start = source.range(of: "    private(set) lazy var mouseDownMonitor")!.lowerBound
 let end = source.range(of: "\n    @ViewBuilder", range: start..<source.endIndex)!.lowerBound
 let handler = String(source[start..<end])

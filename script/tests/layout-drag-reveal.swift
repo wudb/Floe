@@ -65,6 +65,8 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
     var finalRead: CheckedContinuation<Void, Never>?
     var lastSnapshot: [MenuBarItemAXDiscovery.SectionKind: [RowItem]] = [:]
     var pauseFirstRead = false, failAfterLanding = false
+    var omitCollapsedAXItems = false
+    var relocateCollapsedAXItems = false
     var firstRead: CheckedContinuation<Void, Never>?
     func seed(_ groups: [MenuBarItemAXDiscovery.SectionKind: [String]]) {
         live = groups.mapValues { $0.map { RowItem(id: $0, quartzFrame: CGRect(x: 100, y: 0, width: 20, height: 20)) } }
@@ -84,6 +86,14 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
         }
         if dropped && staleReads > 0 {
             staleReads -= 1; sections = lastSnapshot; return
+        }
+        if omitCollapsedAXItems && !revealed {
+            if relocateCollapsedAXItems {
+                live[.visible, default: []].append(contentsOf: live[.hidden] ?? [])
+                live[.hidden] = []
+            }
+            sections = live.mapValues { $0.filter { !$0.id.hasPrefix("ax:") } }
+            return
         }
         sections = live.mapValues { rows in rows.map { row in
             RowItem(id: row.id, quartzFrame: CGRect(x: revealed || row.id != "a" ? 100 : -10000, y: 0, width: 20, height: 20))
@@ -200,6 +210,22 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
         precondition(finishing.isMoving && finishing.appState.itemManager.isEditingLayout && finishing.movePreview != nil, "collapse readback retains edit ownership and preview")
         finishing.finalRead?.resume(); await finishingTask.value
         precondition(!finishing.isMoving && !finishing.appState.itemManager.isEditingLayout)
+
+        // 27 收起后隐藏项不再有 AX 节点；必须再展开读回系统位置，不能把缺席判为移动失败。
+        let parkedAX = Pane()
+        parkedAX.seed([.visible: ["ax:a", "existing"]]); parkedAX.omitCollapsedAXItems = true
+        await parkedAX.drop(itemID: "ax:a", to: .hidden)
+        precondition(!parkedAX.moveFailed && parkedAX.posts == 1 && parkedAX.appState.itemManager.records == 1)
+        precondition(parkedAX.sections[.hidden]?.map(\.id) == ["ax:a"])
+        precondition(parkedAX.appState.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems && $0.writes == 0 })
+
+        let relocatedAX = Pane()
+        relocatedAX.seed([.visible: ["ax:a", "existing"]])
+        relocatedAX.omitCollapsedAXItems = true; relocatedAX.relocateCollapsedAXItems = true
+        await relocatedAX.drop(itemID: "ax:a", to: .hidden)
+        precondition(relocatedAX.moveFailed && relocatedAX.appState.itemManager.records == 0,
+                     "reveal must verify the real destination, not trust the previous expanded snapshot")
+        precondition(relocatedAX.appState.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems && $0.writes == 0 })
 
         let cancelled = Pane()
         cancelled.seed([.hidden: ["a"]])

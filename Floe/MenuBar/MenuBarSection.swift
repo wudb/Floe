@@ -221,10 +221,8 @@ final class MenuBarSection {
         let targetScreen = screenForFloeBar
         switch name {
         case .visible where useFloeBar, .hidden where useFloeBar:
-            // The Floe Bar shows items WITHOUT expanding the menu bar: the spacer stays put.
-            // The bar lists whatever AX sees (dividersMissing → show everything);
-            // deeply parked items with no AX node can't be listed — an accepted
-            // trade-off per the user's call (menu bar must not jut left).
+            // 浮栏保持原生菜单栏收起；已读取的隐藏项由共享 AX 记录保留。
+            // 本次运行从未读到的系统溢出项仍需先获得真实身份。
             presentationTask?.cancel()
             presentationTask = Task {
                 guard !Task.isCancelled,
@@ -234,8 +232,7 @@ final class MenuBarSection {
                 }
             }
         case .alwaysHidden where useFloeBar:
-            // Same as above: clicking the Floe icon only shows the bar below,
-            // the menu bar stays put.
+            // 始终隐藏同样使用浮栏，不展开原生菜单栏。
             presentationTask?.cancel()
             presentationTask = Task {
                 guard !Task.isCancelled,

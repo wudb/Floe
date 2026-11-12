@@ -12,8 +12,8 @@ final class AppState: ObservableObject {
     /// A Boolean value that indicates whether the active space is fullscreen.
     @Published private(set) var isActiveSpaceFullscreen = Bridging.isSpaceFullscreen(Bridging.activeSpaceID)
 
-    /// Manager for the menu bar's appearance.
-    private(set) lazy var appearanceManager = MenuBarAppearanceManager(appState: self)
+    /// 浮栏专用外观配置。
+    private(set) lazy var floeBarAppearanceManager = FloeBarAppearanceManager()
 
     /// Manager for events received by the app.
     private(set) lazy var eventManager = EventManager(appState: self)
@@ -212,7 +212,7 @@ final class AppState: ObservableObject {
             permissionsManager.stopTimerChecks()
         }
         menuBarManager.performSetup()
-        appearanceManager.performSetup()
+        floeBarAppearanceManager.performSetup()
         eventManager.performSetup()
         itemManager.performSetup()
         // ponytail: Sparkle, image cache and notifications are not needed for the

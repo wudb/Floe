@@ -12,7 +12,7 @@ let fixture = #"""
 import Cocoa
 import Combine
 struct MenuBarItem { let windowID: UInt32 }
-struct MenuBarItemAXDiscovery { struct AXMenuBarItem {} }
+struct MenuBarItemAXDiscovery { struct AXMenuBarItem { var isMovable = true; var canBeHidden = true } }
 struct MenuBarSection { enum Name { case hidden } }
 @MainActor final class AppState {}
 @MainActor enum Fixture { static var calls = 0 }
@@ -31,6 +31,10 @@ __PRODUCTION__
         let state = AppState(), controller = FloeBarReorderController()
         controller.activate(); controller.isEditing = true
         precondition(!controller.accept([NSItemProvider(object: "external" as NSString)], before: .cgs(MenuBarItem(windowID: 2)), section: .hidden, appState: state))
+        let protected = controller.provider(for: .ax(.init(isMovable: false)))
+        precondition(!protected.canLoadObject(ofClass: NSString.self))
+        let cannotHide = controller.provider(for: .ax(.init(canBeHidden: false)))
+        precondition(!cannotHide.canLoadObject(ofClass: NSString.self))
         let provider = controller.provider(for: .cgs(MenuBarItem(windowID: 1)))
         precondition(controller.accept([provider], before: .cgs(MenuBarItem(windowID: 2)), section: .hidden, appState: state))
         _ = controller.accept([provider], before: .cgs(MenuBarItem(windowID: 3)), section: .hidden, appState: state)
