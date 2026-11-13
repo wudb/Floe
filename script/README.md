@@ -278,10 +278,16 @@ On macOS 27.2.1, a disposable 1.0.3 starter with Floe's public key updated to th
 - The installed executable matched the signed target and its bundle signature
   passed strict verification. Missing permissions opened Floe's existing
   permission window and could be skipped while checking updates.
-- The temporary starter had no Accessibility or Screen Recording grant.
+- After publication, a separate disposable starter used the production GitHub
+  feed. Enabling automatic checks and closing Settings displayed the scheduled
+  1.0.4 alert with release notes. The GitHub ZIP downloaded, installed and
+  relaunched successfully. Its installed executable matched the published ZIP.
+- The temporary starters had no Accessibility or Screen Recording grant.
   Permission continuity across an ad-hoc signature change is therefore not
-  established by this test. Existing user settings and the development app were
-  restored after testing.
+  established by these tests. User settings were restored after testing.
+- The local development app was updated to 1.0.4 using its existing Apple
+  Development designated signing requirement. It read 18 layout items and its
+  regular update check reported that 1.0.4 was current.
 
 The local runtime and HTTP evidence is kept under
 `/tmp/FloeUpdate104-acceptance/`. Public-feed publication additionally validates
