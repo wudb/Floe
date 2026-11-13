@@ -32,6 +32,9 @@ final class MenuBarManager: ObservableObject {
     @Published private(set) var isMenuBarRecoveryActive = false
     private var statesBeforeMenuBarRecovery = [MenuBarSection.Name: ControlItem.HidingState]()
 
+    /// 首次收起前读取真实 AX 身份与分区，避免系统先把图标从辅助功能列表中移除。
+    private(set) var isPreparingInitialAXSnapshot = false
+
     /// The shared app state.
     private weak var appState: AppState?
 
@@ -113,10 +116,55 @@ final class MenuBarManager: ObservableObject {
 
     /// Performs the initial setup of the menu bar manager.
     func performSetup() {
+        guard sections.isEmpty else { return }
+        if #available(macOS 27, *), MenuBarItemAXDiscovery.isTrusted() {
+            isPreparingInitialAXSnapshot = true
+        }
         initializeSections()
         configureCancellables()
         floeBarPanel.performSetup()
         presentationController.performSetup()
+        if isPreparingInitialAXSnapshot {
+            for section in sections {
+                section.controlItem.updateStatusItem(with: section.controlItem.state)
+            }
+            Task { await cacheInitialAXSnapshot() }
+        }
+    }
+
+    private func cacheInitialAXSnapshot() async {
+        var expandedOverflow = false
+        defer {
+            isPreparingInitialAXSnapshot = false
+            // 只应用当前状态；初始化期间的用户选择、恢复模式及保存值继续生效。
+            for section in sections {
+                section.controlItem.updateStatusItem(with: section.controlItem.state)
+            }
+            if expandedOverflow { _ = MenuBarItemAXDiscovery.setOverflowExpanded(false, in: NSWorkspace.shared.runningApplications) }
+        }
+        guard let appState else { return }
+        do { try await Task.sleep(for: .milliseconds(250)) } catch { return }
+        expandedOverflow = MenuBarItemAXDiscovery.setOverflowExpanded(true, in: NSWorkspace.shared.runningApplications)
+        if expandedOverflow {
+            do { try await Task.sleep(for: .milliseconds(250)) } catch { return }
+        }
+        var dividers = MenuBarItemAXDiscovery.dividerFrames()
+        for _ in 0..<20 {
+            let hiddenReady = dividers.hidden.map(MenuBarItemAXDiscovery.isSettledDividerFrame) == true
+            let alwaysHiddenReady = section(withName: .alwaysHidden)?.isEnabled != true ||
+                dividers.alwaysHidden.map(MenuBarItemAXDiscovery.isSettledDividerFrame) == true
+            if hiddenReady, alwaysHiddenReady { break }
+            do { try await Task.sleep(for: .milliseconds(100)) } catch { return }
+            dividers = MenuBarItemAXDiscovery.dividerFrames()
+        }
+        let apps = NSWorkspace.shared.runningApplications
+        let items = await Task.detached(priority: .userInitiated) {
+            MenuBarItemAXDiscovery.discoverItems(in: apps)
+        }.value
+        let hiddenX = dividers.hidden.flatMap { MenuBarItemAXDiscovery.isSettledDividerFrame($0) ? $0.minX : nil }
+        let alwaysHiddenX = dividers.alwaysHidden.flatMap { MenuBarItemAXDiscovery.isSettledDividerFrame($0) ? $0.minX : nil }
+        appState.itemManager.rememberAXItems(items, hiddenDividerX: hiddenX, alwaysHiddenDividerX: alwaysHiddenX)
+        Logger.menuBarManager.info("startupAXSnapshot found=\(items.count) hiddenX=\(String(describing: hiddenX)) alwaysHiddenX=\(String(describing: alwaysHiddenX))")
     }
 
     /// Performs the initial setup of the menu bar manager's sections.

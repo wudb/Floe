@@ -220,13 +220,24 @@ enum MenuBarItemAXDiscovery {
         // Drops Floe's own icons (the dividers) from the list.
         let ownBundleID = Bundle.main.bundleIdentifier
         var result = [AXMenuBarItem]()
-        for app in apps {
+        // 原应用的状态项优先；代理窗口只补充这些应用没有公开的项目。
+        let orderedApps = apps.filter { $0.bundleIdentifier != "com.apple.MenuBarAgent" } +
+            apps.filter { $0.bundleIdentifier == "com.apple.MenuBarAgent" }
+        for app in orderedApps {
             guard app.bundleIdentifier != ownBundleID else {
                 continue
             }
             // 每个宿主独立限制树遍历，不能让一个复杂宿主耗尽所有后续应用的额度。
             var visited = 0
-            result.append(contentsOf: items(for: app, visited: &visited))
+            let sourceItems = result
+            for item in items(for: app, visited: &visited) where !result.contains(where: { $0.pid == item.pid && CFEqual($0.element, item.element) }) {
+                if app.bundleIdentifier == "com.apple.MenuBarAgent", sourceItems.contains(where: { source in
+                    guard source.pid == item.pid, let original = source.axFrame, let proxy = item.axFrame,
+                          !original.isEmpty, !proxy.isEmpty else { return false }
+                    return abs(original.midX - proxy.midX) <= 1 && abs(original.midY - proxy.midY) <= 1
+                }) { continue }
+                result.append(item)
+            }
         }
         return result.sorted {
             $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
@@ -254,6 +265,60 @@ enum MenuBarItemAXDiscovery {
         os.Logger(subsystem: "com.float.floe", category: "AXDiscovery")
             .info("axPress result pid=\(item.pid) element=\(CFHash(item.element)) code=\(result.rawValue)")
         return result == .success
+    }
+
+    /// 原生整理需要真实屏内坐标，系统溢出按钮展开后才会将被遮挡图标放回可拖动的位置。
+    /// 返回是否由本次调用改变状态，调用方只收回自己临时展开的溢出区。
+    static func setOverflowExpanded(_ expanded: Bool, in apps: [NSRunningApplication]) -> Bool {
+        guard isTrusted(), let app = apps.first(where: { $0.bundleIdentifier == "com.apple.MenuBarAgent" }) else { return false }
+        let deadline = Date.now.addingTimeInterval(1)
+        let axApp = AXUIElementCreateApplication(app.processIdentifier)
+        AXUIElementSetMessagingTimeout(axApp, 0.1)
+        var bar: AnyObject?
+        guard AXUIElementCopyAttributeValue(axApp, "AXExtrasMenuBar" as CFString, &bar) == .success,
+              let bar, CFGetTypeID(bar) == AXUIElementGetTypeID() else { return false }
+        // swiftlint:disable:next force_cast
+        let barElement = bar as! AXUIElement
+        var button: AnyObject?
+        var pending = [barElement]
+        if AXUIElementCopyAttributeValue(barElement, "AXOverflowButton" as CFString, &button) == .success,
+           let button, CFGetTypeID(button) == AXUIElementGetTypeID() {
+            // swiftlint:disable:next force_cast
+            pending.append(button as! AXUIElement)
+        }
+        let expected = expanded ? "menu-bar-overflow-indicator" : "menu-bar-overflow-indicator-expanded"
+        var visited = 0
+        while let element = pending.popLast(), visited < 64, Date.now < deadline {
+            visited += 1
+            let identifier = stringAttribute("AXIdentifier" as CFString, of: element)
+            if identifier == expected {
+                return AXUIElementPerformAction(element, kAXPressAction as CFString) == .success
+            }
+            if identifier == (expanded ? "menu-bar-overflow-indicator-expanded" : "menu-bar-overflow-indicator") { return false }
+            let role = stringAttribute(kAXRoleAttribute as CFString, of: element)
+            guard role != "AXMenu", role != "AXMenuItem" else { continue }
+            var children: AnyObject?
+            if AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &children) == .success {
+                pending.append(contentsOf: children as? [AXUIElement] ?? [])
+            }
+        }
+        return false
+    }
+
+    /// 共享菜单栏的占位帧可能指向另一应用，投递拖拽前必须检查鼠标实际命中的进程。
+    @MainActor
+    static func isItemAtPosition(_ item: AXMenuBarItem, point: CGPoint) -> Bool {
+        let system = AXUIElementCreateSystemWide()
+        AXUIElementSetMessagingTimeout(system, 0.1)
+        var target: AXUIElement?
+        guard AXUIElementCopyElementAtPosition(system, Float(point.x), Float(point.y), &target) == .success,
+              let target else { return false }
+        if CFEqual(target, item.element) { return true }
+        var pid: pid_t = 0
+        let result = AXUIElementGetPid(target, &pid) == .success && pid == item.pid
+        os.Logger(subsystem: "com.float.floe", category: "AXDiscovery")
+            .info("axDragHit expectedPID=\(item.pid) actualPID=\(pid) point=\(String(describing: point), privacy: .public) matches=\(result)")
+        return result
     }
 
     /// Frames (in AX coordinates, same system as `AXMenuBarItem.axFrame`) of Floe's
@@ -289,6 +354,22 @@ enum MenuBarItemAXDiscovery {
         var visited = 0
         var found = [String: CGRect]()
         collectDividerFrames(from: barElement, depth: maxWalkDepth, visited: &visited, into: &found)
+        found = found.filter { isSettledDividerFrame($0.value) }
+        if #available(macOS 27, *), found["FloeHiddenDivider"] == nil || found["FloeAlwaysHiddenDivider"] == nil {
+            // 分隔符进入系统溢出区后，原应用的 Extras 树会缺项；代理窗口仍提供带精确标识的按钮。
+            for app in NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.MenuBarAgent") {
+                let agent = AXUIElementCreateApplication(app.processIdentifier)
+                AXUIElementSetMessagingTimeout(agent, 0.1)
+                var windows: AnyObject?
+                guard AXUIElementCopyAttributeValue(agent, kAXWindowsAttribute as CFString, &windows) == .success else { continue }
+                visited = 0
+                let deadline = Date.now.addingTimeInterval(1)
+                for window in windows as? [AXUIElement] ?? [] {
+                    guard let bounds = frame(of: window), bounds.height > 0, bounds.height <= 64 else { continue }
+                    collectDividerFrames(from: window, depth: maxWalkDepth, visited: &visited, deadline: deadline, into: &found)
+                }
+            }
+        }
         return (found["FloeHiddenDivider"], found["FloeAlwaysHiddenDivider"])
     }
 
@@ -312,9 +393,10 @@ enum MenuBarItemAXDiscovery {
         from element: AXUIElement,
         depth: Int,
         visited: inout Int,
+        deadline: Date = Date.now.addingTimeInterval(1),
         into result: inout [String: CGRect]
     ) {
-        guard depth > 0, visited < maxElementsVisited else {
+        guard depth > 0, visited < maxElementsVisited, Date.now < deadline else {
             return
         }
         visited += 1
@@ -342,7 +424,7 @@ enum MenuBarItemAXDiscovery {
             return
         }
         for child in elements {
-            collectDividerFrames(from: child, depth: depth - 1, visited: &visited, into: &result)
+            collectDividerFrames(from: child, depth: depth - 1, visited: &visited, deadline: deadline, into: &result)
         }
     }
 
@@ -387,6 +469,24 @@ enum MenuBarItemAXDiscovery {
             into: &result
         )
         if app.bundleIdentifier == "com.apple.MenuBarAgent" {
+            // 27 的 AXExtrasMenuBar 只含部分系统项目；第三方图标还挂在代理的菜单栏窗口下。
+            // 限定菜单栏高度的窗口，继续共用宿主的节点/时间预算，避免遍历应用弹窗内容。
+            var windows: AnyObject?
+            if AXUIElementCopyAttributeValue(axApp, kAXWindowsAttribute as CFString, &windows) == .success {
+                for window in windows as? [AXUIElement] ?? [] {
+                    guard let bounds = frame(of: window), bounds.height > 0, bounds.height <= 64, bounds.width > bounds.height * 4 else { continue }
+                    collectItems(
+                        from: window,
+                        pid: app.processIdentifier,
+                        appName: appName,
+                        bundleID: app.bundleIdentifier,
+                        depth: maxWalkDepth,
+                        visited: &visited,
+                        deadline: deadline,
+                        into: &result
+                    )
+                }
+            }
             // 系统溢出按钮会随布局重建身份，不能把它当成应用图标不断加入隐藏缓存。
             var overflow: AnyObject?
             if AXUIElementCopyAttributeValue(barElement, "AXOverflowButton" as CFString, &overflow) == .success,
@@ -468,18 +568,26 @@ enum MenuBarItemAXDiscovery {
             ?? stringAttribute(kAXHelpAttribute as CFString, of: element)
 
         // 27 的代理可能把自身控件作为代理子项返回，不能把恢复按钮/分隔符列成待隐藏应用。
-        guard !["FloeIcon", "FloeHiddenDivider", "FloeAlwaysHiddenDivider"].contains(identifier ?? "") else { return }
+        guard !["FloeIcon", "FloeHiddenDivider", "FloeAlwaysHiddenDivider", "menu-bar-overflow-indicator", "menu-bar-overflow-indicator-expanded"].contains(identifier ?? "") else { return }
         guard identifier != nil || title != nil || recordNameless else {
             return
         }
+        // 代理窗口下的叶节点仍可能由原应用提供，用真实进程读取名称、图标与退出状态。
+        var ownerPID = pid
+        if bundleID == "com.apple.MenuBarAgent" {
+            _ = AXUIElementGetPid(element, &ownerPID)
+        }
+        guard !result.contains(where: { $0.pid == ownerPID && CFEqual($0.element, element) }) else { return }
+        let owner = ownerPID == pid ? nil : NSRunningApplication(processIdentifier: ownerPID)
         result.append(
             AXMenuBarItem(
                 element: element,
-                pid: pid,
-                appName: appName,
-                bundleID: bundleID,
+                pid: ownerPID,
+                appName: owner?.localizedName ?? appName,
+                bundleID: owner?.bundleIdentifier ?? bundleID,
                 identifier: identifier,
-                title: title,
+                title: stringAttribute(kAXRoleAttribute as CFString, of: element) == "AXImage"
+                    ? owner?.localizedName ?? appName : title,
                 axFrame: frame(of: element)
             )
         )

@@ -11,11 +11,17 @@ func method(_ marker: String) -> String {
         .replacingOccurrences(of: "isPostingMove = true", with: "self.isPostingMove = true")
         .replacingOccurrences(of: "NSEvent.", with: "FixtureEvents.")
 }
-let methods = ["    private func performLayoutMove(", "    private func performDrag("].map(method).joined(separator: "\n")
+let methods = ["    private func performLayoutMove(", "    private func performDrag(", "    private func destinationPoint("].map(method).joined(separator: "\n")
 let fixture = #"""
 import Cocoa
 import CoreGraphics
-enum MenuBarItemAXDiscovery { enum SectionKind { case visible, hidden, alwaysHidden } }
+enum MenuBarItemAXDiscovery {
+    enum SectionKind { case visible, hidden, alwaysHidden }
+    struct AXMenuBarItem {}
+    static var correctHit = true
+    static func isItemAtPosition(_ item: AXMenuBarItem, point: CGPoint) -> Bool { correctHit }
+}
+struct AXCache { func id(for item: MenuBarItemAXDiscovery.AXMenuBarItem) -> String { "1" } }
 enum MenuInteractionGuard { static var isInteracting = false }
 @MainActor enum FixtureEvents {
     static var pressedMouseButtons = 0
@@ -41,6 +47,7 @@ func TestDisplayBounds(_ id: UInt32) -> CGRect { CGRect(x: 0, y: 0, width: 1000,
 @MainActor final class MenuBarItemManager {
     enum MoveDestination { case leftOfItem(MenuBarItem), rightOfItem(MenuBarItem) }
     var moves = [String](), fail = false, isMovingItem = false
+    let axItemCache = AXCache()
     func move(item: MenuBarItem, to destination: MoveDestination, maxAttempts: Int, beforePostingEvents: (() -> Void)?) async throws {
         beforePostingEvents?()
         precondition(maxAttempts == 1)
@@ -60,6 +67,10 @@ func TestDisplayBounds(_ id: UInt32) -> CGRect { CGRect(x: 0, y: 0, width: 1000,
 @MainActor final class Pane {
     let appState = AppState()
     var isPostingMove = false
+    var hiddenDividerX: CGFloat? = 1000
+    var alwaysHiddenDividerX: CGFloat? = 300
+    var anchorY: CGFloat = 16
+    var axSnapshot = [MenuBarItemAXDiscovery.AXMenuBarItem()]
     var syntheticDrags: Int { MenuBarItemAXMover.drags }
 __PRODUCTION__
 }
@@ -67,6 +78,7 @@ __PRODUCTION__
     @MainActor static func main() async {
         Task.detached { try await Task.sleep(for: .seconds(20)); exit(124) }
         let pane = Pane(), item = RowItem(id: "cgs:1")
+        precondition(pane.destinationPoint(for: .hidden)?.x == 992, "hidden destination must stay beside its right divider instead of crossing the notch")
         FixtureEvents.pressedMouseButtons = 1
         var completed = false
         let waiting = Task {
@@ -103,6 +115,10 @@ __PRODUCTION__
         precondition(!failed && pane.syntheticDrags == 0, "native failure must not fall back to an unsafe coordinate drag")
         let offscreen = await pane.performLayoutMove(RowItem(id: "ax:1", quartzFrame: CGRect(x: -10000, y: 0, width: 20, height: 20)), to: .hidden, destination: CGPoint(x: 50, y: 10))
         precondition(!offscreen)
+        MenuBarItemAXDiscovery.correctHit = false
+        let wrongHit = await pane.performLayoutMove(RowItem(id: "ax:1", quartzFrame: CGRect(x: 100, y: 0, width: 20, height: 20)), to: .hidden, destination: CGPoint(x: 50, y: 10))
+        precondition(!wrongHit && pane.syntheticDrags == 0, "a parked frame must never drag a different application")
+        MenuBarItemAXDiscovery.correctHit = true
         let ax = await pane.performLayoutMove(RowItem(id: "ax:1", quartzFrame: CGRect(x: 100, y: 0, width: 20, height: 20)), to: .hidden, destination: CGPoint(x: 50, y: 10))
         precondition(ax && pane.syntheticDrags == 1)
 

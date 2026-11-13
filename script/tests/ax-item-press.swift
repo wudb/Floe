@@ -11,8 +11,8 @@ let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     .deletingLastPathComponent().deletingLastPathComponent().path
 var source = try String(contentsOfFile: repo + "/Floe/MenuBar/MenuBarItems/MenuBarItemAXDiscovery.swift", encoding: .utf8)
 // Replace only the OS boundary; discovery, item identity, and press selection remain production code.
-for name in ["AXUIElement", "NSRunningApplication", "AXIsProcessTrusted", "AXUIElementGetTypeID",
-             "AXUIElementCreateApplication", "AXUIElementSetMessagingTimeout",
+for name in ["AXUIElement", "NSRunningApplication", "AXIsProcessTrusted", "AXUIElementGetTypeID", "AXUIElementGetPid",
+             "AXUIElementCreateApplication", "AXUIElementCreateSystemWide", "AXUIElementCopyElementAtPosition", "AXUIElementSetMessagingTimeout",
              "AXUIElementCopyAttributeValue", "AXUIElementPerformAction"] {
     source = source.replacingOccurrences(of: "\\b" + name + "\\b", with: "Fixture" + name, options: .regularExpression)
 }
@@ -22,6 +22,7 @@ import ApplicationServices
 final class FixtureAXUIElement: NSObject {
     var attributes: [String: AnyObject]
     var actionResult = AXError.success
+    var ownerPID: pid_t = 42
     var attributeDelay: TimeInterval = 0
     init(_ role: String, title: String? = nil, identifier: String? = nil, children: [FixtureAXUIElement] = []) {
         attributes = [kAXRoleAttribute: role as NSString, kAXChildrenAttribute: children as NSArray]
@@ -38,14 +39,25 @@ struct FixtureNSRunningApplication {
     }
     let localizedName: String? = "Control Center"
     static let current = FixtureNSRunningApplication()
+    static func runningApplications(withBundleIdentifier id: String) -> [Self] { [] }
 }
 var trusted = true
 var application = FixtureAXUIElement("AXApplication")
 var pressed: [FixtureAXUIElement] = []
+var hitTarget = FixtureAXUIElement("AXButton")
 var applications: [pid_t: FixtureAXUIElement] = [:]
 func FixtureAXIsProcessTrusted() -> Bool { trusted }
 func FixtureAXUIElementGetTypeID() -> CFTypeID { CFGetTypeID(application) }
+func FixtureAXUIElementGetPid(_ element: FixtureAXUIElement, _ pid: UnsafeMutablePointer<pid_t>) -> AXError {
+    pid.pointee = element.ownerPID
+    return .success
+}
 func FixtureAXUIElementCreateApplication(_ pid: pid_t) -> FixtureAXUIElement { applications[pid] ?? application }
+func FixtureAXUIElementCreateSystemWide() -> FixtureAXUIElement { application }
+func FixtureAXUIElementCopyElementAtPosition(_ element: FixtureAXUIElement, _ x: Float, _ y: Float, _ target: UnsafeMutablePointer<FixtureAXUIElement?>) -> AXError {
+    target.pointee = hitTarget
+    return .success
+}
 @discardableResult
 func FixtureAXUIElementSetMessagingTimeout(_ element: FixtureAXUIElement, _ timeout: Float) -> AXError { .success }
 func FixtureAXUIElementCopyAttributeValue(_ element: FixtureAXUIElement, _ attribute: CFString, _ value: UnsafeMutablePointer<AnyObject?>) -> AXError {
@@ -56,6 +68,10 @@ func FixtureAXUIElementCopyAttributeValue(_ element: FixtureAXUIElement, _ attri
 func FixtureAXUIElementPerformAction(_ element: FixtureAXUIElement, _ action: CFString) -> AXError {
     precondition(action as String == kAXPressAction)
     pressed.append(element)
+    if let identifier = element.attributes["AXIdentifier"] as? String,
+       identifier == "menu-bar-overflow-indicator" || identifier == "menu-bar-overflow-indicator-expanded" {
+        element.attributes["AXIdentifier"] = (identifier == "menu-bar-overflow-indicator" ? "menu-bar-overflow-indicator-expanded" : "menu-bar-overflow-indicator") as NSString
+    }
     return element.actionResult
 }
 """#
@@ -148,6 +164,62 @@ proxyApp.attributes["AXExtrasMenuBar"] = proxyBar
 applications = [45: proxyApp]
 let proxyItems = MenuBarItemAXDiscovery.discoverItems(in: [.init(processIdentifier: 45, bundleIdentifier: "com.apple.MenuBarAgent")])
 precondition(proxyItems.count == 1 && proxyItems[0].element === vpnTarget)
+let legacy = FixtureAXUIElement("AXButton", title: "Legacy icon")
+legacy.ownerPID = 63
+let proxyWindow = FixtureAXUIElement("AXWindow", children: [FixtureAXUIElement("AXGroup", children: [legacy, vpnTarget, overflow])])
+var windowOrigin = CGPoint.zero
+var windowSize = CGSize(width: 1440, height: 33)
+proxyWindow.attributes[kAXPositionAttribute] = AXValueCreate(.cgPoint, &windowOrigin)
+proxyWindow.attributes[kAXSizeAttribute] = AXValueCreate(.cgSize, &windowSize)
+proxyApp.attributes[kAXWindowsAttribute] = [proxyWindow] as NSArray
+let windowItems = MenuBarItemAXDiscovery.discoverItems(in: [.init(processIdentifier: 45, bundleIdentifier: "com.apple.MenuBarAgent")])
+precondition(windowItems.filter { $0.element === vpnTarget }.count == 1)
+precondition(windowItems.filter { $0.element === legacy }.count == 1)
+precondition(windowItems.first { $0.element === legacy }?.pid == 63)
+precondition(!windowItems.contains { $0.element === overflow })
+print("PASS: shared menu bar window supplies missing legacy icons, keeps source PID and deduplicates exact extras targets")
+func setFrame(_ frame: CGRect, on element: FixtureAXUIElement) {
+    var origin = frame.origin, size = frame.size
+    element.attributes[kAXPositionAttribute] = AXValueCreate(.cgPoint, &origin)
+    element.attributes[kAXSizeAttribute] = AXValueCreate(.cgSize, &size)
+}
+let original = FixtureAXUIElement("AXButton", title: "Original icon")
+setFrame(CGRect(x: 108, y: 5, width: 24, height: 24), on: original)
+setFrame(CGRect(x: 101, y: 0, width: 38, height: 34), on: legacy)
+let sibling = FixtureAXUIElement("AXButton", title: "Original icon")
+sibling.ownerPID = 63
+setFrame(CGRect(x: 201, y: 0, width: 38, height: 34), on: sibling)
+proxyWindow.attributes[kAXChildrenAttribute] = [legacy, sibling, vpnTarget, overflow] as NSArray
+let originalApp = FixtureAXUIElement("AXApplication")
+originalApp.attributes["AXExtrasMenuBar"] = FixtureAXUIElement("AXMenuBar", children: [original])
+applications[63] = originalApp
+let combined = MenuBarItemAXDiscovery.discoverItems(in: [
+    .init(processIdentifier: 45, bundleIdentifier: "com.apple.MenuBarAgent"),
+    .init(processIdentifier: 63, bundleIdentifier: "example.owner"),
+])
+precondition(combined.contains { $0.element === original })
+precondition(!combined.contains { $0.element === legacy })
+precondition(combined.contains { $0.element === sibling }, "same-owner adjacent icons must remain separate")
+let popupOnly = FixtureAXUIElement("AXButton", title: "Popup content")
+let popup = FixtureAXUIElement("AXWindow", children: [popupOnly])
+setFrame(CGRect(x: 0, y: 33, width: 400, height: 300), on: popup)
+proxyApp.attributes[kAXWindowsAttribute] = [proxyWindow, popup] as NSArray
+let withPopup = MenuBarItemAXDiscovery.discoverItems(in: [.init(processIdentifier: 45, bundleIdentifier: "com.apple.MenuBarAgent")])
+precondition(!withPopup.contains { $0.element === popupOnly })
+print("PASS: source/proxy geometry prevents duplicate rows, distinct same-owner icons survive and popup content is excluded")
+overflow.attributes["AXIdentifier"] = "menu-bar-overflow-indicator" as NSString
+precondition(MenuBarItemAXDiscovery.setOverflowExpanded(true, in: [.init(processIdentifier: 45, bundleIdentifier: "com.apple.MenuBarAgent")]))
+precondition(!MenuBarItemAXDiscovery.setOverflowExpanded(true, in: [.init(processIdentifier: 45, bundleIdentifier: "com.apple.MenuBarAgent")]))
+precondition(MenuBarItemAXDiscovery.setOverflowExpanded(false, in: [.init(processIdentifier: 45, bundleIdentifier: "com.apple.MenuBarAgent")]))
+let hitItem = MenuBarItemAXDiscovery.AXMenuBarItem(element: original, pid: 63, appName: "Owner", bundleID: "example.owner", identifier: nil, title: nil, axFrame: nil)
+MainActor.assumeIsolated {
+    hitTarget = original
+    precondition(MenuBarItemAXDiscovery.isItemAtPosition(hitItem, point: .zero))
+    hitTarget = FixtureAXUIElement("AXButton")
+    hitTarget.ownerPID = 99
+    precondition(!MenuBarItemAXDiscovery.isItemAtPosition(hitItem, point: .zero))
+}
+print("PASS: overflow changes are owned and idempotent, dragging rejects a different application's hit target")
 applications = [:]
 print("PASS: native overflow controls are excluded by exact AX identity and scoped localized fallback, VPN remains listed")
 var failures = 0

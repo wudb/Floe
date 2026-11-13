@@ -8,7 +8,7 @@
   <p><a href="https://github.com/wudb/Floe/releases">Download</a> · <a href="https://github.com/wudb/Floe/issues">Report an issue</a> · <a href="LICENSE">GPL-3.0</a></p>
 </div>
 
-**macOS 14 Sonoma or later** · **English and Simplified Chinese** · **Current source version: 1.0.2**
+**macOS 14 Sonoma or later** · **English and Simplified Chinese** · **Current source version: 1.0.3**
 
 ## A clearer view of your menu bar
 
@@ -122,7 +122,7 @@ The layout editor also exposes movement actions through context menus and VoiceO
 
 **Missing system icons or Floe icon (development build):** Reopen Floe from Applications, then choose **General → Recover Menu Bar Items**. This releases Floe's hiding spacers, restores its icon and pauses hiding and automatic layout restoration for the current session, including across display changes and wake. Saved app layouts and hiding preferences are kept. Choose **Resume Hiding** to return to the previous section states. This recovery path does not require discovering third-party icons and cannot change system Wi-Fi settings. The recovery controls have been checked on macOS 27.2.1; the original 27.0.1 report still needs confirmation.
 
-The development build retains macOS 27 items read and assigned to Hidden or Always Hidden during the current run when macOS stops listing them through Accessibility. Opening the Floe Bar keeps the native menu bar collapsed. These records last until Floe quits. An app may still decline a press on its hidden item.
+The development build reads macOS 27 items and section boundaries before applying the saved hiding state at startup. Discovery includes the shared menu bar window and original app entries, merging duplicate representations of the same icon. Items assigned to Hidden or Always Hidden remain available during the current run when macOS stops listing them through Accessibility. Opening the Floe Bar keeps the native menu bar collapsed. These records last until Floe quits. An app may still decline a press on its hidden item.
 
 - **An icon is missing:** confirm Floe's permissions in System Settings, then refresh Menu Bar Layout. Items that macOS does not expose or allow moving may have limited controls.
 - **The Floe icon is missing:** reopen Floe from Applications, then use **General → Restore Floe icon**.

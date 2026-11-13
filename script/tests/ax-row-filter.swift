@@ -37,7 +37,7 @@ enum MenuBarItemAXDiscovery {
         let element = NSObject()
         let pid: pid_t = 42
         let bundleID: String? = nil
-        let identifier: String? = nil
+        var identifier: String? = nil
         let title: String?
         var displayName: String { title ?? "unknown" }
         let axFrame: CGRect?
@@ -159,6 +159,26 @@ final class ItemManager {
     MenuBarItemAXDiscovery.items = []
     await retained.scanAXRowsOnce(attempt: 0)
     expect("exited process removes retained items", retained.axRows.isEmpty)
+    var identityCache = MenuBarItemAXCache()
+    let original = MenuBarItemAXDiscovery.AXMenuBarItem(title: "original", axFrame: CGRect(x: 390, y: 0, width: 20, height: 24))
+    let proxy = MenuBarItemAXDiscovery.AXMenuBarItem(title: "proxy", axFrame: CGRect(x: 590, y: 0, width: 20, height: 24))
+    let bands = [CGRect(x: 0, y: 0, width: 1200, height: 32)]
+    identityCache.update([original], runningPIDs: [42], hiddenDividerX: 800, alwaysHiddenDividerX: 500, menuBarBands: bands)
+    let stableID = identityCache.id(for: original)
+    identityCache.update([proxy], runningPIDs: [42], hiddenDividerX: 800, alwaysHiddenDividerX: 500, menuBarBands: bands, allowHiddenSectionChanges: false)
+    expect("a recreated singleton keeps its logical ID without duplicate rows", identityCache.id(for: proxy) == stableID && identityCache.merging([proxy]).count == 1)
+    expect("parked proxy coordinates cannot change confirmed Always Hidden membership", identityCache.section(for: proxy) == .alwaysHidden)
+    identityCache.update([proxy], runningPIDs: [42], hiddenDividerX: 800, alwaysHiddenDividerX: 500, menuBarBands: bands)
+    expect("expanded live geometry confirms Always Hidden to Hidden", identityCache.section(for: proxy) == .hidden && identityCache.id(for: proxy) == stableID)
+    var first = original, second = moved
+    first.identifier = "first"; second.identifier = "second"
+    var multi = MenuBarItemAXCache()
+    multi.update([first, second], runningPIDs: [42], hiddenDividerX: 800, alwaysHiddenDividerX: 500, menuBarBands: bands)
+    let firstID = multi.id(for: first), secondID = multi.id(for: second)
+    var replacement = MenuBarItemAXDiscovery.AXMenuBarItem(title: "replacement", axFrame: first.axFrame)
+    replacement.identifier = "first"
+    multi.update([replacement, second], runningPIDs: [42], hiddenDividerX: 800, alwaysHiddenDividerX: 500, menuBarBands: bands)
+    expect("multi-item hosts reconcile only unique identifiers and preserve siblings", multi.id(for: replacement) == firstID && multi.id(for: second) == secondID && firstID != secondID && multi.merging([replacement, second]).count == 2)
     exit(failures == 0 ? 0 : 1)
 }
 await runTests()

@@ -103,15 +103,31 @@ The C0 menu safety check compiles the production menu guard and activation/lengt
 methods against controlled services. Discovery and AX activation checks also
 cover reentrant scans and foreign-popup rehide protection. See [C0 audit](../docs/c0-issue-audit.md).
 
-## Menu bar AX thread regression checks
+## Floe Bar appearance regression checks
 
 ```bash
 swift script/tests/floe-bar-appearance.swift
 ```
 
-Compiles the production probe with a controlled AX service. Checks that both
-main-thread and background callers perform hit testing and attribute reads on
-the main thread, return value snapshots, and finish without deadlocking.
+Compiles the production appearance manager against controlled preferences. Checks
+legacy color/shape migration, independent persistence, reload precedence and
+single initialization, plus the floating bar's observation of its manager.
+
+## Startup AX discovery regression checks
+
+```bash
+swift script/tests/startup-ax-discovery.swift
+swift script/tests/menu-bar-visibility-recovery.swift
+swift script/tests/ax-item-press.swift
+```
+
+Checks initial section capture before hiding, retained identities after the first
+collapsed scan, cleanup and current-state restoration. The discovery fixture
+covers shared menu bar windows, original process ownership, source/proxy merging,
+distinct same-owner icons, popup exclusion and per-host traversal budgets.
+It also verifies owned overflow expansion/cleanup and rejecting a different
+application at the drag source. `ax-row-filter.swift` checks stable logical IDs
+across AX representation changes, duplicate prevention and confirmed sections.
 
 ## Floe Bar regression checks
 

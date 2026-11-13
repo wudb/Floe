@@ -1046,7 +1046,7 @@ private struct FloeBarContentView: View {
             }
             rows.append(
                 AXRowItem(
-                    id: stableID(for: "ax:\(item.pid):\(CFHash(item.element))"),
+                    id: stableID(for: "ax:\(itemManager.axItemCache.id(for: item))"),
                     item: item,
                     title: item.title,
                     displayName: item.displayName,

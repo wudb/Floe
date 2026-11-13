@@ -640,7 +640,10 @@ struct MenuBarLayoutSettingsPane: View {
         guard let frame = item.quartzFrame, let destination,
               let screen = NSScreen.screens.first(where: { CGDisplayBounds($0.displayID).contains(CGPoint(x: frame.midX, y: frame.midY)) }),
               CGDisplayBounds(screen.displayID).contains(destination), abs(frame.midY - destination.y) <= 8 else { return false }
-        return await performDrag(from: CGPoint(x: frame.midX, y: frame.midY), to: destination)
+        let source = CGPoint(x: frame.midX, y: frame.midY)
+        guard let target = axSnapshot.first(where: { "ax:\(appState.itemManager.axItemCache.id(for: $0))" == item.id }),
+              MenuBarItemAXDiscovery.isItemAtPosition(target, point: source) else { return false }
+        return await performDrag(from: source, to: destination)
     }
 
     /// 分区空白处的落点只改变分区；同区放下不重排已有图标。
@@ -683,16 +686,26 @@ struct MenuBarLayoutSettingsPane: View {
             section.setState(.showItems, persist: false)
             return (section, section.stateRevision)
         }
+        var expandedOverflow = false
         defer {
             _ = restoreLayoutSections(revealed)
+            if expandedOverflow { _ = MenuBarItemAXDiscovery.setOverflowExpanded(false, in: NSWorkspace.shared.runningApplications) }
             appState.itemManager.isEditingLayout = false
             pendingMoves.remove(itemID)
             movePreview = nil
             isMoving = false
             dropTargetID = nil
+            applySnapshotFromCache()
         }
         if !revealed.isEmpty {
             do { try await Task.sleep(for: .milliseconds(250)) } catch { return }
+        }
+        if itemID.hasPrefix("ax:") {
+            // 先让 Floe 分隔符的长度变更落地，再展开系统溢出区，避免重排立即收回刚展开的图标。
+            expandedOverflow = MenuBarItemAXDiscovery.setOverflowExpanded(true, in: NSWorkspace.shared.runningApplications)
+            if expandedOverflow {
+                do { try await Task.sleep(for: .milliseconds(250)) } catch { return }
+            }
         }
 
         // CGS 原生移动按身份即时解析窗口，不需要事先重扫全表；AX 坐标路径才刷新帧。
@@ -715,20 +728,9 @@ struct MenuBarLayoutSettingsPane: View {
         var confirmed = await waitForDropResult(itemID: itemID, to: kind, before: targetID)
         guard !Task.isCancelled else { return }
         let restored = restoreLayoutSections(revealed)
-        if confirmed, restored {
+        if confirmed, restored, usesNativeMove {
             // 收起会再次改变窗口位置；收起后的确认也必须完成，不能留给手动刷新。
             confirmed = await waitForDropResult(itemID: itemID, to: kind, before: targetID)
-            if !confirmed, !Task.isCancelled, itemID.hasPrefix("ax:"), findItem(id: itemID) == nil {
-                // 27 收起后会移除隐藏项的 AX 节点，缺席不能说明刚才的移动失败。
-                // 再临时展开并从系统确认真实分区与顺序，结束或取消时恢复，避免用预览猜测成功。
-                let verificationReveal = appState.menuBarManager.sections.compactMap { section -> (MenuBarSection, Int)? in
-                    guard section.isEnabled, section.controlItem.state == .hideItems else { return nil }
-                    section.setState(.showItems, persist: false)
-                    return (section, section.stateRevision)
-                }
-                defer { _ = restoreLayoutSections(verificationReveal) }
-                confirmed = await waitForDropResult(itemID: itemID, to: kind, before: targetID)
-            }
         } else if !confirmed {
             await refreshAfterDrop()
         }
@@ -904,8 +906,8 @@ struct MenuBarLayoutSettingsPane: View {
 
     /// Command-drag drop point for the destination group (Quartz coordinates,
     /// top-left origin, same system as `CGEvent`): inside that group's region,
-    /// offset from the divider so it doesn't land in the divider's hitbox. The
-    /// Hidden group sits between two dividers, so drop at the midpoint to be safe.
+    /// offset from the divider so it doesn't land in the divider's hitbox.
+    /// 隐藏分区靠右侧分隔符插入，避免跨刘海的分区中点落在屏幕不可交互区域。
     private func destinationPoint(for kind: MenuBarItemAXDiscovery.SectionKind) -> CGPoint? {
         switch kind {
         case .visible:
@@ -917,10 +919,8 @@ struct MenuBarLayoutSettingsPane: View {
             guard let x = hiddenDividerX else {
                 return nil
             }
-            if let ahX = alwaysHiddenDividerX, ahX < x {
-                return CGPoint(x: (ahX + x) / 2, y: anchorY)
-            }
-            return CGPoint(x: x - 24, y: anchorY)
+            // 两个分隔符可能分处刘海两侧，中点会落入摄像头区域；紧邻右边界插入。
+            return CGPoint(x: x - 8, y: anchorY)
         case .alwaysHidden:
             guard let x = alwaysHiddenDividerX else {
                 return nil
@@ -1212,7 +1212,7 @@ struct MenuBarLayoutSettingsPane: View {
                 : appState.itemManager.axItemCache.section(for: item) ?? kind(centerX: item.axFrame?.midX)
             grouped[section, default: []].append(
                 RowItem(
-                    id: stableID(for: "ax:\(item.pid):\(CFHash(item.element))"),
+                    id: stableID(for: "ax:\(appState.itemManager.axItemCache.id(for: item))"),
                     title: item.displayName,
                     subtitle: item.subtitle,
                     systemImage: systemImage,

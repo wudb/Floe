@@ -22,8 +22,12 @@ defer { try? FileManager.default.removeItem(at: directory) }
 let fixture = #"""
 import Foundation
 import CoreGraphics
+struct NSWorkspace { static let shared = Self(); let runningApplications = [Int]() }
 @MainActor enum NSEvent { static var pressedMouseButtons = 0 }
-enum MenuBarItemAXDiscovery { enum SectionKind: Hashable { case visible, hidden, alwaysHidden } }
+enum MenuBarItemAXDiscovery {
+    enum SectionKind: Hashable { case visible, hidden, alwaysHidden }
+    static func setOverflowExpanded(_ expanded: Bool, in apps: [Int]) -> Bool { false }
+}
 final class Advanced { var enableAlwaysHiddenSection = true }
 final class Settings { let advancedSettingsManager = Advanced() }
 @MainActor final class MenuBarSection {
@@ -73,6 +77,7 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
         sections = live
     }
     func refreshAfterDrop() async { refreshes += 1; await rescanAfterDrag() }
+    func applySnapshotFromCache() {}
     func rescanAfterDrag() async {
         reads += 1
         if pauseFirstRead {
@@ -204,14 +209,14 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
         precondition(failed.sections[.visible]?.map(\.id) == ["cgs:a", "cgs:b", "cgs:c"] && failed.appState.itemManager.records == 0)
 
         let finishing = Pane()
-        finishing.seed([.hidden: ["a"]]); finishing.pauseFinalRead = true
-        let finishingTask = Task { await finishing.drop(itemID: "a", to: .visible) }
+        finishing.seed([.hidden: ["cgs:a"]]); finishing.pauseFinalRead = true
+        let finishingTask = Task { await finishing.drop(itemID: "cgs:a", to: .visible) }
         while finishing.finalRead == nil { await Task.yield() }
         precondition(finishing.isMoving && finishing.appState.itemManager.isEditingLayout && finishing.movePreview != nil, "collapse readback retains edit ownership and preview")
         finishing.finalRead?.resume(); await finishingTask.value
         precondition(!finishing.isMoving && !finishing.appState.itemManager.isEditingLayout)
 
-        // 27 收起后隐藏项不再有 AX 节点；必须再展开读回系统位置，不能把缺席判为移动失败。
+        // 27 在展开状态确认真实落点，收起后的缺席/占位坐标不能推翻已确认的移动。
         let parkedAX = Pane()
         parkedAX.seed([.visible: ["ax:a", "existing"]]); parkedAX.omitCollapsedAXItems = true
         await parkedAX.drop(itemID: "ax:a", to: .hidden)
@@ -219,13 +224,12 @@ func withAnimation(_ animation: Animation, _ body: () -> Void) { body() }
         precondition(parkedAX.sections[.hidden]?.map(\.id) == ["ax:a"])
         precondition(parkedAX.appState.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems && $0.writes == 0 })
 
-        let relocatedAX = Pane()
-        relocatedAX.seed([.visible: ["ax:a", "existing"]])
-        relocatedAX.omitCollapsedAXItems = true; relocatedAX.relocateCollapsedAXItems = true
-        await relocatedAX.drop(itemID: "ax:a", to: .hidden)
-        precondition(relocatedAX.moveFailed && relocatedAX.appState.itemManager.records == 0,
-                     "reveal must verify the real destination, not trust the previous expanded snapshot")
-        precondition(relocatedAX.appState.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems && $0.writes == 0 })
+        let unmovedAX = Pane()
+        unmovedAX.seed([.alwaysHidden: ["ax:a"], .hidden: ["existing"]]); unmovedAX.fail = true
+        await unmovedAX.drop(itemID: "ax:a", to: .hidden)
+        precondition(unmovedAX.moveFailed && unmovedAX.appState.itemManager.records == 0,
+                     "an AX move that never reaches the requested section must fail from the expanded system snapshot")
+        precondition(unmovedAX.appState.menuBarManager.sections.allSatisfy { $0.controlItem.state == .hideItems && $0.writes == 0 })
 
         let cancelled = Pane()
         cancelled.seed([.hidden: ["a"]])

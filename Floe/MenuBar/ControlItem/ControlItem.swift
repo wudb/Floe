@@ -163,6 +163,10 @@ final class ControlItem {
     /// 恢复模式先释放所有隐藏占位；macOS 27 全程只使用公开长度，不调整共享窗口大小。
     private func applyStatusItemLayout(isVisible: Bool, state: HidingState) {
         guard let section else { return }
+        if isSectionDivider, appState?.menuBarManager.isPreparingInitialAXSnapshot == true {
+            applyStatusItemLength(Lengths.standard)
+            return
+        }
         if isSectionDivider, appState?.menuBarManager.isMenuBarRecoveryActive == true {
             applyStatusItemLength(1)
             return
@@ -409,7 +413,8 @@ final class ControlItem {
             return
         }
 
-        let displayState: HidingState = appState.menuBarManager.isMenuBarRecoveryActive ? .showItems : state
+        let preparingSnapshot = appState.menuBarManager.isPreparingInitialAXSnapshot
+        let displayState: HidingState = appState.menuBarManager.isMenuBarRecoveryActive || preparingSnapshot ? .showItems : state
         switch section.name {
         case .visible:
             isVisible = true
@@ -455,7 +460,7 @@ final class ControlItem {
                 button.isHighlighted = false
                 button.image = nil
             case .showItems:
-                let shouldShowDivider = appState.settingsManager.advancedSettingsManager.showSectionDividers
+                let shouldShowDivider = preparingSnapshot || appState.settingsManager.advancedSettingsManager.showSectionDividers
                 // ponytail: same sliver collapse as the $showSectionDividers sink
                 // — a `Lengths.standard` item with no image left a ~40pt gap
                 // between the revealed section and the next one.

@@ -112,7 +112,9 @@ final class MenuBarItemManager: ObservableObject {
             runningPIDs: Set(NSWorkspace.shared.runningApplications.map(\.processIdentifier)),
             hiddenDividerX: hiddenDividerX,
             alwaysHiddenDividerX: alwaysHiddenDividerX,
-            menuBarBands: bands
+            menuBarBands: bands,
+            allowHiddenSectionChanges: appState?.menuBarManager.isPreparingInitialAXSnapshot == true ||
+                appState?.menuBarManager.sections.filter({ $0.isEnabled && $0.name != .visible }).allSatisfy({ $0.controlItem.state == .showItems }) == true
         )
     }
 

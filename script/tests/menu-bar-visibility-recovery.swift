@@ -114,6 +114,7 @@ final class MenuBarManager {
     var sections = [MenuBarSection]()
     let floeBarPanel = Panel()
     var isMenuBarRecoveryActive = false
+    var isPreparingInitialAXSnapshot = false
     var statesBeforeMenuBarRecovery = [MenuBarSection.Name: ControlItem.HidingState]()
     func section(withName name: MenuBarSection.Name) -> MenuBarSection? { sections.first { $0.name == name } }
 __RECOVERY__
@@ -157,6 +158,15 @@ __POLICY__
 
         let app = AppState(), manager = app.menuBarManager
         let visible = manager.section(withName: .visible)!, hidden = manager.section(withName: .hidden)!, always = manager.section(withName: .alwaysHidden)!
+        manager.isPreparingInitialAXSnapshot = true
+        hidden.controlItem.updateStatusItem(with: .hideItems)
+        precondition(hidden.controlItem.statusItem.length == ControlItem.Lengths.standard)
+        precondition(hidden.controlItem.statusItem.button!.image != nil)
+        precondition(hidden.controlItem.state == .hideItems && hidden.writes == 0)
+        manager.isPreparingInitialAXSnapshot = false
+        hidden.controlItem.updateStatusItem(with: hidden.controlItem.state)
+        precondition(hidden.controlItem.statusItem.length > 1)
+        print("PASS: first AX snapshot keeps dividers readable before hiding without persisting a reveal")
         hidden.controlItem.applyStatusItemLayout(isVisible: false, state: .showItems)
         precondition(hidden.controlItem.statusItem.length == 1)
         precondition(hidden.controlItem.constraint!.writes == 0 && hidden.controlItem.window!.writes == 0)
