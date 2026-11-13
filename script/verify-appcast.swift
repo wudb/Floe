@@ -53,7 +53,18 @@ do {
     try require("v\(version)" == tag, "Archive version does not match release tag")
     try require(info["CFBundleIdentifier"] as? String == "com.float.floe", "Archive bundle identifier mismatch")
     try require(configuration["SUFeedURL"] as? String == feedURL, "Unexpected configured update feed")
-    try require(asset["url"] as? String == downloadURL, "Unexpected release download URL")
+    if metadata["isDraft"] as? Bool == true {
+        // GitHub 草稿附件使用 untagged 临时地址，正式发布后才切换为标签地址。
+        let assetURL = URL(string: asset["url"] as? String ?? "")
+        try require(
+            assetURL?.scheme == "https" && assetURL?.host == "github.com" &&
+                assetURL?.path.hasPrefix("/wudb/Floe/releases/download/") == true &&
+                assetURL?.lastPathComponent == "Floe.zip",
+            "Unexpected draft release download URL"
+        )
+    } else {
+        try require(asset["url"] as? String == downloadURL, "Unexpected release download URL")
+    }
     try require(asset["state"] as? String == "uploaded", "Release archive upload is incomplete")
     try require(asset["size"] as? Int == archive.count, "Release archive size mismatch")
     let digest = SHA256.hash(data: archive).map { String(format: "%02x", $0) }.joined()

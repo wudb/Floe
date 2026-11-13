@@ -57,7 +57,7 @@ fi
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/Floe-appcast.XXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
 PREFIX="https://github.com/wudb/Floe/releases/download/$TAG/"
-gh release view "$TAG" -R wudb/Floe --json tagName,isPrerelease,publishedAt,assets,body > "$WORK/release.json"
+gh release view "$TAG" -R wudb/Floe --json tagName,isDraft,isPrerelease,publishedAt,assets,body > "$WORK/release.json"
 gh release download "$TAG" -R wudb/Floe -p Floe.zip -D "$WORK"
 unzip -p "$WORK/Floe.zip" Floe.app/Contents/Info.plist > "$WORK/archive.plist"
 python3 - "$WORK/release.json" "$WORK/Floe.md" <<'PY'

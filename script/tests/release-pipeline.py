@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """在临时仓库验证发布规则与失败保护；不构建、发布或改动真实版本。"""
 import importlib.util
+import hashlib
+import json
 import os
 from pathlib import Path
 import plistlib
@@ -136,6 +138,78 @@ class ReleaseChecks(unittest.TestCase):
                                             ("1.0.1", "2351", "wrong.identifier")]:
             with self.assertRaises(ValueError):
                 module.verify_app(app, version, build, identifier)
+
+
+class AppcastChecks(unittest.TestCase):
+    """使用固定测试签名验证草稿发布与错误拦截，不读取真实发布私钥。"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.build_directory = tempfile.TemporaryDirectory(prefix="Floe-appcast-verifier-")
+        cls.addClassCleanup(cls.build_directory.cleanup)
+        cls.verifier = Path(cls.build_directory.name) / "verify-appcast"
+        subprocess.run(["swiftc", str(ROOT / "script/verify-appcast.swift"), "-o", str(cls.verifier),
+                        "-module-cache-path", str(Path(cls.build_directory.name) / "modules")], check=True)
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix="Floe-appcast-test-")
+        self.addCleanup(self.temporary.cleanup)
+        self.directory = Path(self.temporary.name)
+        self.archive = b"Floe appcast test archive"
+        self.public_key = "6kpsY+KcUgq+9VB7Ey7F+ZVHdq6+vnuSQh7qaRRG0iw="
+        self.signature = "fgqTNoelv9hFMkyArXUDifi9B0grXY3ylLp4JGbbYoDJNXgF/Vwfo47TJsIWq0zHz5f4kNHvzr9upCs/ss3xDQ=="
+        self.feed = "https://github.com/wudb/Floe/releases/latest/download/appcast.xml"
+        self.download = "https://github.com/wudb/Floe/releases/download/v1.0.4/Floe.zip"
+        self.configuration = {"SUPublicEDKey": self.public_key, "SUFeedURL": self.feed}
+        self.info = {**self.configuration, "CFBundleVersion": "2354", "CFBundleShortVersionString": "1.0.4",
+                     "CFBundleIdentifier": "com.float.floe", "LSMinimumSystemVersion": "14.0"}
+        self.metadata = {"tagName": "v1.0.4", "isDraft": False, "isPrerelease": False,
+                         "assets": [{"name": "Floe.zip", "url": self.download, "state": "uploaded",
+                                     "size": len(self.archive),
+                                     "digest": "sha256:" + hashlib.sha256(self.archive).hexdigest()}]}
+
+    def verify(self):
+        (self.directory / "Floe.zip").write_bytes(self.archive)
+        (self.directory / "archive.plist").write_bytes(plistlib.dumps(self.info))
+        (self.directory / "config.plist").write_bytes(plistlib.dumps(self.configuration))
+        (self.directory / "release.json").write_text(json.dumps(self.metadata))
+        (self.directory / "appcast.xml").write_text(
+            '<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">'
+            '<channel><item><sparkle:version>2354</sparkle:version>'
+            '<sparkle:shortVersionString>1.0.4</sparkle:shortVersionString>'
+            '<sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>'
+            f'<enclosure url="{self.download}" length="{len(self.archive)}" '
+            f'sparkle:edSignature="{self.signature}"/></item></channel></rss>')
+        return subprocess.run([str(self.verifier), str(self.directory / "appcast.xml"),
+                               str(self.directory / "Floe.zip"), str(self.directory / "archive.plist"),
+                               str(self.directory / "config.plist"), str(self.directory / "release.json"),
+                               "v1.0.4", "false"], capture_output=True, text=True)
+
+    def test_published_and_draft_asset_urls(self):
+        result = self.verify()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.metadata["isDraft"] = True
+        self.metadata["assets"][0]["url"] = "https://github.com/wudb/Floe/releases/download/untagged-example/Floe.zip"
+        result = self.verify()
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_reject_foreign_draft_asset_and_published_temporary_url(self):
+        self.metadata["isDraft"] = True
+        self.metadata["assets"][0]["url"] = "https://github.com/other/Floe/releases/download/untagged-example/Floe.zip"
+        self.assertIn("Unexpected draft release download URL", self.verify().stderr)
+        self.metadata["isDraft"] = False
+        self.metadata["assets"][0]["url"] = "https://github.com/wudb/Floe/releases/download/untagged-example/Floe.zip"
+        self.assertIn("Unexpected release download URL", self.verify().stderr)
+
+    def test_reject_wrong_signature_and_archive_key(self):
+        self.signature = "AA" + self.signature[2:]
+        self.assertIn("signature does not match", self.verify().stderr)
+        self.info["SUPublicEDKey"] = "wrong-key"
+        self.assertIn("Archive public key mismatch", self.verify().stderr)
+
+    def test_reject_changed_archive(self):
+        self.archive = b"X" + self.archive[1:]
+        self.assertIn("SHA-256 mismatch", self.verify().stderr)
 
 
 if __name__ == "__main__":
