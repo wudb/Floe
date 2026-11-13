@@ -8,7 +8,7 @@
   <p><a href="https://github.com/wudb/Floe/releases">Download</a> · <a href="https://github.com/wudb/Floe/issues">Report an issue</a> · <a href="LICENSE">GPL-3.0</a></p>
 </div>
 
-**macOS 14 Sonoma or later** · **English and Simplified Chinese** · **Current source version: 1.0.3**
+**macOS 14 Sonoma or later** · **English and Simplified Chinese** · **Current source version: 1.0.4**
 
 ## A clearer view of your menu bar
 
@@ -35,7 +35,13 @@ The current release workflow uses ad-hoc signing without notarization. If macOS 
 xattr -d com.apple.quarantine /Applications/Floe.app
 ```
 
-Updates are currently installed manually from [Releases](https://github.com/wudb/Floe/releases).
+Floe 1.0.4 enables daily update checks through GitHub Releases. **About Floe**
+provides **Check for Updates**, automatic checks, and an optional **Automatically
+download and install updates** switch. Downloaded automatic updates install when
+Floe quits. You can also choose **Install and Relaunch** in the update window.
+Users of 1.0.3 and earlier must manually install 1.0.4 once from [Releases](https://github.com/wudb/Floe/releases).
+Ad-hoc signed builds may require granting Accessibility and Screen Recording
+again after an update. Floe opens its permissions window when required access is missing.
 
 ## Organize your icons
 
@@ -98,7 +104,7 @@ The sidebar keeps each set of controls in a dedicated page:
 | **Floe Bar Appearance** | Floe Bar rounded ends, tint, gradients, blur, borders and shadow. |
 | **Hotkeys** | Shortcuts for sections, search, Floe Bar and other menu bar actions. |
 | **Advanced** | Always Hidden, section dividers, reveal delays and additional behavior. |
-| **About Floe** | App version and project links. |
+| **About Floe** | App version, project links and update controls in configured builds. |
 
 **App appearance:** choose **Follow System**, **Light** or **Dark** in **General → Appearance**. The choice is saved and applied immediately to Floe's windows and default floating bar. Floating-bar styling has its own controls in **Floe Bar Appearance**.
 

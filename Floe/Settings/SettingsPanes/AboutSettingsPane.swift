@@ -96,7 +96,7 @@ struct AboutSettingsPane: View {
         FloeSection(options: .plain) {
             automaticallyCheckForUpdates
             automaticallyDownloadUpdates
-            if updatesManager.canCheckForUpdates {
+            if updatesManager.isUpdateFeedConfigured {
                 checkForUpdates
             }
         }
@@ -120,13 +120,15 @@ struct AboutSettingsPane: View {
     @ViewBuilder
     private var automaticallyDownloadUpdates: some View {
         Toggle(
-            "Automatically download updates",
+            "Automatically download and install updates",
             isOn: updatesManager.bindings.automaticallyDownloadsUpdates
         )
         .disabled(!updatesManager.automaticallyChecksForUpdates)
         .annotation {
             if !updatesManager.automaticallyChecksForUpdates {
                 Text("Turn on automatic checks to enable automatic downloads")
+            } else {
+                Text("Updates install when Floe quits. You can also install and restart immediately.")
             }
         }
     }
@@ -137,6 +139,7 @@ struct AboutSettingsPane: View {
             Button("Check for Updates") {
                 updatesManager.checkForUpdates()
             }
+            .disabled(!updatesManager.canCheckForUpdates)
             Spacer()
             Text("Last checked: \(lastUpdateCheckString)")
                 .font(.caption)

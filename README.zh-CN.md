@@ -8,7 +8,7 @@
   <p><a href="https://github.com/wudb/Floe/releases">下载应用</a> · <a href="https://github.com/wudb/Floe/issues">反馈问题</a> · <a href="LICENSE">GPL-3.0 许可证</a></p>
 </div>
 
-**macOS 14 Sonoma 及以上** · **英语 / 简体中文** · **当前源码版本：1.0.3**
+**macOS 14 Sonoma 及以上** · **英语 / 简体中文** · **当前源码版本：1.0.4**
 
 ## 重新整理你的菜单栏
 
@@ -35,7 +35,10 @@
 xattr -d com.apple.quarantine /Applications/Floe.app
 ```
 
-目前通过[发布页面](https://github.com/wudb/Floe/releases)手动下载安装更新。
+Floe 1.0.4 默认每天通过 GitHub Releases 检查更新。可在**关于 Floe**中点击**检查更新**、设置自动检查，或开启**自动下载并安装更新**。
+自动下载的更新会在 Floe 退出时安装，也可在更新窗口中选择**安装并重启应用**。
+1.0.3 及更早版本的用户需要先从[发布页面](https://github.com/wudb/Floe/releases)手动安装一次 1.0.4。
+ad-hoc 签名构建更新后可能需要重新授予辅助功能和屏幕录制权限，缺少必要权限时 Floe 会打开授权窗口。
 
 ## 整理菜单栏图标
 
@@ -98,7 +101,7 @@ xattr -d com.apple.quarantine /Applications/Floe.app
 | **浮栏外观** | 浮栏端点圆角、纯色或渐变着色、模糊、边框和阴影。 |
 | **快捷键** | 分区展开、项目搜索、浮栏及其他菜单栏操作的快捷键。 |
 | **高级** | 始终隐藏分区、分隔符、展开延迟及其他行为选项。 |
-| **关于 Floe** | 应用版本与项目链接。 |
+| **关于 Floe** | 应用版本、项目链接及已配置构建的更新控制。 |
 
 **应用外观：**在**通用 → 外观**中选择**跟随系统**、**浅色**或**深色**，选择会保存并立即应用到 Floe 窗口与默认浮栏。浮栏背景、边框和圆角可在**浮栏外观**中调整。
 

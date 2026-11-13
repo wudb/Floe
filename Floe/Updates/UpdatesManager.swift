@@ -132,6 +132,32 @@ extension UpdatesManager: SPUUpdaterDelegate {
         }
         appState.userNotificationManager.requestAuthorization()
     }
+
+    // 记录更新阶段，便于区分更新源、下载、安装和重启时的真实故障。
+    func updater(_ updater: SPUUpdater, didFindValidUpdate item: SUAppcastItem) {
+        Logger.updates.info("Found update \(item.displayVersionString) (\(item.versionString))")
+    }
+
+    func updater(_ updater: SPUUpdater, didDownloadUpdate item: SUAppcastItem) {
+        Logger.updates.info("Downloaded update \(item.displayVersionString)")
+    }
+
+    func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
+        Logger.updates.info("Installing update \(item.displayVersionString)")
+    }
+
+    func updater(_ updater: SPUUpdater, didFinishUpdateCycleFor updateCheck: SPUUpdateCheck, error: (any Error)?) {
+        guard let error else {
+            Logger.updates.info("Update check completed")
+            return
+        }
+        let sparkleError = error as NSError
+        if sparkleError.domain == SUSparkleErrorDomain, sparkleError.code == Int(SUError.noUpdateError.rawValue) {
+            Logger.updates.info("No newer compatible update available")
+        } else {
+            Logger.updates.error("Update check ended: \(error)")
+        }
+    }
 }
 
 // MARK: UpdatesManager: SPUStandardUserDriverDelegate
@@ -184,3 +210,8 @@ extension UpdatesManager: @preconcurrency SPUStandardUserDriverDelegate {
 
 // MARK: UpdatesManager: BindingExposable
 extension UpdatesManager: BindingExposable { }
+
+// MARK: - Logger
+private extension Logger {
+    static let updates = Logger(category: "Updates")
+}

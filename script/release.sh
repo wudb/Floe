@@ -1,7 +1,7 @@
 #!/bin/bash
 # Tag + push to trigger the shared ZIP/DMG packaging workflow.
 # Usage: ./script/release.sh vX.Y.Z   (e.g. ./script/release.sh v0.11.13)
-# Automatic updates stay disabled until Floe owns its feed and signing key.
+# 发布安装包后，运行 update-appcast.sh 生成并上传 Floe 的签名更新清单。
 set -euo pipefail
 cd "$(dirname "$0")/.."
 source ./script/lib/build-settings.sh
@@ -26,3 +26,4 @@ floe_validate_release_tag "$TAG"
 git tag "$TAG"
 git push origin "$TAG"
 echo "pushed $TAG — watch CI for verified Floe.zip, Floe.dmg, SHA256SUMS.txt and build-info.json"
+echo "After the ZIP is uploaded, publish the update feed and promote latest: ./script/update-appcast.sh $TAG --publish"

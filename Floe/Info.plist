@@ -2,7 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>SUFeedURL</key>
+	<string>https://github.com/wudb/Floe/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>dZ2+2inBPi8igXzts+iEo2XV7+VI5S6bqAhIn0D3YG4=</string>
 	<key>SUEnableAutomaticChecks</key>
-	<false/>
+	<true/>
 </dict>
 </plist>

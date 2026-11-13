@@ -47,6 +47,7 @@ jobs:
             release/${{ github.ref_name }}/build-info.json
           fail_on_unmatched_files: true
           generate_release_notes: true
+          make_latest: false
   update-homebrew:
     needs: release
     runs-on: ubuntu-latest
@@ -102,7 +103,7 @@ jobs:
           git add Casks/floe.rb
           git diff --cached --quiet || git commit -m "floe ${{ env.VERSION }}"
           git push
-# After the Release finishes, publish the appcast so installed apps see it:
-#   ./script/update-appcast.sh <tag> --key <private-key.pem>
-# Configure FLOE_RELEASES_REPO, SUFeedURL and SUPublicEDKey for Floe first.
-# ponytail: ad-hoc signing is for internal testing only, public releases need Developer ID + notarization
+# Publish appcast.xml from the Mac holding Floe's private key after the ZIP is uploaded:
+#   SPARKLE_BIN=/path/to/Sparkle/bin ./script/update-appcast.sh <tag> --publish
+# The script signs, verifies and uploads the feed using the com.float.floe Keychain account.
+# Current packages use ad-hoc signing. Validate installation and permission continuity on upgrades.

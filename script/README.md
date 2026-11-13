@@ -207,7 +207,8 @@ python3 script/tests/release-pipeline.py
 directory. `FLOE_DERIVED_DATA_PATH` selects the build cache and
 `FLOE_SOURCE_PACKAGES_PATH` optionally reuses a Swift package cache. The scripts
 do not install or launch the result. Builds remain ad-hoc signed and are not
-notarized; automatic updates remain disabled.
+notarized. macOS may require Accessibility and Screen Recording to be granted
+again after the signature changes.
 
 Homebrew publishing is optional:
 configure `FLOE_HOMEBREW_TAP` as a repository variable and
@@ -215,25 +216,77 @@ configure `FLOE_HOMEBREW_TAP` as a repository variable and
 
 ## Automatic updates
 
-Floe does not use the upstream Ice appcast or public key. Automatic updates are
-currently disabled. Before enabling them:
+Floe's public key and GitHub Releases feed are configured in `Floe/Info.plist`.
+Version 1.0.4 enables daily automatic checks by default. Users control automatic
+checks and downloads/installation in **About Floe**. Users of 1.0.3 and earlier
+must manually install 1.0.4 once to enter the update channel.
 
-1. Create and host Floe's own appcast repository; configure its Git URL through
-   `FLOE_RELEASES_REPO` or `--releases-repo`.
-2. Configure `SUFeedURL` and Floe's `SUPublicEDKey` in `Floe/Info.plist`, and enable
-   `SUEnableAutomaticChecks` if automatic checks should be on by default.
-3. Keep the matching Sparkle private key outside Git, or use the Keychain.
-4. Publish the appcast after each GitHub Release:
+The private Ed25519 key lives in the publishing Mac's login Keychain under the
+`com.float.floe` account. Use this same key for subsequent releases. Keep an
+encrypted backup outside Git. Sparkle's `generate_keys --account com.float.floe -p`
+prints the public key only. `SPARKLE_BIN` selects the Sparkle distribution's `bin`
+directory, available in the Xcode package artifacts cache.
+
+Run the following command after uploading a release's `Floe.zip`.
 
 ```bash
-./script/update-appcast.sh vX.Y.Z --releases-repo <git-url> --key <private-key.pem>
+SPARKLE_BIN=/path/to/Sparkle/bin ./script/update-appcast.sh vX.Y.Z --publish
 ```
 
-This downloads `Floe.zip` from `wudb/Floe`; verify the configured `SUFeedURL`
-contains the new tag. The script requires `gh` and Sparkle's `generate_appcast`.
+The script downloads the actual GitHub archive, generates a full-update appcast,
+verifies the bundle ID, version, embedded update configuration, size, GitHub
+SHA-256 and Ed25519 signature against Floe's configured public key, then uploads
+`appcast.xml` to the same release and downloads it again to compare bytes.
+Re-running replaces that release's appcast. The feed contains one full update
+with a version-specific ZIP URL, embedded release notes and minimum macOS
+requirement. `--publish` publishes a draft if needed, promotes the verified
+release to latest, and checks the public feed URL. It refuses to promote a
+version older than the existing latest. Omit `--publish` to upload the feed
+before a separate publication step.
+
+The configured feed is
+`https://github.com/wudb/Floe/releases/latest/download/appcast.xml`.
+For a new release, upload the ZIP and appcast to a draft before publishing it
+as latest. The CI workflow uploads packages without promoting latest. Run the
+signing script with `--publish` to complete publication. Every latest release
+must include `appcast.xml`. The script requires
+`gh`, Python 3, Swift, `generate_appcast` and `sign_update`. Allow Sparkle's tools
+to access the key when macOS requests it.
+
+`--account <name>` selects another Keychain account. For a private key file,
+use `--key /secure/path/key` or `SPARKLE_PRIVATE_KEY`; the script passes it using
+Sparkle's `--ed-key-file` option. Private key files must stay outside Git and
+release attachments. Local Keychain publishing requires no GitHub secret.
+
+The initial feed for the existing 1.0.3 archive uses
+`./script/update-appcast.sh v1.0.3 --bootstrap`. This signs a legacy archive that
+has no embedded update key. Subsequent configured builds use the normal command.
 
 Tags must follow `vX.Y.Z` and increase with each release. Never re-tag an old
 version. CI validates the tag against the committed Xcode version.
+
+### Real update acceptance
+
+On macOS 27.2.1, a disposable 1.0.3 starter with Floe's public key updated to the
+1.0.4 (2354) Release build using a signed full ZIP served on loopback.
+
+- The regular **Check for Updates** entry displayed the available 1.0.4 update,
+  downloaded it, then installed and relaunched into 1.0.4.
+- With automatic checks and downloads enabled in an isolated Sparkle defaults
+  domain, the startup check found and downloaded the update without a manual
+  check. Quitting installed 1.0.4, confirmed again on the next launch.
+- The installed executable matched the signed target and its bundle signature
+  passed strict verification. Missing permissions opened Floe's existing
+  permission window and could be skipped while checking updates.
+- The temporary starter had no Accessibility or Screen Recording grant.
+  Permission continuity across an ad-hoc signature change is therefore not
+  established by this test. Existing user settings and the development app were
+  restored after testing.
+
+The local runtime and HTTP evidence is kept under
+`/tmp/FloeUpdate104-acceptance/`. Public-feed publication additionally validates
+GitHub's archive digest, the configured Ed25519 public key, release metadata and
+the anonymous latest/download URL.
 
 ## Adaptive presentation regression checks
 
